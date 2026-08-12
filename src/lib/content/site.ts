@@ -1,41 +1,26 @@
 /**
- * Site-wide content: company identity, navigation, contact.
+ * Site-wide company identity.
  *
- * Romanian copy lives in these content modules (not buried in JSX) so a future
- * i18n pass can lift strings out cleanly and an English toggle can be added.
+ * Second Cycle is a brand / subproject of WEBBINGHUB S.R.L. — that company is
+ * the legal trader and seller, so its identifiers are what the law requires to
+ * be shown (Legea 365/2002, Legea 31/1990, OUG 34/2014).
  *
- * NOTE: The company legal details below are PLACEHOLDERS. They are intentionally
- * obvious (all-caps [...] tokens) so nothing false ships. Replace every token
- * with the real registered values before launch, the footer is the legal
- * seller identity and must be accurate.
+ * The registered address is published on a dedicated legal page (permanently
+ * linked from the footer), not in the footer itself.
  */
-
-export const PLACEHOLDER = "[DE COMPLETAT]";
-
 export const company = {
   name: "Second Cycle",
   tagline: "Biciclete second-hand, reparate și garantate.",
   city: "Timișoara",
   legal: {
-    // e.g. "Second Cycle S.R.L.", the legal entity that issues the invoice.
-    entityName: `Second Cycle ${PLACEHOLDER}`,
-    cui: PLACEHOLDER, // Cod unic de înregistrare
-    tradeRegister: PLACEHOLDER, // Nr. de ordine în Registrul Comerțului
-    address: PLACEHOLDER, // Sediu social
+    entityName: "WEBBINGHUB S.R.L.",
+    cui: "RO49317150",
+    tradeRegister: "J2023004928352",
+    address: "Str. Gheorghe Lazăr, nr. 34, Timișoara",
   },
   contact: {
-    email: PLACEHOLDER, // e.g. contact@second-cycle.ro
-    phone: PLACEHOLDER, // e.g. +40 7XX XXX XXX
+    email: "support@webbinghub.io",
+    phone: "+40 736 394 784",
   },
-} as const;
-
-export const nav = {
-  brand: company.name,
-  links: [
-    { href: "#cum-cumperi", label: "Cum cumperi" },
-    { href: "#cum-vinzi", label: "Vinde-ne bicicleta ta" },
-    { href: "#verificarea", label: "Verificarea" },
-    { href: "#drepturile-tale", label: "Drepturile tale" },
-  ],
-  primaryCta: { href: "#biciclete", label: "Vezi bicicletele" },
+  legalPageHref: "/date-legale",
 } as const;

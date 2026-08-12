@@ -175,7 +175,7 @@
 .home .foot li a{font-size:14.5px;color:rgba(237,239,234,.8)}
 .home .foot li a:hover{color:var(--hivis)}
 .home .foot__bot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:24px;color:rgba(237,239,234,.55);font-size:12.5px}
-.home .foot__bot .mono{font-size:11px}
+.home .foot__bot .mono{font-size:11px;text-transform:none;letter-spacing:.02em}
 
 .home [data-reveal]{opacity:0;transform:translateY(18px);transition:opacity .6s ease-out,transform .6s cubic-bezier(.2,.7,.3,1)}
 .home [data-reveal].in{opacity:1;transform:none}

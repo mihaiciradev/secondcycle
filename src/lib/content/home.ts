@@ -268,6 +268,7 @@ export const messages: Record<Locale, Dict> = {
           title: "Second Cycle",
           links: [
             { label: "Ce facem", href: "/despre" },
+            { label: "Date legale", href: "/date-legale" },
             { label: "Termeni și condiții", href: "/termeni" },
             { label: "Confidențialitate", href: "/confidentialitate" },
             { label: "Cookies", href: "/cookies" },
@@ -373,6 +374,7 @@ export const messages: Record<Locale, Dict> = {
           title: "Second Cycle",
           links: [
             { label: "What we do", href: "/despre" },
+            { label: "Company details", href: "/date-legale" },
             { label: "Terms", href: "/termeni" },
             { label: "Privacy", href: "/confidentialitate" },
             { label: "Cookies", href: "/cookies" },

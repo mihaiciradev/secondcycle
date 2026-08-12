@@ -8,22 +8,12 @@ const disclaimer =
 
 const legalLinks = [
   { href: "/despre", label: "Ce facem" },
+  { href: "/date-legale", label: "Date legale" },
   { href: "/formular-retragere", label: "Formular de retragere" },
   { href: "/termeni", label: "Termeni și condiții" },
   { href: "/confidentialitate", label: "Politica de confidențialitate" },
   { href: "/cookies", label: "Politica de cookies" },
 ];
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="font-mono text-xs uppercase tracking-[0.12em] text-paper/50">
-        {label}
-      </dt>
-      <dd className="font-mono text-sm text-paper/90">{value}</dd>
-    </div>
-  );
-}
 
 export function SiteFooter() {
   return (
@@ -54,19 +44,18 @@ export function SiteFooter() {
             ))}
           </nav>
 
-          <dl className="flex flex-col gap-4">
-            <Detail label="Firmă" value={company.legal.entityName} />
-            <Detail label="CUI" value={company.legal.cui} />
-            <Detail label="Reg. com." value={company.legal.tradeRegister} />
-            <Detail label="Sediu" value={company.legal.address} />
-            <Detail label="E-mail" value={company.contact.email} />
-            <Detail label="Telefon" value={company.contact.phone} />
-          </dl>
+          <div className="font-mono text-sm leading-relaxed text-paper/85">
+            <p>{company.legal.entityName}</p>
+            <p>{company.legal.cui}</p>
+            <p>{company.legal.tradeRegister}</p>
+            <p className="mt-3">{company.contact.email}</p>
+            <p>{company.contact.phone}</p>
+          </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/55 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {company.legal.entityName}. Toate drepturile rezervate.
+            © {new Date().getFullYear()} {company.name}. Toate drepturile rezervate.
           </p>
           <p className="font-mono">{company.city}, România</p>
         </div>

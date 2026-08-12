@@ -477,10 +477,12 @@ export default function Home() {
           </div>
           <div className="foot__bot">
             <span className="mono">
-              © {new Date().getFullYear()} {company.legal.entityName} · CUI {company.legal.cui} · {company.city},{" "}
-              {lang === "ro" ? "România" : "Romania"}
+              {company.legal.entityName} · {company.legal.cui} · {company.legal.tradeRegister} ·{" "}
+              {company.contact.email} · {company.contact.phone}
             </span>
-            <span>{t.footer.rightsLine}</span>
+            <span>
+              © {new Date().getFullYear()} {company.name} · {t.footer.rightsLine}
+            </span>
           </div>
         </div>
       </footer>
