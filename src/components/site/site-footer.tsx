@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { Container } from "@/components/site/section";
 import { company } from "@/lib/content/site";
-import { footer } from "@/lib/content/home";
+
+// Compact RO footer for the legal subpages (/despre, /formular-retragere).
+const disclaimer =
+  "Second Cycle vinde bicicletele în nume propriu. Emitem factura, semnăm contractul de vânzare și răspundem față de cumpărător pentru fiecare bicicletă.";
+
+const legalLinks = [
+  { href: "/despre", label: "Ce facem" },
+  { href: "/formular-retragere", label: "Formular de retragere" },
+  { href: "/termeni", label: "Termeni și condiții" },
+  { href: "/confidentialitate", label: "Politica de confidențialitate" },
+  { href: "/cookies", label: "Politica de cookies" },
+];
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
@@ -24,7 +35,7 @@ export function SiteFooter() {
               {company.name}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-paper/70">
-              {footer.disclaimer}
+              {disclaimer}
             </p>
           </div>
 
@@ -32,7 +43,7 @@ export function SiteFooter() {
             <p className="mb-1 font-mono text-xs uppercase tracking-[0.12em] text-paper/50">
               Legal
             </p>
-            {footer.legalLinks.map((link) => (
+            {legalLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
