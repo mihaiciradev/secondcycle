@@ -17,7 +17,7 @@ const steps = [
   },
   {
     t: "Un atelier partener o evaluează",
-    d: "Un preț corect de piață, garantat de atelier. Nu e inventat de noi.",
+    d: "Un preț corect de piață, garantat de atelier.",
   },
   {
     t: "O listăm",

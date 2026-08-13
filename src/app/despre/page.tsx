@@ -21,8 +21,8 @@ const positioning = [
     b: "Lucrăm în consignație: vindem bicicleta proprietarului, care primește o parte convenită din preț. La cumpărare, clientul alege și un nivel de reparație, care se adaugă la preț.",
   },
   {
-    t: "De ce e legal curat",
-    b: "Vindem în nume propriu. Noi emitem factura, semnăm contractul cu cumpărătorul și răspundem pentru bicicletă. Proprietarul nu apare niciodată în relația cu clientul.",
+    t: "Cine e vânzătorul",
+    b: "Vindem în nume propriu. Noi emitem factura, semnăm contractul cu cumpărătorul și răspundem pentru bicicletă. Proprietarul nu apare în relația cu clientul.",
   },
 ];
 
