@@ -190,6 +190,7 @@ export default function Home() {
             <a href="#bikes">{t.nav.bikes}</a>
             <a href="#sell">{t.nav.sell}</a>
             <a href="#check">{t.nav.check}</a>
+            <Link href="/account">{lang === "ro" ? "Cont" : "Account"}</Link>
           </nav>
           <div className="nav__end">
             <span className="lang" role="group" aria-label={lang === "ro" ? "Limbă" : "Language"}>
