@@ -90,11 +90,11 @@ export default function PrivacyPage() {
           <H2>De ce folosim datele și pe ce temei legal</H2>
           <List
             items={[
-              "Crearea și administrarea contului tău — executarea contractului (art. 6(1)(b) GDPR).",
-              "Procesarea comenzilor, facturarea și livrarea — executarea contractului și îndeplinirea obligațiilor legale (art. 6(1)(b) și (c)).",
-              "Trimiterea de comunicări de marketing — doar pe baza consimțământului tău, pe care îl poți retrage oricând (art. 6(1)(a)).",
-              "Securitate, prevenirea fraudei și buna funcționare — interesul nostru legitim (art. 6(1)(f)).",
-              "Respectarea obligațiilor contabile și fiscale — obligație legală (art. 6(1)(c)).",
+              "Crearea și administrarea contului tău: executarea contractului (art. 6(1)(b) GDPR).",
+              "Procesarea comenzilor, facturarea și livrarea: executarea contractului și îndeplinirea obligațiilor legale (art. 6(1)(b) și (c)).",
+              "Trimiterea de comunicări de marketing: doar pe baza consimțământului tău, pe care îl poți retrage oricând (art. 6(1)(a)).",
+              "Securitate, prevenirea fraudei și buna funcționare: interesul nostru legitim (art. 6(1)(f)).",
+              "Respectarea obligațiilor contabile și fiscale: obligație legală (art. 6(1)(c)).",
             ]}
           />
 
@@ -123,12 +123,12 @@ export default function PrivacyPage() {
           </P>
           <List
             items={[
-              "Neon — găzduirea bazei de date (regiune UE).",
-              "Vercel — găzduirea și livrarea aplicației.",
-              "Resend — trimiterea e-mailurilor tranzacționale și de marketing.",
-              "Cloudflare R2 — stocarea imaginilor.",
-              "Google — autentificarea cu Google.",
-              "Stripe — procesarea plăților cu cardul.",
+              "Neon: găzduirea bazei de date (regiune UE).",
+              "Vercel: găzduirea și livrarea aplicației.",
+              "Resend: trimiterea e-mailurilor tranzacționale și de marketing.",
+              "Cloudflare R2: stocarea imaginilor.",
+              "Google: autentificarea cu Google.",
+              "Stripe: procesarea plăților cu cardul.",
               "Autorităților publice, atunci când legea ne obligă.",
             ]}
           />
@@ -141,10 +141,10 @@ export default function PrivacyPage() {
           <H2>Cât timp păstrăm datele</H2>
           <List
             items={[
-              "Datele de cont — până când îți ștergi contul sau ne ceri ștergerea.",
-              "Comenzile și documentele fiscale — pe perioada impusă de legislația contabilă (până la 10 ani).",
-              "Datele de marketing — până când te dezabonezi.",
-              "Jurnalele tehnice — o perioadă limitată, necesară securității.",
+              "Datele de cont: până când îți ștergi contul sau ne ceri ștergerea.",
+              "Comenzile și documentele fiscale: pe perioada impusă de legislația contabilă (până la 10 ani).",
+              "Datele de marketing: până când te dezabonezi.",
+              "Jurnalele tehnice: o perioadă limitată, necesară securității.",
             ]}
           />
 

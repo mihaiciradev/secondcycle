@@ -31,7 +31,7 @@ export default async function AdminBikesPage() {
 
   return (
     <>
-      <SiteHeader admin />
+      <SiteHeader />
       <main id="continut" className="flex-1">
         <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Admin</p>

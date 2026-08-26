@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { BrandLogo } from "@/components/site/brand-logo";
 
-/** Interior-page header (catalogue, account, admin). The home page has its own. */
-export function SiteHeader({ admin = false }: { admin?: boolean }) {
+/** Interior-page header (catalogue, account, admin). Reflects auth state. */
+export async function SiteHeader() {
+  const session = await auth();
+  const authed = Boolean(session?.user?.id);
+  const isAdmin = session?.user?.role === "admin";
+
+  const link = "rounded-sm text-sm text-foreground/75 transition-colors hover:text-foreground";
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
@@ -13,18 +20,27 @@ export function SiteHeader({ admin = false }: { admin?: boolean }) {
         >
           <BrandLogo tone="light" height={40} priority />
         </Link>
-        <nav className="flex items-center gap-5 text-sm">
-          <Link href="/bikes" className="rounded-sm text-foreground/75 hover:text-foreground">
+        <nav className="flex items-center gap-5 sm:gap-6">
+          <Link href="/bikes" className={link}>
             Biciclete
           </Link>
-          {admin ? (
-            <Link href="/admin/bikes" className="rounded-sm text-foreground/75 hover:text-foreground">
+          {isAdmin ? (
+            <Link href="/admin/bikes" className={link}>
               Admin
             </Link>
           ) : null}
-          <Link href="/account" className="rounded-sm text-foreground/75 hover:text-foreground">
-            Cont
-          </Link>
+          {authed ? (
+            <Link href="/account" className={link}>
+              Cont
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex h-9 items-center rounded-full bg-blue px-4 text-sm font-semibold text-white transition-colors hover:bg-blue/90"
+            >
+              Autentificare
+            </Link>
+          )}
         </nav>
       </div>
     </header>

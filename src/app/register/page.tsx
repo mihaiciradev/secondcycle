@@ -4,7 +4,13 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { registerAction } from "@/server/actions/auth";
-import { AuthShell, fieldClass, outlineBtn, primaryBtn } from "@/components/auth/auth-shell";
+import {
+  AuthShell,
+  fieldClass,
+  labelClass,
+  outlineBtn,
+  primaryBtn,
+} from "@/components/auth/auth-shell";
 import { GoogleIcon } from "@/components/auth/google-icon";
 
 export default function RegisterPage() {
@@ -28,10 +34,13 @@ export default function RegisterPage() {
     return (
       <AuthShell title="Verifică-ți e-mailul">
         <p className="text-sm leading-relaxed text-foreground/80">
-          Dacă adresa este validă, ți-am trimis un link de confirmare. Deschide-l ca
-          să îți activezi contul, apoi autentifică-te.
+          Ți-am trimis un link de confirmare la <span className="font-medium">{email}</span>.
+          Deschide-l ca să îți activezi contul, apoi autentifică-te.
         </p>
-        <Link href="/login" className="mt-6 inline-block text-sm text-blue underline-offset-2 hover:underline">
+        <Link
+          href="/login"
+          className="mt-6 inline-flex text-sm font-medium text-blue underline-offset-2 hover:underline"
+        >
           Mergi la autentificare
         </Link>
       </AuthShell>
@@ -39,7 +48,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell title="Creează cont" subtitle="Îți faci cont ca să rezervi o bicicletă și să-ți urmărești comanda.">
+    <AuthShell
+      title="Creează-ți contul"
+      subtitle="Rezervă bicicleta, urmărește comanda și ține actele la un loc."
+      footer={
+        <>
+          Ai deja cont?{" "}
+          <Link href="/login" className="font-medium text-blue underline-offset-2 hover:underline">
+            Autentifică-te
+          </Link>
+        </>
+      }
+    >
       <button
         type="button"
         className={outlineBtn}
@@ -49,42 +69,48 @@ export default function RegisterPage() {
         Continuă cu Google
       </button>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-steel">
-        <span className="h-px flex-1 bg-border" /> sau <span className="h-px flex-1 bg-border" />
+      <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-steel">
+        <span className="h-px flex-1 bg-border" />
+        sau cu e-mail
+        <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input
-          className={fieldClass}
-          type="email"
-          placeholder="E-mail"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className={fieldClass}
-          type="password"
-          placeholder="Parolă (minim 10 caractere)"
-          autoComplete="new-password"
-          required
-          minLength={10}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className={labelClass}>
+            E-mail
+          </label>
+          <input
+            id="email"
+            className={fieldClass}
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className={labelClass}>
+            Parolă
+          </label>
+          <input
+            id="password"
+            className={fieldClass}
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={10}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <p className="mt-1.5 text-xs text-steel">Minim 10 caractere.</p>
+        </div>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         <button type="submit" className={primaryBtn} disabled={loading}>
           {loading ? "Se creează…" : "Creează cont"}
         </button>
       </form>
-
-      <p className="mt-4 text-sm">
-        Ai deja cont?{" "}
-        <Link href="/login" className="text-blue underline-offset-2 hover:underline">
-          Autentifică-te
-        </Link>
-      </p>
     </AuthShell>
   );
 }
