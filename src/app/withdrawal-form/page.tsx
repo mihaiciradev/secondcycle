@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/section";
 import { SiteFooter } from "@/components/site/site-footer";
 import { company } from "@/lib/content/site";
+import { BrandLogo } from "@/components/site/brand-logo";
 
 export const metadata: Metadata = {
   title: "Formular de retragere",
@@ -27,9 +28,10 @@ export default function WithdrawalFormPage() {
         <Container className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="rounded-sm font-heading text-lg font-bold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            aria-label={company.name}
+            className="inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            {company.name}
+            <BrandLogo tone="light" height={28} priority />
           </Link>
           <Link
             href="/"

@@ -5,22 +5,7 @@ import Link from "next/link";
 import "./home.css";
 import { messages, bikes, type Locale } from "@/lib/content/home";
 import { company } from "@/lib/content/site";
-
-function Logo() {
-  return (
-    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <path d="M15.99 5.03A15.5 15.5 0 0 1 32.70 28.89" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <path d="M24.01 34.97A15.5 15.5 0 0 1 7.30 11.11" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <path d="M29.83 32.99L36.84 29.95L30.28 25.37Z" fill="currentColor" />
-      <path d="M10.17 7.01L3.16 10.05L9.72 14.63Z" fill="currentColor" />
-      <circle cx="20" cy="20" r="7.6" stroke="currentColor" strokeWidth="2" />
-      <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-        <path d="M21.84 18.16L25.37 14.63M18.16 18.16L14.63 14.63M18.16 21.84L14.63 25.37M21.84 21.84L25.37 25.37" />
-      </g>
-      <circle cx="20" cy="20" r="2.6" fill="#D9F24B" />
-    </svg>
-  );
-}
+import { BrandLogo } from "@/components/site/brand-logo";
 
 /**
  * Reusable line-drawn bikes, defined once and referenced with <use>.
@@ -194,11 +179,12 @@ export default function Home() {
       <header className="nav">
         <div className="wrap nav__in">
           <a className="logo" href="#" aria-label="Second Cycle">
-            <Logo />
-            <span className="logo__w">
-              <span>Second</span>
-              <b>Cycle</b>
-            </span>
+            <BrandLogo
+              tone="light"
+              height={34}
+              priority
+              className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-700"
+            />
           </a>
           <nav className="nav__links" aria-label={lang === "ro" ? "Navigare" : "Navigation"}>
             <a href="#bikes">{t.nav.bikes}</a>
@@ -449,12 +435,8 @@ export default function Home() {
         <div className="wrap">
           <div className="foot__top">
             <div>
-              <a className="logo" href="#">
-                <Logo />
-                <span className="logo__w">
-                  <span>Second</span>
-                  <b>Cycle</b>
-                </span>
+              <a className="logo" href="#" aria-label="Second Cycle">
+                <BrandLogo tone="dark" height={38} />
               </a>
               <p className="foot__blurb">{t.footer.blurb}</p>
             </div>

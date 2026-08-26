@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/site/section";
 import { company } from "@/lib/content/site";
+import { BrandLogo } from "@/components/site/brand-logo";
 
 // Compact RO footer for the legal subpages (/about, /withdrawal-form).
 const disclaimer =
@@ -21,10 +22,8 @@ export function SiteFooter() {
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
           <div className="max-w-sm">
-            <p className="font-heading text-lg font-bold tracking-tight">
-              {company.name}
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-paper/70">
+            <BrandLogo tone="dark" height={34} />
+            <p className="mt-4 text-sm leading-relaxed text-paper/70">
               {disclaimer}
             </p>
           </div>

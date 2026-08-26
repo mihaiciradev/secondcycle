@@ -31,11 +31,8 @@
 .home :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 
 /* logo */
-.home .logo{display:flex;align-items:center;gap:11px}
-.home .logo svg{width:34px;height:34px;display:block;color:var(--blue);flex:none}
-.home .logo__w{font-family:var(--font-archivo),sans-serif;font-variation-settings:'wdth' 112;font-size:19px;letter-spacing:-.02em;white-space:nowrap}
-.home .logo__w b{font-weight:800}
-.home .logo__w span{font-weight:500;opacity:.9}
+.home .logo{display:inline-flex;align-items:center}
+.home .logo img{display:block}
 
 /* nav */
 .home .nav{position:sticky;top:0;z-index:50;background:rgba(237,239,234,.86);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .25s}
@@ -167,7 +164,6 @@
 
 /* footer */
 .home .foot{background:var(--asphalt);color:var(--paper);padding:70px 0 34px}
-.home .foot .logo svg{color:var(--paper)}
 .home .foot__top{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:40px;padding-bottom:44px;border-bottom:1px solid rgba(237,239,234,.18)}
 .home .foot__blurb{margin-top:18px;font-size:14.5px;color:rgba(237,239,234,.72);max-width:32ch}
 .home .foot h4{font-family:var(--font-plex-mono),monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--hivis);font-weight:400;margin:0 0 16px}
