@@ -219,7 +219,7 @@ export const messages: Record<Locale, Dict> = {
     },
     bikes: {
       h2: "În stoc acum",
-      p: "Fiecare bicicletă e unicat. Când s-a vândut, s-a vândut.",
+      p: "Fiecare bicicletă e unicat. Când s-a vândut, s-a vândut. Îți faci cont ca să rezervi o bicicletă și să-ți urmărești comanda.",
       filters: [
         { key: "all", label: "Toate" },
         { key: "city", label: "Oraș" },
@@ -325,7 +325,7 @@ export const messages: Record<Locale, Dict> = {
     },
     bikes: {
       h2: "In stock now",
-      p: "Every bike is one of one. When it is gone, it is gone.",
+      p: "Every bike is one of one. When it is gone, it is gone. Create an account to reserve a bike and track your order.",
       filters: [
         { key: "all", label: "All" },
         { key: "city", label: "City" },
