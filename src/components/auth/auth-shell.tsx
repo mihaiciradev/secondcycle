@@ -4,9 +4,9 @@ import { BrandLogo } from "@/components/site/brand-logo";
 export const fieldClass =
   "w-full rounded border border-input bg-white px-3 py-2.5 text-sm outline-none focus-visible:border-blue focus-visible:ring-2 focus-visible:ring-blue/20";
 export const primaryBtn =
-  "inline-flex h-11 w-full items-center justify-center rounded-full bg-blue px-6 text-sm font-semibold text-white transition-colors hover:bg-blue/90 disabled:opacity-60";
+  "inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-blue px-6 text-sm font-semibold text-white transition-colors hover:bg-blue/90 disabled:cursor-not-allowed disabled:opacity-60";
 export const outlineBtn =
-  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-asphalt/20 bg-white px-6 text-sm font-medium transition-colors hover:bg-asphalt/5 disabled:opacity-60";
+  "inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2.5 rounded-full border border-asphalt/20 bg-white px-6 text-sm font-medium transition-colors hover:bg-asphalt/5 disabled:cursor-not-allowed disabled:opacity-60";
 
 export function AuthShell({
   title,

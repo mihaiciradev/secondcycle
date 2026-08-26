@@ -204,7 +204,7 @@ export default function Home() {
                 EN
               </button>
             </span>
-            <a className="btn btn--fill" href="#bikes">
+            <a className="btn btn--fill" href="/bikes">
               {t.nav.browse}
             </a>
           </div>
@@ -224,7 +224,7 @@ export default function Home() {
               </h1>
               <p className="hero__sub">{t.hero.sub}</p>
               <div className="hero__cta">
-                <a className="btn btn--fill" href="#bikes">
+                <a className="btn btn--fill" href="/bikes">
                   {t.hero.browse}
                 </a>
                 <a className="btn btn--line" href="#sell">
@@ -383,7 +383,7 @@ export default function Home() {
                   </ul>
                   <div className="tag__foot">
                     <div className="price">{price(b.price)}</div>
-                    <a className="btn btn--line btn--sm" href="#bikes">
+                    <a className="btn btn--line btn--sm" href="/bikes">
                       {t.bikes.see}
                     </a>
                   </div>
@@ -396,7 +396,7 @@ export default function Home() {
               </p>
             )}
             <div className="more">
-              <a className="btn btn--line" href="#bikes">
+              <a className="btn btn--line" href="/bikes">
                 {t.bikes.more}
               </a>
             </div>

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AuthShell, fieldClass, outlineBtn, primaryBtn } from "@/components/auth/auth-shell";
+import { GoogleIcon } from "@/components/auth/google-icon";
 
 function LoginForm() {
   const router = useRouter();
@@ -38,6 +39,7 @@ function LoginForm() {
         className={outlineBtn}
         onClick={() => signIn("google", { callbackUrl: "/account" })}
       >
+        <GoogleIcon />
         Continuă cu Google
       </button>
 

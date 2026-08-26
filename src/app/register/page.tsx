@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { registerAction } from "@/server/actions/auth";
 import { AuthShell, fieldClass, outlineBtn, primaryBtn } from "@/components/auth/auth-shell";
+import { GoogleIcon } from "@/components/auth/google-icon";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -44,6 +45,7 @@ export default function RegisterPage() {
         className={outlineBtn}
         onClick={() => signIn("google", { callbackUrl: "/account" })}
       >
+        <GoogleIcon />
         Continuă cu Google
       </button>
 
