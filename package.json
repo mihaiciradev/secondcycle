@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@testcontainers/postgresql": "^12.1.0",
+    "@testcontainers/postgresql": "^10.28.0",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
@@ -45,6 +45,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^3.2.7"
   }
 }
