@@ -15,7 +15,11 @@ export type SessionUser = {
 };
 
 function baseUrl(): string {
-  return process.env.AUTH_URL ?? "http://localhost:3082";
+  // Prod/local set AUTH_URL explicitly; on Vercel previews without it, fall back
+  // to the deployment's own URL so email links always resolve.
+  if (process.env.AUTH_URL) return process.env.AUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3082";
 }
 
 /** In dev (no verified email domain) print the link so flows are testable. */
