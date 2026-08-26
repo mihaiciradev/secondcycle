@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
@@ -19,7 +20,10 @@ export type TestDb = {
 };
 
 export async function setupTestDb(): Promise<TestDb> {
-  const container = await new PostgreSqlContainer("postgres:16-alpine").start();
+  // Ephemeral, auto-removed, and named so it's obviously ours (not other projects).
+  const container = await new PostgreSqlContainer("postgres:16-alpine")
+    .withName(`secondcycle-test-pg-${randomUUID().slice(0, 8)}`)
+    .start();
   const pool = new Pool({ connectionString: container.getConnectionUri() });
   const db = drizzle(pool, { schema });
   await migrate(db, { migrationsFolder: "src/server/db/migrations" });
