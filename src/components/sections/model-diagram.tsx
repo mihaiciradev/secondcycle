@@ -24,12 +24,12 @@ const steps = [
     d: "Serial propriu, notă de condiție și seria cadrului verificată în registru.",
   },
   {
-    t: "Cumpărătorul alege și plătește",
-    d: "Alege nivelul de reparație și plătește. Banii intră în contul Second Cycle.",
+    t: "Cumpărătorul plătește",
+    d: "Plătește online prețul afișat. Banii intră în contul Second Cycle.",
   },
   {
     t: "Reparăm și predăm",
-    d: "O reparăm la nivelul ales, apoi o predăm cu proces-verbal.",
+    d: "O reparăm, îi punem acte și garanție, apoi o predăm cu proces-verbal.",
   },
 ];
 

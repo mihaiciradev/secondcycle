@@ -254,7 +254,7 @@ export const messages: Record<Locale, Dict> = {
           links: [
             { label: "Biciclete în stoc", href: "#bikes" },
             { label: "Verificarea", href: "#check" },
-            { label: "Formular de retragere", href: "/formular-retragere" },
+            { label: "Formular de retragere", href: "/withdrawal-form" },
           ],
         },
         {
@@ -267,10 +267,10 @@ export const messages: Record<Locale, Dict> = {
         {
           title: "Second Cycle",
           links: [
-            { label: "Ce facem", href: "/despre" },
-            { label: "Date legale", href: "/date-legale" },
-            { label: "Termeni și condiții", href: "/termeni" },
-            { label: "Confidențialitate", href: "/confidentialitate" },
+            { label: "Ce facem", href: "/about" },
+            { label: "Date legale", href: "/legal-data" },
+            { label: "Termeni și condiții", href: "/terms" },
+            { label: "Confidențialitate", href: "/privacy" },
             { label: "Cookies", href: "/cookies" },
           ],
         },
@@ -360,7 +360,7 @@ export const messages: Record<Locale, Dict> = {
           links: [
             { label: "Bikes in stock", href: "#bikes" },
             { label: "The check", href: "#check" },
-            { label: "Withdrawal form", href: "/formular-retragere" },
+            { label: "Withdrawal form", href: "/withdrawal-form" },
           ],
         },
         {
@@ -373,10 +373,10 @@ export const messages: Record<Locale, Dict> = {
         {
           title: "Second Cycle",
           links: [
-            { label: "What we do", href: "/despre" },
-            { label: "Company details", href: "/date-legale" },
-            { label: "Terms", href: "/termeni" },
-            { label: "Privacy", href: "/confidentialitate" },
+            { label: "What we do", href: "/about" },
+            { label: "Company details", href: "/legal-data" },
+            { label: "Terms", href: "/terms" },
+            { label: "Privacy", href: "/privacy" },
             { label: "Cookies", href: "/cookies" },
           ],
         },

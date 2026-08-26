@@ -2,16 +2,16 @@ import Link from "next/link";
 import { Container } from "@/components/site/section";
 import { company } from "@/lib/content/site";
 
-// Compact RO footer for the legal subpages (/despre, /formular-retragere).
+// Compact RO footer for the legal subpages (/about, /withdrawal-form).
 const disclaimer =
   "Second Cycle vinde bicicletele în nume propriu. Emitem factura, semnăm contractul de vânzare și răspundem față de cumpărător pentru fiecare bicicletă.";
 
 const legalLinks = [
-  { href: "/despre", label: "Ce facem" },
-  { href: "/date-legale", label: "Date legale" },
-  { href: "/formular-retragere", label: "Formular de retragere" },
-  { href: "/termeni", label: "Termeni și condiții" },
-  { href: "/confidentialitate", label: "Politica de confidențialitate" },
+  { href: "/about", label: "Ce facem" },
+  { href: "/legal-data", label: "Date legale" },
+  { href: "/withdrawal-form", label: "Formular de retragere" },
+  { href: "/terms", label: "Termeni și condiții" },
+  { href: "/privacy", label: "Politica de confidențialitate" },
   { href: "/cookies", label: "Politica de cookies" },
 ];
 

@@ -22,5 +22,5 @@ export const company = {
     email: "support@webbinghub.io",
     phone: "+40 736 394 784",
   },
-  legalPageHref: "/date-legale",
+  legalPageHref: "/legal-data",
 } as const;

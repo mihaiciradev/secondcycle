@@ -18,7 +18,7 @@ const positioning = [
   },
   {
     t: "Cum câștigăm",
-    b: "Lucrăm în consignație: vindem bicicleta proprietarului, care primește o parte convenită din preț. La cumpărare, clientul alege și un nivel de reparație, care se adaugă la preț.",
+    b: "Lucrăm în consignație: vindem bicicleta în numele proprietarului, care primește o parte convenită din preț. Noi o recondiționăm, îi punem acte și garanție și o vindem la un preț corect.",
   },
   {
     t: "Cine e vânzătorul",
