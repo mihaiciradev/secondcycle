@@ -21,7 +21,7 @@ export default function PrivacyPage() {
             aria-label={company.name}
             className="inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <BrandLogo tone="light" height={28} priority />
+            <BrandLogo tone="light" height={52} priority />
           </Link>
           <Link
             href="/"

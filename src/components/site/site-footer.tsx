@@ -22,7 +22,7 @@ export function SiteFooter() {
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
           <div className="max-w-sm">
-            <BrandLogo tone="dark" height={34} />
+            <BrandLogo tone="dark" height={60} />
             <p className="mt-4 text-sm leading-relaxed text-paper/70">
               {disclaimer}
             </p>

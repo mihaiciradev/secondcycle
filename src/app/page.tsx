@@ -181,7 +181,7 @@ export default function Home() {
           <a className="logo" href="#" aria-label="Second Cycle">
             <BrandLogo
               tone="light"
-              height={34}
+              height={60}
               priority
               className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-700"
             />
@@ -436,7 +436,7 @@ export default function Home() {
           <div className="foot__top">
             <div>
               <a className="logo" href="#" aria-label="Second Cycle">
-                <BrandLogo tone="dark" height={38} />
+                <BrandLogo tone="dark" height={72} />
               </a>
               <p className="foot__blurb">{t.footer.blurb}</p>
             </div>
