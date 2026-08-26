@@ -42,6 +42,12 @@ export default async function AccountPage() {
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Cont</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight">Contul tău</h1>
           <p className="mt-2 text-foreground/70">{user.email}</p>
+          <Link
+            href="/account/orders"
+            className="mt-3 inline-flex text-sm font-medium text-blue underline-offset-2 hover:underline"
+          >
+            Comenzile mele →
+          </Link>
 
           <div className="mt-8 space-y-4">
             <Card title="Detalii cont">

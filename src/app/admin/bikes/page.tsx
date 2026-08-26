@@ -35,7 +35,12 @@ export default async function AdminBikesPage() {
       <main id="continut" className="flex-1">
         <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Admin</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight">Biciclete</h1>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="text-3xl font-bold tracking-tight">Biciclete</h1>
+            <Link href="/admin/orders" className="text-sm text-blue underline-offset-2 hover:underline">
+              Comenzi →
+            </Link>
+          </div>
 
           <section className="mt-8 rounded border border-border bg-card p-5 sm:p-6">
             <h2 className="font-heading text-lg font-semibold tracking-tight">Adaugă o bicicletă</h2>
