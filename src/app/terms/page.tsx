@@ -125,8 +125,8 @@ export default function TermsPage() {
 
           <H2>Garanția</H2>
           <P>
-            Beneficiezi de garanția legală de conformitate prevăzută de legislația în
-            vigoare pentru bunurile vândute, inclusiv pentru bunurile de ocazie.
+            Beneficiezi de garanția legală de conformitate pentru bunurile vândute,
+            inclusiv pentru cele de ocazie, pe o durată de 12 luni de la predare.
             Garanția acoperă neconformitățile existente la momentul predării. Pentru
             orice problemă, ne poți contacta la {company.contact.email}.
           </P>

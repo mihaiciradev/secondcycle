@@ -9,6 +9,8 @@ import {
   resetPassword,
   setMarketingOptIn,
 } from "@/server/services/auth";
+import { deleteUserAccount } from "@/server/services/account";
+import { AppError } from "@/server/errors";
 import { requireUser } from "@/server/auth/guards";
 import { forgotSchema, registerSchema, resetSchema } from "@/server/validation/auth";
 
@@ -54,4 +56,15 @@ export async function toggleMarketingAction(optIn: boolean): Promise<Result> {
   const user = await requireUser();
   await setMarketingOptIn(db, user.id, optIn);
   return { ok: true };
+}
+
+/** Delete (or anonymize, if orders exist) the caller's own account. */
+export async function deleteAccountAction(): Promise<Result> {
+  try {
+    const user = await requireUser();
+    await deleteUserAccount(db, user.id);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+  }
 }

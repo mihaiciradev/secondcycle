@@ -2,9 +2,9 @@
  * Backend-wide business constants.
  */
 
-/** Commercial warranty length. Shown on product/checkout/T&C pages, and used in
- *  order-confirmation emails. Marketing pages state "warranty" without a number. */
-export const WARRANTY_MONTHS = 6;
+/** Legal warranty of conformity. 12 months is the minimum for second-hand goods
+ *  under Romanian law (OUG 140/2021); stated explicitly on product/checkout/T&C. */
+export const WARRANTY_MONTHS = 12;
 
 /** EU right-of-withdrawal window, from physical handover. */
 export const WITHDRAWAL_DAYS = 14;

@@ -181,7 +181,7 @@ export default function Home() {
           <a className="logo" href="#" aria-label="Second Cycle">
             <BrandLogo
               tone="light"
-              height={60}
+              height={72}
               priority
               className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-700"
             />
@@ -403,29 +403,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Sell */}
-        <section className="dark sec" id="sell">
-          <div className="wrap">
-            <div className="sec__head" data-reveal>
-              <div>
-                <span className="eyebrow mono">{t.sell.eyebrow}</span>
-                <h2 style={{ marginTop: 18 }}>{t.sell.h2}</h2>
-              </div>
-              <p>{t.sell.p}</p>
-            </div>
-            <div className="steps" data-reveal>
-              {t.sell.steps.map((s) => (
-                <div className="step" key={s.n}>
-                  <span className="step__n">{s.n}</span>
-                  <h3>{s.h3}</h3>
-                  <p>{s.p}</p>
-                </div>
-              ))}
-            </div>
+        {/* Sell — compact CTA to the dedicated page (keeps the buy flow clear) */}
+        <section className="dark" id="sell" style={{ paddingTop: 0 }}>
+          <div className="wrap" style={{ paddingTop: 56, paddingBottom: 56 }}>
             <div className="sell-cta" data-reveal>
-              <h3>{t.sell.ctaTitle}</h3>
-              <a className="btn btn--hivis" href="#sell">
-                {t.sell.ctaBtn}
+              <div>
+                <h3 style={{ fontSize: 24 }}>{t.sellBanner.title}</h3>
+                <p style={{ marginTop: 8, color: "rgba(237,239,234,.72)", maxWidth: "46ch" }}>
+                  {t.sellBanner.text}
+                </p>
+              </div>
+              <a className="btn btn--hivis" href="/sell">
+                {t.sellBanner.cta}
               </a>
             </div>
           </div>

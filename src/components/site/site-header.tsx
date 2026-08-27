@@ -12,13 +12,13 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
           aria-label="Second Cycle"
           className="inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
-          <BrandLogo tone="light" height={40} priority />
+          <BrandLogo tone="light" height={56} priority />
         </Link>
         <nav className="flex items-center gap-5 sm:gap-6">
           <Link href="/bikes" className={link}>
