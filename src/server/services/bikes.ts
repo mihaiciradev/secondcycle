@@ -3,6 +3,7 @@ import type { DB } from "@/server/db/client";
 import { bikes, orders, reservations, serviceRecords } from "@/server/db/schema";
 import { canAdminTransitionBike, type BikeStatus } from "@/server/constants/statuses";
 import { Conflict, NotFound } from "@/server/errors";
+import { expireOverdueReservations } from "@/server/services/reservations";
 import type { CreateBikeInput } from "@/server/validation/bikes";
 
 const PUBLIC_STATUSES = ["available", "reserved"] as const;
@@ -32,6 +33,7 @@ function decodeCursor(c: string): { createdAt: Date; id: string } | null {
 
 /** Public listing: only available + reserved, keyset pagination, max 50/page. */
 export async function listPublicBikes(db: DB, filters: ListFilters = {}) {
+  await expireOverdueReservations(db); // lazy expiry: freed bikes reappear on read
   const limit = Math.min(Math.max(filters.limit ?? 24, 1), 50);
   const conds = [inArray(bikes.status, [...PUBLIC_STATUSES])];
   if (filters.category) conds.push(eq(bikes.category, filters.category));
@@ -64,6 +66,7 @@ export async function listPublicBikes(db: DB, filters: ListFilters = {}) {
 
 /** Public detail: draft/withdrawn are hidden (caller returns 404). */
 export async function getPublicBikeBySku(db: DB, sku: string) {
+  await expireOverdueReservations(db); // lazy expiry before reading the bike's status
   const [row] = await db.select().from(bikes).where(eq(bikes.sku, sku)).limit(1);
   if (!row) return null;
   if ((DETAIL_HIDDEN as readonly string[]).includes(row.status)) return null;
