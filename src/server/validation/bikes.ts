@@ -21,6 +21,7 @@ export const createBikeSchema = z
     description: z.string().max(4000).optional().default(""),
     workDone: z.array(z.string().max(200)).max(50).optional().default([]),
     status: z.enum(["draft", "available"]).optional().default("draft"),
+    workshopId: z.string().uuid().nullable().optional(),
   })
   .strict();
 

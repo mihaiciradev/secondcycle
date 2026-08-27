@@ -12,6 +12,7 @@
  */
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   customType,
   date,
@@ -51,7 +52,7 @@ const updatedAt = () =>
 // ---------------------------------------------------------------------------
 // Enums
 // ---------------------------------------------------------------------------
-export const roleEnum = pgEnum("role", ["customer", "admin"]);
+export const roleEnum = pgEnum("role", ["customer", "admin", "workshop"]);
 export const tokenKindEnum = pgEnum("token_kind", [
   "verify_email",
   "password_reset",
@@ -106,6 +107,10 @@ export const users = pgTable("users", {
   marketingOptInAt: timestamp("marketing_opt_in_at", { withTimezone: true }),
   // Bumped on password reset to invalidate existing JWT sessions.
   sessionVersion: integer("session_version").notNull().default(0),
+  // For role='workshop': the workshop this login belongs to.
+  workshopId: uuid("workshop_id").references((): AnyPgColumn => workshops.id, {
+    onDelete: "set null",
+  }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -162,6 +167,8 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
 export const workshops = pgTable("workshops", {
   id: pk(),
   name: text("name").notNull(),
+  location: text("location"),
+  workHours: text("work_hours"),
   contactName: text("contact_name"),
   phone: text("phone"),
   email: citext("email"),
@@ -190,6 +197,8 @@ export const bikes = pgTable("bikes", {
   workDone: jsonb("work_done").$type<string[]>().notNull().default([]),
   status: bikeStatusEnum("status").notNull().default("draft"),
   photos: jsonb("photos").$type<string[]>().notNull().default([]), // ordered R2 keys
+  // Admin assigns the bike to a workshop that files its service papers.
+  workshopId: uuid("workshop_id").references(() => workshops.id, { onDelete: "set null" }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

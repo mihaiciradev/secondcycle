@@ -18,6 +18,24 @@ export const RESERVATION_TTL_MINUTES = 30;
  */
 export const TERMS_VERSION = "draft-2026-08";
 
+/** Standard categories a workshop assesses on the intake and final papers. */
+export const SERVICE_CHECK_ITEMS = [
+  "Cadru și furcă",
+  "Transmisie",
+  "Frânare",
+  "Roți și anvelope",
+  "Direcție și comenzi",
+  "Altele",
+] as const;
+
+export const SERVICE_CHECK_STATUSES = ["ok", "replaced", "repaired", "attention"] as const;
+export const SERVICE_CHECK_STATUS_LABEL: Record<string, string> = {
+  ok: "În regulă",
+  replaced: "Înlocuit",
+  repaired: "Reparat",
+  attention: "De atenție",
+};
+
 /** Single-use email token TTLs. */
 export const TOKEN_TTL = {
   verify_email: 24 * 60 * 60 * 1000,

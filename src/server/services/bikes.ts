@@ -107,6 +107,7 @@ export async function createBike(db: DB, input: CreateBikeInput) {
         description: input.description ?? "",
         workDone: input.workDone ?? [],
         status: input.status ?? "draft",
+        workshopId: input.workshopId ?? null,
       })
       .returning();
     return row;
@@ -114,6 +115,16 @@ export async function createBike(db: DB, input: CreateBikeInput) {
     if (isUniqueViolation(e)) throw Conflict("Există deja o bicicletă cu acest SKU");
     throw e;
   }
+}
+
+/** Assign (or clear) the workshop that handles a bike's service papers. */
+export async function assignBikeToWorkshop(db: DB, bikeId: string, workshopId: string | null) {
+  const [row] = await db
+    .update(bikes)
+    .set({ workshopId })
+    .where(eq(bikes.id, bikeId))
+    .returning({ id: bikes.id });
+  if (!row) throw NotFound("Bicicleta nu există");
 }
 
 /** Admin status transition. reserved→available force-releases the active hold. */

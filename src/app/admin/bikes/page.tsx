@@ -4,9 +4,11 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
 import { adminListBikes } from "@/server/services/bikes";
+import { listActiveWorkshops } from "@/server/services/workshops";
 import { SiteHeader } from "@/components/site/site-header";
 import { BikeCreateForm } from "@/components/admin/bike-create-form";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
+import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { formatLei } from "@/lib/money";
 import type { BikeStatus } from "@/server/constants/statuses";
 
@@ -27,7 +29,7 @@ export default async function AdminBikesPage() {
   const me = await getUserById(db, session.user.id);
   if (!me || me.role !== "admin") redirect("/");
 
-  const bikes = await adminListBikes(db);
+  const [bikes, workshops] = await Promise.all([adminListBikes(db), listActiveWorkshops(db)]);
 
   return (
     <>
@@ -37,15 +39,20 @@ export default async function AdminBikesPage() {
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Admin</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
             <h1 className="text-3xl font-bold tracking-tight">Biciclete</h1>
-            <Link href="/admin/orders" className="text-sm text-blue underline-offset-2 hover:underline">
-              Comenzi →
-            </Link>
+            <div className="flex gap-4 text-sm">
+              <Link href="/admin/workshops" className="text-blue underline-offset-2 hover:underline">
+                Ateliere →
+              </Link>
+              <Link href="/admin/orders" className="text-blue underline-offset-2 hover:underline">
+                Comenzi →
+              </Link>
+            </div>
           </div>
 
           <section className="mt-8 rounded border border-border bg-card p-5 sm:p-6">
             <h2 className="font-heading text-lg font-semibold tracking-tight">Adaugă o bicicletă</h2>
             <div className="mt-4">
-              <BikeCreateForm />
+              <BikeCreateForm workshops={workshops} />
             </div>
           </section>
 
@@ -64,6 +71,7 @@ export default async function AdminBikesPage() {
                       <th className="py-2 pr-4">Bicicletă</th>
                       <th className="py-2 pr-4">Preț</th>
                       <th className="py-2 pr-4">Stare</th>
+                      <th className="py-2 pr-4">Atelier</th>
                       <th className="py-2">Acțiuni</th>
                     </tr>
                   </thead>
@@ -80,6 +88,9 @@ export default async function AdminBikesPage() {
                         </td>
                         <td className="py-3 pr-4 font-mono">{formatLei(b.priceCents)}</td>
                         <td className="py-3 pr-4">{statusLabel[b.status] ?? b.status}</td>
+                        <td className="py-3 pr-4">
+                          <WorkshopAssign bikeId={b.id} current={b.workshopId} workshops={workshops} />
+                        </td>
                         <td className="py-3">
                           <BikeRowActions id={b.id} status={b.status as BikeStatus} />
                         </td>

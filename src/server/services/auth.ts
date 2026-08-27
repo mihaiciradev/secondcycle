@@ -10,7 +10,7 @@ import { TOKEN_TTL } from "@/server/constants/app";
 export type SessionUser = {
   id: string;
   email: string;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "workshop";
   sessionVersion: number;
 };
 
@@ -53,6 +53,7 @@ export async function getUserById(db: DB, id: string) {
       emailVerifiedAt: users.emailVerifiedAt,
       marketingOptIn: users.marketingOptIn,
       sessionVersion: users.sessionVersion,
+      workshopId: users.workshopId,
     })
     .from(users)
     .where(eq(users.id, id))

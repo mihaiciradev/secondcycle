@@ -7,6 +7,7 @@ export async function SiteHeader() {
   const session = await auth();
   const authed = Boolean(session?.user?.id);
   const isAdmin = session?.user?.role === "admin";
+  const isWorkshop = session?.user?.role === "workshop";
 
   const link = "rounded-sm text-sm text-foreground/75 transition-colors hover:text-foreground";
 
@@ -27,6 +28,11 @@ export async function SiteHeader() {
           {isAdmin ? (
             <Link href="/admin/bikes" className={link}>
               Admin
+            </Link>
+          ) : null}
+          {isWorkshop ? (
+            <Link href="/workshop" className={link}>
+              Atelier
             </Link>
           ) : null}
           {authed ? (

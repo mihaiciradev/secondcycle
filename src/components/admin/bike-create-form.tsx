@@ -14,7 +14,7 @@ const categories = [
   ["ebike", "E-bike"],
 ] as const;
 
-export function BikeCreateForm() {
+export function BikeCreateForm({ workshops }: { workshops: { id: string; name: string }[] }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,6 +49,7 @@ export function BikeCreateForm() {
         .map((s) => s.trim())
         .filter(Boolean),
       status: String(f.get("status") ?? "draft"),
+      workshopId: f.get("workshopId") ? String(f.get("workshopId")) : null,
     };
 
     const res = await createBikeAction(input);
@@ -85,6 +86,14 @@ export function BikeCreateForm() {
       <select name="status" className={fieldClass} defaultValue="draft">
         <option value="draft">Ciornă</option>
         <option value="available">Disponibilă</option>
+      </select>
+      <select name="workshopId" className={`${fieldClass} sm:col-span-2`} defaultValue="">
+        <option value="">Fără atelier alocat</option>
+        {workshops.map((w) => (
+          <option key={w.id} value={w.id}>
+            {w.name}
+          </option>
+        ))}
       </select>
       <input name="priceLei" type="number" step="0.01" placeholder="Preț (lei)" required className={fieldClass} />
       <input name="oldPriceLei" type="number" step="0.01" placeholder="Preț vechi (lei, opțional)" className={fieldClass} />
