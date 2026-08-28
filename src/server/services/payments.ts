@@ -2,8 +2,29 @@ import type Stripe from "stripe";
 import { eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, reservations } from "@/server/db/schema";
-import { getStripe } from "@/server/payments/stripe";
+import { getStripe, isPaymentEnabled } from "@/server/payments/stripe";
 import { Conflict, NotFound } from "@/server/errors";
+
+/**
+ * Best-effort live Stripe balance for the admin dashboard. Returns null if
+ * payments are off or Stripe errors — it must never block the page.
+ */
+export async function getStripeSnapshot(): Promise<{
+  mode: "test" | "live";
+  availableCents: number;
+  pendingCents: number;
+} | null> {
+  if (!isPaymentEnabled()) return null;
+  try {
+    const balance = await getStripe().balance.retrieve();
+    const ron = (rows: { amount: number; currency: string }[]) =>
+      rows.filter((b) => b.currency === "ron").reduce((s, b) => s + b.amount, 0);
+    const mode = (process.env.STRIPE_SECRET_KEY ?? "").startsWith("sk_live_") ? "live" : "test";
+    return { mode, availableCents: ron(balance.available), pendingCents: ron(balance.pending) };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Create a Stripe Checkout Session for a pending order owned by the caller. One

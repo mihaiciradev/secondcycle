@@ -29,7 +29,7 @@ export default async function AccountDetailsPage() {
       </dl>
       {user.role === "admin" ? (
         <Link
-          href="/admin/bikes"
+          href="/admin"
           className="mt-5 inline-flex text-sm font-medium text-blue underline-offset-2 hover:underline"
         >
           Deschide panoul de administrare

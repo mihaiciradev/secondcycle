@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
+  { href: "/admin", label: "Sumar", exact: true },
   { href: "/admin/bikes", label: "Biciclete" },
   { href: "/admin/workshops", label: "Ateliere" },
   { href: "/admin/orders", label: "Comenzi" },
@@ -14,7 +15,7 @@ export function AdminNav() {
   return (
     <nav className="mt-6 flex gap-1 overflow-x-auto border-b border-border">
       {items.map((i) => {
-        const active = path.startsWith(i.href);
+        const active = i.exact ? path === i.href : path.startsWith(i.href);
         return (
           <Link
             key={i.href}

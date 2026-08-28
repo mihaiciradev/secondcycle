@@ -13,6 +13,18 @@ export const WITHDRAWAL_DAYS = 14;
 export const RESERVATION_TTL_MINUTES = 30;
 
 /**
+ * Free-tier ceilings of the external services, for the admin usage panel.
+ * Approximate published limits — update if a plan changes.
+ */
+export const FREE_TIER = {
+  /** Resend free plan. */
+  resendEmailsPerMonth: 3000,
+  resendEmailsPerDay: 100,
+  /** Neon free plan storage per project (0.5 GB). */
+  neonStorageBytes: 0.5 * 1024 * 1024 * 1024,
+} as const;
+
+/**
  * Version stamped on orders when the buyer accepts the T&C. The real versioned
  * T&C pages are not published yet; bump this when they are.
  */

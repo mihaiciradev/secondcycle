@@ -28,7 +28,7 @@ export async function SiteHeader() {
             Biciclete
           </Link>
           {isAdmin ? (
-            <Link href="/admin/bikes" className={link}>
+            <Link href="/admin" className={link}>
               Admin
             </Link>
           ) : null}

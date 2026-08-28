@@ -3,8 +3,10 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
-import { getWorkshop, listBikesForWorkshop } from "@/server/services/workshops";
+import { getWorkshop, getWorkshopStats, listBikesForWorkshop } from "@/server/services/workshops";
 import { SiteHeader } from "@/components/site/site-header";
+import { MiniBars, SectionTitle, StatCard, lastSixMonths } from "@/components/admin/dashboard-ui";
+import { formatLei } from "@/lib/money";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,8 +25,18 @@ export default async function WorkshopHomePage() {
   const me = await getUserById(db, session.user.id);
   if (!me || me.role !== "workshop" || !me.workshopId) redirect("/");
 
-  const workshop = await getWorkshop(db, me.workshopId);
-  const list = await listBikesForWorkshop(db, me.workshopId);
+  const [workshop, list, stats] = await Promise.all([
+    getWorkshop(db, me.workshopId),
+    listBikesForWorkshop(db, me.workshopId),
+    getWorkshopStats(db, me.workshopId),
+  ]);
+
+  const byStatus = list.reduce<Record<string, number>>((acc, b) => {
+    acc[b.status] = (acc[b.status] ?? 0) + 1;
+    return acc;
+  }, {});
+  const inPrep = (byStatus.draft ?? 0);
+  const months = lastSixMonths(stats.monthly);
 
   return (
     <>
@@ -47,7 +59,40 @@ export default async function WorkshopHomePage() {
             </Link>
           </div>
 
-          <h2 className="mt-10 font-heading text-lg font-semibold tracking-tight">
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard
+              label="Reparate & vândute"
+              value={stats.soldCount}
+              sub={formatLei(stats.soldCents)}
+              tone="accent"
+            />
+            <StatCard
+              label="Vândute luna aceasta"
+              value={stats.soldThisMonthCount}
+              sub={formatLei(stats.soldThisMonthCents)}
+            />
+            <StatCard label="În pregătire" value={inPrep} sub="ciorne de finalizat" tone={inPrep > 0 ? "warn" : "default"} />
+            <StatCard
+              label="Fișe depuse"
+              value={stats.papers.intake + stats.papers.final}
+              sub={`${stats.papers.intake} intrare · ${stats.papers.final} final`}
+            />
+          </div>
+
+          {months.some((m) => m.cents > 0) ? (
+            <section className="mt-10">
+              <SectionTitle hint="ultimele 6 luni">Vânzări din bicicletele tale</SectionTitle>
+              <MiniBars
+                data={months.map((m) => ({
+                  label: m.label,
+                  value: m.cents,
+                  caption: m.cents > 0 ? formatLei(m.cents) : "—",
+                }))}
+              />
+            </section>
+          ) : null}
+
+          <h2 className="mt-12 font-heading text-lg font-semibold tracking-tight">
             Biciclete alocate ({list.length})
           </h2>
           {list.length === 0 ? (
