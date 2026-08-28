@@ -55,6 +55,31 @@ export async function createCheckoutSession(
 }
 
 /**
+ * Synchronously reconcile an order against Stripe (used on the checkout return
+ * page so the UI is correct immediately, without waiting for the webhook).
+ * Retrieves the stored session; if Stripe reports it paid, runs the same
+ * idempotent completion path. Safe to call repeatedly and alongside the webhook.
+ * Never throws on Stripe errors — the webhook remains the reliable backstop.
+ */
+export async function reconcileOrderPayment(
+  db: DB,
+  input: { orderId: string; userId: string }
+): Promise<void> {
+  const [order] = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+  if (!order || order.userId !== input.userId) return;
+  if (order.paidAt || !order.stripeSessionId) return;
+
+  try {
+    const session = await getStripe().checkout.sessions.retrieve(order.stripeSessionId);
+    if (session.payment_status === "paid") {
+      await handleCheckoutCompleted(db, session);
+    }
+  } catch {
+    // Ignore: the webhook will reconcile if this transient lookup failed.
+  }
+}
+
+/**
  * Handle checkout.session.completed from the webhook: mark the order paid,
  * confirm it, and sell the bike. Idempotent and race-safe (FOR UPDATE + guard).
  */

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getOrderForUser } from "@/server/services/orders";
+import { reconcileOrderPayment } from "@/server/services/payments";
 import { Card, Row } from "@/components/auth/account-ui";
 import { PayButton } from "@/components/orders/pay-button";
 import { isPaymentEnabled } from "@/server/payments/stripe";
@@ -23,10 +24,20 @@ export default async function OrderDetailPage({
   if (!session?.user?.id) redirect("/login");
   const { id } = await params;
   const { paid } = await searchParams;
+
+  // Coming back from Stripe: verify the payment now so the page is correct
+  // immediately, instead of waiting for the webhook to arrive.
+  if (paid && isPaymentEnabled()) {
+    await reconcileOrderPayment(db, { orderId: id, userId: session.user.id });
+  }
+
   const row = await getOrderForUser(db, id, session.user.id);
   if (!row) notFound();
   const { order, bike } = row;
-  const awaitingPayment = order.status === "pending" && !order.paidAt && isPaymentEnabled();
+  // Don't show "Pay" while we're on the return-from-Stripe screen (`paid`),
+  // even in the rare case reconciliation is still catching up.
+  const awaitingPayment =
+    order.status === "pending" && !order.paidAt && isPaymentEnabled() && !paid;
 
   const delivery =
     order.deliveryMethod === "courier"
@@ -48,9 +59,13 @@ export default async function OrderDetailPage({
         </span>
       </div>
 
-      {paid ? (
-        <p className="mt-4 rounded-md border border-blue/25 bg-blue/5 px-3.5 py-2.5 text-sm text-blue">
-          Plata a fost inițiată. Confirmarea apare imediat ce Stripe o procesează.
+      {paid && order.paidAt ? (
+        <p className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">
+          Plată confirmată. Mulțumim! Îți pregătim bicicleta.
+        </p>
+      ) : paid ? (
+        <p className="mt-4 rounded-md border border-amber-500/25 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+          Verificăm plata cu Stripe. Reîncarcă pagina în câteva secunde.
         </p>
       ) : null}
 
