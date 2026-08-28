@@ -15,12 +15,6 @@ type BikeCardData = {
   photos: string[];
 };
 
-const gradeClass: Record<string, string> = {
-  A: "bg-lime text-asphalt",
-  B: "bg-blue text-white",
-  C: "border border-asphalt/30 text-asphalt",
-};
-
 function assetUrl(key: string): string | null {
   const base = process.env.R2_PUBLIC_URL;
   return base ? `${base}/${key}` : null;
@@ -49,12 +43,7 @@ export function BikeCard({ bike }: { bike: BikeCardData }) {
         ) : null}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-xs text-steel">{bike.sku}</span>
-          <span className={`rounded px-1.5 py-0.5 font-mono text-[0.65rem] ${gradeClass[bike.conditionGrade]}`}>
-            {bike.conditionGrade}
-          </span>
-        </div>
+        <span className="font-mono text-xs text-steel">{bike.sku}</span>
         <h3 className="mt-2 font-heading text-base font-semibold tracking-tight">
           {bike.brand} {bike.model}
         </h3>

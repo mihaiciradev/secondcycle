@@ -44,3 +44,8 @@ export const serviceRecordSchema = z
   .strict();
 
 export type ServiceRecordInput = z.infer<typeof serviceRecordSchema>;
+
+export const updateServiceRecordSchema = serviceRecordSchema.extend({
+  recordId: z.string().uuid(),
+});
+export type UpdateServiceRecordInput = z.infer<typeof updateServiceRecordSchema>;

@@ -43,7 +43,6 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
     ...(bike.modelYear ? ([["An", String(bike.modelYear)]] as [string, string][]) : []),
     ["Mărime cadru", bike.frameSize],
     ["Roți", `${bike.wheelSize}"`],
-    ["Notă de condiție", bike.conditionGrade],
   ];
 
   return (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { BrandLogo } from "@/components/site/brand-logo";
+import { displayName } from "@/lib/user-display";
 
 /** Interior-page header (catalogue, account, admin). Reflects auth state. */
 export async function SiteHeader() {
@@ -36,8 +37,17 @@ export async function SiteHeader() {
             </Link>
           ) : null}
           {authed ? (
-            <Link href="/account" className={link}>
-              Cont
+            <Link
+              href="/account"
+              className="inline-flex items-center gap-1.5 rounded-sm text-sm font-medium text-foreground transition-colors hover:text-blue"
+            >
+              <span
+                aria-hidden
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-asphalt text-[0.7rem] font-bold leading-none text-paper"
+              >
+                {displayName(session!.user).charAt(0).toUpperCase()}
+              </span>
+              {displayName(session!.user)}
             </Link>
           ) : (
             <Link

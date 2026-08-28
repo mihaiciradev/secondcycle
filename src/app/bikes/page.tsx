@@ -23,13 +23,6 @@ const CATEGORIES = [
   { key: "kids", label: "Copii" },
 ] as const;
 
-const GRADES = [
-  { key: "", label: "Toate stările" },
-  { key: "A", label: "A" },
-  { key: "B", label: "B" },
-  { key: "C", label: "C" },
-] as const;
-
 function chip(active: boolean) {
   return `rounded-full border px-3.5 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors ${
     active
@@ -41,21 +34,19 @@ function chip(active: boolean) {
 export default async function BikesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; grade?: string; cursor?: string }>;
+  searchParams: Promise<{ category?: string; cursor?: string }>;
 }) {
   const sp = await searchParams;
   const category = sp.category || undefined;
-  const grade = sp.grade || undefined;
 
   const { items, nextCursor } = await listPublicBikes(db, {
     category: category as never,
-    grade: grade as never,
     cursor: sp.cursor,
   });
 
   const withParams = (patch: Record<string, string | undefined>) => {
     const params = new URLSearchParams();
-    const merged = { category, grade, ...patch };
+    const merged = { category, ...patch };
     for (const [k, v] of Object.entries(merged)) if (v) params.set(k, v);
     const qs = params.toString();
     return qs ? `/bikes?${qs}` : "/bikes";
@@ -79,14 +70,6 @@ export default async function BikesPage({
               </Link>
             ))}
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {GRADES.map((g) => (
-              <Link key={g.key} href={withParams({ grade: g.key || undefined, cursor: undefined })} className={chip((grade ?? "") === g.key)}>
-                {g.label}
-              </Link>
-            ))}
-          </div>
-
           {items.length === 0 ? (
             <div className="mt-12 rounded border border-dashed border-border p-12 text-center text-steel">
               Nu sunt biciclete în acest filtru deocamdată.

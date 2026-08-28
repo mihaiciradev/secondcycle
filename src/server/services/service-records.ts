@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { serviceRecords } from "@/server/db/schema";
-import { Conflict } from "@/server/errors";
-import type { ServiceRecordInput } from "@/server/validation/workshops";
+import { Conflict, Forbidden, NotFound } from "@/server/errors";
+import type { ServiceRecordInput, UpdateServiceRecordInput } from "@/server/validation/workshops";
 
 function isUniqueViolation(e: unknown): boolean {
   return typeof e === "object" && e !== null && (e as { code?: string }).code === "23505";
@@ -42,4 +42,30 @@ export async function createServiceRecord(
     }
     throw e;
   }
+}
+
+/** Edit an existing paper, only by the workshop that owns it. */
+export async function updateServiceRecord(
+  db: DB,
+  input: UpdateServiceRecordInput & { workshopId: string }
+) {
+  const [existing] = await db
+    .select()
+    .from(serviceRecords)
+    .where(eq(serviceRecords.id, input.recordId))
+    .limit(1);
+  if (!existing) throw NotFound("Fișa nu există");
+  if (existing.workshopId !== input.workshopId) throw Forbidden();
+
+  const [row] = await db
+    .update(serviceRecords)
+    .set({
+      checklist: input.checklist ?? [],
+      summary: input.summary ?? null,
+      performedBy: input.performedBy,
+      performedAt: input.performedAt,
+    })
+    .where(eq(serviceRecords.id, input.recordId))
+    .returning();
+  return row;
 }

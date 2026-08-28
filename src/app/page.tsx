@@ -6,6 +6,7 @@ import "./home.css";
 import { messages, bikes, type Locale } from "@/lib/content/home";
 import { company } from "@/lib/content/site";
 import { BrandLogo } from "@/components/site/brand-logo";
+import { HeaderAccount } from "@/components/site/header-account";
 
 /**
  * Reusable line-drawn bikes, defined once and referenced with <use>.
@@ -187,10 +188,9 @@ export default function Home() {
             />
           </a>
           <nav className="nav__links" aria-label={lang === "ro" ? "Navigare" : "Navigation"}>
-            <a href="#bikes">{t.nav.bikes}</a>
-            <a href="#sell">{t.nav.sell}</a>
+            <Link href="/bikes">{t.nav.bikes}</Link>
             <a href="#check">{t.nav.check}</a>
-            <Link href="/account">{lang === "ro" ? "Cont" : "Account"}</Link>
+            <Link href="/sell">{t.nav.sell}</Link>
           </nav>
           <div className="nav__end">
             <span className="lang" role="group" aria-label={lang === "ro" ? "Limbă" : "Language"}>
@@ -204,6 +204,7 @@ export default function Home() {
                 EN
               </button>
             </span>
+            <HeaderAccount lang={lang} />
             <a className="btn btn--fill" href="/bikes">
               {t.nav.browse}
             </a>
@@ -227,7 +228,7 @@ export default function Home() {
                 <a className="btn btn--fill" href="/bikes">
                   {t.hero.browse}
                 </a>
-                <a className="btn btn--line" href="#sell">
+                <a className="btn btn--line" href="/sell">
                   {t.hero.sell}
                 </a>
               </div>

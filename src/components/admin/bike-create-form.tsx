@@ -40,7 +40,7 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
       category: String(f.get("category") ?? "city"),
       frameSize: String(f.get("frameSize") ?? "").trim(),
       wheelSize: String(f.get("wheelSize") ?? "").trim(),
-      conditionGrade: String(f.get("conditionGrade") ?? "A"),
+      conditionGrade: "A",
       priceCents: Math.round(priceLei * 100),
       oldPriceCents: oldPriceLei != null ? Math.round(oldPriceLei * 100) : null,
       description: String(f.get("description") ?? ""),
@@ -78,11 +78,6 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
       </select>
       <input name="frameSize" placeholder="Mărime cadru (M / 54)" required className={fieldClass} />
       <input name="wheelSize" placeholder='Roți (28)' required className={fieldClass} />
-      <select name="conditionGrade" className={fieldClass} defaultValue="A">
-        <option value="A">Stare A</option>
-        <option value="B">Stare B</option>
-        <option value="C">Stare C</option>
-      </select>
       <select name="status" className={fieldClass} defaultValue="draft">
         <option value="draft">Ciornă</option>
         <option value="available">Disponibilă</option>

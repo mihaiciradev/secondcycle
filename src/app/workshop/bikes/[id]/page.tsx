@@ -6,40 +6,10 @@ import { getUserById } from "@/server/services/auth";
 import { getBikeForWorkshop } from "@/server/services/workshops";
 import { getServiceRecords } from "@/server/services/service-records";
 import { SiteHeader } from "@/components/site/site-header";
-import { ServiceRecordForm } from "@/components/workshop/service-record-form";
-import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
+import { ServicePaper } from "@/components/workshop/service-paper";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-type ServiceRecordRow = Awaited<ReturnType<typeof getServiceRecords>>[number];
-
-function RecordView({ record }: { record: ServiceRecordRow }) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <div className="flex flex-wrap justify-between gap-2 border-b border-border pb-3 font-mono text-xs text-steel">
-        <span>Mecanic: {record.performedBy}</span>
-        <span>{new Date(record.performedAt).toLocaleDateString("ro-RO")}</span>
-      </div>
-      <ul className="mt-4 space-y-2">
-        {record.checklist.map((c) => (
-          <li key={c.item} className="flex items-baseline justify-between gap-4 text-sm">
-            <span className="text-foreground/80">{c.item}</span>
-            <span className="text-right">
-              <span className="font-medium">{SERVICE_CHECK_STATUS_LABEL[c.status] ?? c.status}</span>
-              {c.note ? <span className="text-steel"> · {c.note}</span> : null}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {record.summary ? (
-        <p className="mt-4 border-t border-border pt-4 text-sm leading-relaxed text-foreground/80">
-          {record.summary}
-        </p>
-      ) : null}
-    </div>
-  );
-}
 
 export default async function WorkshopBikePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -52,8 +22,8 @@ export default async function WorkshopBikePage({ params }: { params: Promise<{ i
   if (!bike) notFound();
 
   const records = await getServiceRecords(db, id);
-  const intake = records.find((r) => r.kind === "intake");
-  const final = records.find((r) => r.kind === "final");
+  const intake = records.find((r) => r.kind === "intake") ?? null;
+  const final = records.find((r) => r.kind === "final") ?? null;
 
   return (
     <>
@@ -67,22 +37,42 @@ export default async function WorkshopBikePage({ params }: { params: Promise<{ i
             {bike.brand} {bike.model}
           </h1>
           <p className="mt-1 font-mono text-xs text-steel">
-            {[bike.sku, bike.frameSize, `${bike.wheelSize}"`, bike.conditionGrade].join(" · ")}
+            {[bike.sku, bike.frameSize, `${bike.wheelSize}"`].join(" · ")}
           </p>
 
-          <section className="mt-10">
-            <h2 className="font-heading text-lg font-semibold tracking-tight">
-              Constatare (înainte de reparație)
-            </h2>
-            <p className="mb-4 mt-1 text-sm text-steel">Cum arată bicicleta la primire.</p>
-            {intake ? <RecordView record={intake} /> : <ServiceRecordForm bikeId={bike.id} kind="intake" />}
-          </section>
+          <ol className="mt-10 space-y-12">
+            <li>
+              <div className="flex items-center gap-3">
+                <span className="grid size-7 place-items-center rounded-full bg-asphalt font-mono text-xs text-paper">
+                  1
+                </span>
+                <h2 className="font-heading text-lg font-semibold tracking-tight">
+                  Constatare (înainte de reparație)
+                </h2>
+              </div>
+              <p className="mb-4 ml-10 mt-1 text-sm text-steel">Cum arată bicicleta la primire.</p>
+              <div className="ml-10">
+                <ServicePaper bikeId={bike.id} kind="intake" record={intake} canFill />
+              </div>
+            </li>
 
-          <section className="mt-12">
-            <h2 className="font-heading text-lg font-semibold tracking-tight">După reparație</h2>
-            <p className="mb-4 mt-1 text-sm text-steel">Ce s-a înlocuit și ce s-a reparat.</p>
-            {final ? <RecordView record={final} /> : <ServiceRecordForm bikeId={bike.id} kind="final" />}
-          </section>
+            <li>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`grid size-7 place-items-center rounded-full font-mono text-xs ${
+                    intake ? "bg-asphalt text-paper" : "bg-asphalt/15 text-steel"
+                  }`}
+                >
+                  2
+                </span>
+                <h2 className="font-heading text-lg font-semibold tracking-tight">După reparație</h2>
+              </div>
+              <p className="mb-4 ml-10 mt-1 text-sm text-steel">Ce s-a înlocuit și ce s-a reparat.</p>
+              <div className="ml-10">
+                <ServicePaper bikeId={bike.id} kind="final" record={final} canFill={Boolean(intake)} />
+              </div>
+            </li>
+          </ol>
         </div>
       </main>
     </>

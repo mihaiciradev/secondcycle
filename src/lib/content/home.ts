@@ -177,15 +177,15 @@ export const messages: Record<Locale, Dict> = {
     htmlLang: "ro",
     nav: { bikes: "Biciclete în stoc", sell: "Vinde-ne", check: "Verificarea", browse: "Vezi bicicletele" },
     hero: {
-      eyebrow: "Biciclete second-hand, vândute corect",
-      h1: { pre: "O cumpărăm, o reparăm și ne punem ", em: "numele", post: " pe ea." },
-      sub: "Biciclete second-hand din toată România, fiecare demontată, reparată și vândută cu acte de proprietate. Vezi lista completă a reparațiilor înainte să plătești.",
+      eyebrow: "Biciclete second-hand",
+      h1: { pre: "Biciclete second-hand cu ", em: "garanție 12 luni", post: ", verificate piesă cu piesă." },
+      sub: "Le alegem, le reparăm și ți le vindem cu acte și garanție. Vezi exact ce am reparat la fiecare, înainte să plătești. Livrăm în toată România.",
       browse: "Vezi bicicletele",
       sell: "Vinde-ne bicicleta ta",
       proof: [
-        { b: "Verificată", s: "inspecție tehnică înainte de listare" },
+        { b: "Garanție 12 luni", s: "garanția legală de conformitate" },
         { b: "Cu acte", s: "transfer de proprietate și factură" },
-        { b: "Cu garanție", s: "garanția legală de conformitate" },
+        { b: "Verificată", s: "inspecție tehnică înainte de listare" },
       ],
       callouts: [
         { b: "Șa și mânere", s: "verificate, înlocuite la nevoie" },
@@ -195,7 +195,7 @@ export const messages: Record<Locale, Dict> = {
       ],
       caption: "Cadru nr. RO-4471 · verificat în registrul național al bicicletelor furate",
     },
-    strip: ["Garanție legală", "Acte de proprietate", "Verificare tehnică", "Livrare în România"],
+    strip: ["Garanție 12 luni", "Acte de proprietate", "Verificare tehnică", "Livrare în România"],
     check: {
       h2: "Ce verificăm înainte să vezi un preț",
       p: "O bicicletă merită cumpărată doar dacă cineva competent s-a uitat deja la ea. Fiecare stă pe stativ până e gata. Tot ce înlocuim e trecut pe fișa bicicletei și rămâne în contul tău după cumpărare.",
@@ -288,15 +288,15 @@ export const messages: Record<Locale, Dict> = {
     htmlLang: "en",
     nav: { bikes: "Bikes in stock", sell: "Sell us yours", check: "The check", browse: "Browse bikes" },
     hero: {
-      eyebrow: "Used bikes, sold properly",
-      h1: { pre: "We buy it back, fix it and put ", em: "our name", post: " on it." },
-      sub: "Second-hand bikes across Romania, each one stripped down, repaired and sold with ownership papers. You see the full repair list before you pay.",
+      eyebrow: "Used bikes",
+      h1: { pre: "Used bikes with a ", em: "12-month warranty", post: ", checked part by part." },
+      sub: "We pick them, fix them and sell them with papers and a warranty. See exactly what we repaired on each one before you pay. We deliver across Romania.",
       browse: "Browse bikes",
       sell: "Sell us your bike",
       proof: [
-        { b: "Inspected", s: "a technical check before it is listed" },
+        { b: "12-month warranty", s: "the legal warranty of conformity" },
         { b: "With papers", s: "transfer of ownership and invoice" },
-        { b: "Under warranty", s: "the legal warranty of conformity" },
+        { b: "Inspected", s: "a technical check before it is listed" },
       ],
       callouts: [
         { b: "Saddle + grips", s: "checked, replaced if needed" },
@@ -306,7 +306,7 @@ export const messages: Record<Locale, Dict> = {
       ],
       caption: "Frame no. RO-4471 · checked against the national stolen-bike registry",
     },
-    strip: ["Legal warranty", "Ownership papers", "Technical inspection", "Delivery in Romania"],
+    strip: ["12-month warranty", "Ownership papers", "Technical inspection", "Delivery in Romania"],
     check: {
       h2: "What we check before you see a price",
       p: "A used bike is only worth buying if someone competent has already looked at it. Each one stays on the stand until it is ready. Whatever we replace is on the bike's tag and stays in your account after you buy.",

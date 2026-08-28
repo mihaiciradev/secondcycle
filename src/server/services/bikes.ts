@@ -75,8 +75,12 @@ export async function getPublicBikeBySku(db: DB, sku: string) {
 
 // --- Admin -----------------------------------------------------------------
 
-export async function adminListBikes(db: DB) {
-  return db.select().from(bikes).orderBy(desc(bikes.createdAt));
+export async function adminListBikes(db: DB, status?: BikeStatus) {
+  return db
+    .select()
+    .from(bikes)
+    .where(status ? eq(bikes.status, status) : undefined)
+    .orderBy(desc(bikes.createdAt));
 }
 
 export async function getBikeById(db: DB, id: string) {

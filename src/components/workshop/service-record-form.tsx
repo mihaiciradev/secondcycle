@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createServiceRecordAction } from "@/server/actions/workshop/service-records";
+import {
+  createServiceRecordAction,
+  updateServiceRecordAction,
+} from "@/server/actions/workshop/service-records";
 import {
   SERVICE_CHECK_ITEMS,
   SERVICE_CHECK_STATUSES,
@@ -10,11 +13,39 @@ import {
 } from "@/server/constants/app";
 import { fieldClass, labelClass, primaryBtn } from "@/components/auth/auth-shell";
 
-export function ServiceRecordForm({ bikeId, kind }: { bikeId: string; kind: "intake" | "final" }) {
+type ChecklistEntry = { item: string; status: string; note?: string };
+type Initial = {
+  performedBy: string;
+  performedAt: string | Date;
+  summary: string | null;
+  checklist: ChecklistEntry[];
+};
+
+export function ServiceRecordForm({
+  bikeId,
+  kind,
+  recordId,
+  initial,
+  onDone,
+}: {
+  bikeId: string;
+  kind: "intake" | "final";
+  recordId?: string;
+  initial?: Initial;
+  onDone?: () => void;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
   const today = new Date().toISOString().slice(0, 10);
+  const initialDate = initial
+    ? (typeof initial.performedAt === "string"
+        ? initial.performedAt
+        : new Date(initial.performedAt).toISOString()
+      ).slice(0, 10)
+    : today;
+  const initMap = new Map((initial?.checklist ?? []).map((c) => [c.item, c]));
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,17 +61,24 @@ export function ServiceRecordForm({ bikeId, kind }: { bikeId: string; kind: "int
         note: note ? String(note).trim() || undefined : undefined,
       };
     });
-    const res = await createServiceRecordAction({
+    const fields = {
       bikeId,
       kind,
       performedBy: String(f.get("performedBy") ?? "").trim(),
       performedAt: String(f.get("performedAt") ?? today),
       summary: f.get("summary") ? String(f.get("summary")).trim() : undefined,
       checklist,
-    });
+    };
+    const res = recordId
+      ? await updateServiceRecordAction({ recordId, ...fields })
+      : await createServiceRecordAction(fields);
     setLoading(false);
-    if (res.ok) router.refresh();
-    else setError(res.error);
+    if (res.ok) {
+      onDone?.();
+      router.refresh();
+    } else {
+      setError(res.error);
+    }
   }
 
   return (
@@ -48,11 +86,11 @@ export function ServiceRecordForm({ bikeId, kind }: { bikeId: string; kind: "int
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Mecanic</label>
-          <input name="performedBy" required className={fieldClass} />
+          <input name="performedBy" required defaultValue={initial?.performedBy ?? ""} className={fieldClass} />
         </div>
         <div>
           <label className={labelClass}>Data</label>
-          <input name="performedAt" type="date" defaultValue={today} required className={fieldClass} />
+          <input name="performedAt" type="date" defaultValue={initialDate} required className={fieldClass} />
         </div>
       </div>
 
@@ -60,23 +98,26 @@ export function ServiceRecordForm({ bikeId, kind }: { bikeId: string; kind: "int
         {SERVICE_CHECK_ITEMS.map((item) => (
           <div key={item} className="grid items-center gap-2 sm:grid-cols-[1fr_150px_1.4fr]">
             <span className="text-sm font-medium">{item}</span>
-            <select name={`status:${item}`} defaultValue="ok" className={fieldClass}>
+            <select name={`status:${item}`} defaultValue={initMap.get(item)?.status ?? "ok"} className={fieldClass}>
               {SERVICE_CHECK_STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {SERVICE_CHECK_STATUS_LABEL[s]}
                 </option>
               ))}
             </select>
-            <input name={`note:${item}`} placeholder="Notă (opțional)" className={fieldClass} />
+            <input
+              name={`note:${item}`}
+              placeholder="Notă (opțional)"
+              defaultValue={initMap.get(item)?.note ?? ""}
+              className={fieldClass}
+            />
           </div>
         ))}
       </div>
 
       <div>
-        <label className={labelClass}>
-          {kind === "intake" ? "Cum arată bicicleta" : "Ce s-a făcut"}
-        </label>
-        <textarea name="summary" rows={3} className={fieldClass} />
+        <label className={labelClass}>{kind === "intake" ? "Cum arată bicicleta" : "Ce s-a făcut"}</label>
+        <textarea name="summary" rows={3} defaultValue={initial?.summary ?? ""} className={fieldClass} />
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

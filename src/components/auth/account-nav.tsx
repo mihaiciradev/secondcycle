@@ -3,15 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const items = [
+const customerItems = [
   { href: "/account", label: "Detalii" },
   { href: "/account/orders", label: "Comenzi" },
   { href: "/account/preferences", label: "Preferințe" },
   { href: "/account/security", label: "Securitate" },
 ];
 
-export function AccountNav() {
+const staffItems = [
+  { href: "/account", label: "Detalii" },
+  { href: "/account/security", label: "Securitate" },
+];
+
+export function AccountNav({ role }: { role: "customer" | "admin" | "workshop" }) {
   const path = usePathname();
+  const items = role === "customer" ? customerItems : staffItems;
   const isActive = (href: string) =>
     href === "/account" ? path === "/account" : path.startsWith(href);
 
