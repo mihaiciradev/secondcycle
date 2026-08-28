@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { BrandLogo } from "@/components/site/brand-logo";
+import { BasketLink } from "@/components/cart/basket-link";
 import { displayName } from "@/lib/user-display";
 
 /** Interior-page header (catalogue, account, admin). Reflects auth state. */
@@ -36,6 +37,7 @@ export async function SiteHeader() {
               Atelier
             </Link>
           ) : null}
+          <BasketLink />
           {authed ? (
             <Link
               href="/account"

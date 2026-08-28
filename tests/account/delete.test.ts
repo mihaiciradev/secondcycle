@@ -2,7 +2,6 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { bikes, orders, reservations, users } from "@/server/db/schema";
 import { deleteUserAccount } from "@/server/services/account";
-import { reserveBike } from "@/server/services/reservations";
 import { createOrder } from "@/server/services/orders";
 import { createBike } from "@/server/services/bikes";
 import type { CreateBikeInput } from "@/server/validation/bikes";
@@ -38,9 +37,9 @@ function bikeInput(sku: string): CreateBikeInput {
     status: "available",
   };
 }
-function orderInput(bikeId: string): CreateOrderInput {
+function orderInput(bikeIds: string[]): CreateOrderInput {
   return {
-    bikeId,
+    bikeIds,
     billingType: "individual",
     billingName: "Ion Popescu",
     billingEmail: "ion@sc.ro",
@@ -58,7 +57,11 @@ describe("account deletion", () => {
   it("hard-deletes a user with no orders and releases held bikes", async () => {
     const [u] = await t.db.insert(users).values({ email: "gone@sc.ro" }).returning();
     const bike = await createBike(t.db, bikeInput("RO-1"));
-    await reserveBike(t.db, bike.id, u.id);
+    // A bare active hold (no order) — the account has nothing to retain.
+    await t.db
+      .insert(reservations)
+      .values({ bikeId: bike.id, userId: u.id, expiresAt: new Date(Date.now() + 30 * 60 * 1000) });
+    await t.db.update(bikes).set({ status: "reserved" }).where(eq(bikes.id, bike.id));
 
     const res = await deleteUserAccount(t.db, u.id);
     expect(res.anonymized).toBe(false);
@@ -70,8 +73,11 @@ describe("account deletion", () => {
   it("anonymizes a user that has orders and keeps the order", async () => {
     const [u] = await t.db.insert(users).values({ email: "keep@sc.ro" }).returning();
     const bike = await createBike(t.db, bikeInput("RO-1"));
-    await reserveBike(t.db, bike.id, u.id);
-    const order = await createOrder(t.db, { ...orderInput(bike.id), userId: u.id, termsIp: "0.0.0.0" });
+    const { order } = await createOrder(t.db, {
+      ...orderInput([bike.id]),
+      userId: u.id,
+      termsIp: "0.0.0.0",
+    });
 
     const res = await deleteUserAccount(t.db, u.id);
     expect(res.anonymized).toBe(true);

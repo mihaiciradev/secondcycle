@@ -6,7 +6,7 @@ import { db } from "@/server/db/client";
 import { getPublicBikeBySku } from "@/server/services/bikes";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
-import { ReserveButton } from "@/components/bikes/reserve-button";
+import { BikeActions } from "@/components/bikes/bike-actions";
 import { formatLei } from "@/lib/money";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 
@@ -34,7 +34,6 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
   if (!bike) notFound();
 
   const session = await auth();
-  const authed = Boolean(session?.user?.id);
   const photo = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
   const specs: [string, string][] = [
     ["Serial", bike.sku],
@@ -84,22 +83,18 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
               ) : null}
 
               <div className="mt-7">
-                {bike.status === "available" ? (
-                  authed ? (
-                    <ReserveButton bikeId={bike.id} />
-                  ) : (
-                    <Link
-                      href={`/login?next=/bikes/${bike.sku}`}
-                      className="inline-flex h-12 items-center justify-center rounded-full bg-blue px-7 text-base font-semibold text-white transition-colors hover:bg-blue/90"
-                    >
-                      Autentifică-te ca să rezervi
-                    </Link>
-                  )
-                ) : (
-                  <span className="inline-flex h-12 items-center rounded-full border border-asphalt/20 px-7 text-base text-steel">
-                    {bike.status === "reserved" ? "Rezervată momentan" : "Vândută"}
-                  </span>
-                )}
+                <BikeActions
+                  bike={{
+                    bikeId: bike.id,
+                    sku: bike.sku,
+                    brand: bike.brand,
+                    model: bike.model,
+                    priceCents: bike.priceCents,
+                    photo,
+                  }}
+                  status={bike.status}
+                  userEmail={session?.user?.email ?? undefined}
+                />
                 <p className="mt-3 text-sm text-steel">
                   Cu acte, verificare tehnică și garanție legală de conformitate ({WARRANTY_MONTHS} luni).
                 </p>

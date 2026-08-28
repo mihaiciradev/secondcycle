@@ -28,7 +28,7 @@ export default async function MyOrdersPage() {
         </div>
       ) : (
         <ul className="mt-5 space-y-3">
-          {rows.map(({ order, bike }) => (
+          {rows.map(({ order, items }) => (
             <li key={order.id}>
               <Link
                 href={`/account/orders/${order.id}`}
@@ -37,7 +37,10 @@ export default async function MyOrdersPage() {
                 <div>
                   <p className="font-mono text-xs text-steel">{order.orderNumber}</p>
                   <p className="mt-1 font-medium">
-                    {bike.brand} {bike.model}
+                    {items[0] ? `${items[0].brand} ${items[0].model}` : "Comandă"}
+                    {items.length > 1 ? (
+                      <span className="text-steel"> +{items.length - 1}</span>
+                    ) : null}
                   </p>
                 </div>
                 <div className="text-right">

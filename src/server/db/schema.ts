@@ -247,19 +247,45 @@ export const reservations = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
+    // The checkout that created this hold. A basket locks several bikes for one
+    // order; when the order is abandoned/expired all its holds are released.
+    orderId: uuid("order_id").references((): AnyPgColumn => orders.id, { onDelete: "set null" }),
     status: reservationStatusEnum("status").notNull().default("active"),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
-    // Last line of defense: one active hold per bike, one active hold per user.
+    // Last line of defense: at most one active hold per bike. (A single user may
+    // now hold several bikes at once — one per basket item.)
     uniqueIndex("reservations_bike_active_uq")
       .on(t.bikeId)
       .where(sql`status = 'active'`),
-    uniqueIndex("reservations_user_active_uq")
-      .on(t.userId)
-      .where(sql`status = 'active'`),
+  ]
+);
+
+// ---------------------------------------------------------------------------
+// Notify-me: interest in a currently-reserved bike (emailed when it frees up)
+// ---------------------------------------------------------------------------
+export const bikeWatchers = pgTable(
+  "bike_watchers",
+  {
+    id: pk(),
+    bikeId: uuid("bike_id")
+      .notNull()
+      .references(() => bikes.id, { onDelete: "cascade" }),
+    email: citext("email").notNull(),
+    // Set when the subscriber was logged in; null for guests.
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    // One pending watch per (bike, email). Cleared once notified so they can
+    // re-subscribe if it gets reserved again later.
+    uniqueIndex("bike_watchers_bike_email_pending_uq")
+      .on(t.bikeId, t.email)
+      .where(sql`notified_at is null`),
   ]
 );
 
@@ -274,18 +300,12 @@ export const orders = pgTable("orders", {
     .default(
       sql`'SC-' || to_char(now(), 'YYYY') || '-' || lpad(nextval('order_number_seq')::text, 6, '0')`
     ),
-  bikeId: uuid("bike_id")
-    .notNull()
-    .references(() => bikes.id, { onDelete: "restrict" }),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
-  reservationId: uuid("reservation_id").references(() => reservations.id, {
-    onDelete: "set null",
-  }),
   status: orderStatusEnum("status").notNull().default("pending"),
-  // Prices snapshotted at creation — later bike edits must not change orders.
-  bikePriceCents: integer("bike_price_cents").notNull(),
+  // Sum of the order's line items, snapshotted at creation — later bike edits
+  // must not change orders. Per-bike prices live in order_items.
   totalCents: integer("total_cents").notNull(),
   billingType: billingTypeEnum("billing_type").notNull(),
   billingName: text("billing_name").notNull(),
@@ -316,6 +336,30 @@ export const orders = pgTable("orders", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+/**
+ * One line per bike in an order. A basket becomes a single order with several
+ * items. Brand/model/sku/price are snapshotted so later bike edits don't alter
+ * the order. A bike can appear at most once per order.
+ */
+export const orderItems = pgTable(
+  "order_items",
+  {
+    id: pk(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    bikeId: uuid("bike_id")
+      .notNull()
+      .references(() => bikes.id, { onDelete: "restrict" }),
+    brand: text("brand").notNull(),
+    model: text("model").notNull(),
+    sku: text("sku").notNull(),
+    priceCents: integer("price_cents").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("order_items_order_bike_uq").on(t.orderId, t.bikeId)]
+);
 
 // ---------------------------------------------------------------------------
 // Email log + campaigns (outbox)

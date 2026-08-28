@@ -2,10 +2,11 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
-import { getOrderForUser } from "@/server/services/orders";
+import { getOrderForUser, getOrderHoldExpiry } from "@/server/services/orders";
 import { reconcileOrderPayment } from "@/server/services/payments";
 import { Card, Row } from "@/components/auth/account-ui";
 import { PayButton } from "@/components/orders/pay-button";
+import { HoldCountdown } from "@/components/orders/hold-countdown";
 import { isPaymentEnabled } from "@/server/payments/stripe";
 import { formatLei } from "@/lib/money";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
@@ -33,11 +34,12 @@ export default async function OrderDetailPage({
 
   const row = await getOrderForUser(db, id, session.user.id);
   if (!row) notFound();
-  const { order, bike } = row;
+  const { order, items } = row;
   // Don't show "Pay" while we're on the return-from-Stripe screen (`paid`),
   // even in the rare case reconciliation is still catching up.
   const awaitingPayment =
     order.status === "pending" && !order.paidAt && isPaymentEnabled() && !paid;
+  const holdExpiry = awaitingPayment ? await getOrderHoldExpiry(db, order.id) : null;
 
   const delivery =
     order.deliveryMethod === "courier"
@@ -60,20 +62,33 @@ export default async function OrderDetailPage({
       </div>
 
       {paid && order.paidAt ? (
-        <p className="mt-4 rounded-md border border-emerald-500/25 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">
-          Plată confirmată. Mulțumim! Îți pregătim bicicleta.
-        </p>
+        <div className="mt-4 flex items-center gap-3 rounded-lg bg-emerald-600 px-4 py-3 text-paper shadow-sm">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="size-5 shrink-0" aria-hidden>
+            <path
+              fillRule="evenodd"
+              d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.3 3.29 6.8-6.79a1 1 0 0 1 1.4 0Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <p className="text-sm font-medium">Plată confirmată. Mulțumim! Îți pregătim bicicleta.</p>
+        </div>
       ) : paid ? (
-        <p className="mt-4 rounded-md border border-amber-500/25 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-700 dark:text-amber-400">
-          Verificăm plata cu Stripe. Reîncarcă pagina în câteva secunde.
-        </p>
+        <div className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+          <span className="size-4 shrink-0 animate-spin rounded-full border-2 border-steel/30 border-t-steel" aria-hidden />
+          <p className="text-sm text-foreground/80">Verificăm plata cu Stripe. Reîncarcă pagina în câteva secunde.</p>
+        </div>
       ) : null}
 
       <div className="mt-6 space-y-4">
-        <Card title="Bicicleta">
+        <Card title={items.length > 1 ? `Biciclete (${items.length})` : "Bicicleta"}>
           <dl>
-            <Row label="Model">{`${bike.brand} ${bike.model}`}</Row>
-            <Row label="Serial">{bike.sku}</Row>
+            {items.map((it) => (
+              <Row key={it.id} label={`${it.brand} ${it.model}`}>
+                <span className="font-mono text-xs text-steel">{it.sku}</span>
+                {"  "}
+                {formatLei(it.priceCents)}
+              </Row>
+            ))}
             <Row label="Total">{formatLei(order.totalCents)}</Row>
           </dl>
         </Card>
@@ -95,13 +110,26 @@ export default async function OrderDetailPage({
         <Card title="Plată">
           {order.paidAt ? (
             <p className="text-sm text-foreground/80">
-              Plătită pe {new Date(order.paidAt).toLocaleDateString("ro-RO")}.
+              Plătită pe{" "}
+              {new Date(order.paidAt).toLocaleString("ro-RO", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+              .
             </p>
           ) : awaitingPayment ? (
             <div>
-              <p className="mb-4 text-sm text-foreground/70">
+              <p className="mb-2 text-sm text-foreground/70">
                 Comanda așteaptă plata. Finalizează plata în siguranță prin Stripe.
               </p>
+              {holdExpiry ? (
+                <div className="mb-4">
+                  <HoldCountdown expiresAt={holdExpiry.toISOString()} />
+                </div>
+              ) : null}
               <PayButton orderId={order.id} />
             </div>
           ) : (

@@ -10,7 +10,7 @@ import { createOrderSchema } from "@/server/validation/orders";
 import { AppError } from "@/server/errors";
 
 type CreateResult =
-  | { ok: true; orderId: string; checkoutUrl?: string }
+  | { ok: true; orderId: string; checkoutUrl?: string; unavailable: { bikeId: string; label?: string }[] }
   | { ok: false; error: string };
 
 function originFrom(h: Headers): string {
@@ -27,7 +27,11 @@ export async function createOrderAction(input: unknown): Promise<CreateResult> {
 
     const h = await headers();
     const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || "0.0.0.0";
-    const order = await createOrder(db, { ...parsed.data, userId: user.id, termsIp: ip });
+    const { order, unavailable } = await createOrder(db, {
+      ...parsed.data,
+      userId: user.id,
+      termsIp: ip,
+    });
 
     // If Stripe is configured for this environment, hand off to hosted checkout.
     let checkoutUrl: string | undefined;
@@ -38,7 +42,7 @@ export async function createOrderAction(input: unknown): Promise<CreateResult> {
         origin: originFrom(h),
       });
     }
-    return { ok: true, orderId: order.id, checkoutUrl };
+    return { ok: true, orderId: order.id, checkoutUrl, unavailable };
   } catch (e) {
     return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
   }

@@ -4,7 +4,7 @@ import { isValidCui } from "@/server/constants/cui";
 
 export const createOrderSchema = z
   .object({
-    bikeId: z.string().uuid(),
+    bikeIds: z.array(z.string().uuid()).min(1, "Coșul este gol").max(20),
     billingType: z.enum(["individual", "company"]),
     billingName: z.string().trim().min(2).max(120),
     billingEmail: z.string().email().max(255),

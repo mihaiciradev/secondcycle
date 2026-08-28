@@ -1,50 +1,45 @@
 import type Stripe from "stripe";
 import { eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
-import { bikes, orders } from "@/server/db/schema";
+import { bikes, orderItems, orders, reservations } from "@/server/db/schema";
 import { getStripe } from "@/server/payments/stripe";
 import { Conflict, NotFound } from "@/server/errors";
 
 /**
- * Create a Stripe Checkout Session for a pending order owned by the caller.
- * Amount is the snapshotted total in bani (RON minor unit). Returns the hosted
- * checkout URL. The order is only marked paid by the webhook, never here.
+ * Create a Stripe Checkout Session for a pending order owned by the caller. One
+ * line item per bike in the order (amounts snapshotted in bani). Returns the
+ * hosted checkout URL. The order is only marked paid by the webhook / return
+ * reconciliation, never here.
  */
 export async function createCheckoutSession(
   db: DB,
   input: { orderId: string; userId: string; origin: string }
 ): Promise<string> {
-  const [row] = await db
-    .select({ order: orders, bike: bikes })
-    .from(orders)
-    .innerJoin(bikes, eq(bikes.id, orders.bikeId))
-    .where(eq(orders.id, input.orderId))
-    .limit(1);
-  if (!row || row.order.userId !== input.userId) throw NotFound("Comanda nu există");
-
-  const { order, bike } = row;
+  const [order] = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
+  if (!order || order.userId !== input.userId) throw NotFound("Comanda nu există");
   if (order.paidAt) throw Conflict("Comanda este deja plătită");
   if (order.status !== "pending") throw Conflict("Comanda nu mai poate fi plătită");
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+  if (items.length === 0) throw Conflict("Comanda nu are produse");
 
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     customer_email: order.billingEmail,
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "ron",
-          unit_amount: order.totalCents,
-          product_data: {
-            name: `${bike.brand} ${bike.model}`,
-            description: `Serial ${bike.sku}`,
-          },
-        },
+    line_items: items.map((it) => ({
+      quantity: 1,
+      price_data: {
+        currency: "ron",
+        unit_amount: it.priceCents,
+        product_data: { name: `${it.brand} ${it.model}`, description: `Serial ${it.sku}` },
       },
-    ],
+    })),
     metadata: { orderId: order.id },
     payment_intent_data: { metadata: { orderId: order.id } },
+    // Roughly aligned with our 30-minute hold; a small buffer over Stripe's
+    // 30-minute minimum so session creation never races the clock.
+    expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
     success_url: `${input.origin}/account/orders/${order.id}?paid=1`,
     cancel_url: `${input.origin}/account/orders/${order.id}`,
   });
@@ -57,8 +52,6 @@ export async function createCheckoutSession(
 /**
  * Synchronously reconcile an order against Stripe (used on the checkout return
  * page so the UI is correct immediately, without waiting for the webhook).
- * Retrieves the stored session; if Stripe reports it paid, runs the same
- * idempotent completion path. Safe to call repeatedly and alongside the webhook.
  * Never throws on Stripe errors — the webhook remains the reliable backstop.
  */
 export async function reconcileOrderPayment(
@@ -80,8 +73,9 @@ export async function reconcileOrderPayment(
 }
 
 /**
- * Handle checkout.session.completed from the webhook: mark the order paid,
- * confirm it, and sell the bike. Idempotent and race-safe (FOR UPDATE + guard).
+ * Handle checkout.session.completed: mark the order paid + confirmed, sell every
+ * bike in it, and consume its holds. Idempotent and race-safe (FOR UPDATE +
+ * paidAt guard), so the webhook and the return-page reconcile can't double-run.
  */
 export async function handleCheckoutCompleted(
   db: DB,
@@ -106,8 +100,13 @@ export async function handleCheckoutCompleted(
       })
       .where(eq(orders.id, orderId));
 
-    if (order.status === "pending") {
-      await tx.update(bikes).set({ status: "sold" }).where(eq(bikes.id, order.bikeId));
+    const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+    for (const it of items) {
+      await tx.update(bikes).set({ status: "sold" }).where(eq(bikes.id, it.bikeId));
     }
+    await tx
+      .update(reservations)
+      .set({ status: "converted" })
+      .where(eq(reservations.orderId, orderId));
   });
 }

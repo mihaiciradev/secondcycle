@@ -1,37 +1,44 @@
 "use server";
 
+import { z } from "zod";
+import { auth } from "@/auth";
 import { db } from "@/server/db/client";
-import { requireUser } from "@/server/auth/guards";
 import { rateLimit } from "@/server/services/rate-limit";
-import { cancelReservation, reserveBike } from "@/server/services/reservations";
+import { watchBike } from "@/server/services/watchers";
 import { AppError } from "@/server/errors";
 
-type Result = { ok: true } | { ok: false; error: string };
+type WatchResult =
+  | { ok: true; status: "watching" | "available" }
+  | { ok: false; error: string };
 
-function fail(e: unknown): Result {
-  return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
-}
+const watchSchema = z.object({
+  bikeId: z.string().uuid(),
+  email: z.string().email().max(255),
+});
 
-/** Reserve a bike for the caller (30-minute hold). Rate limit 10/min/user. */
-export async function reserveBikeAction(bikeId: string): Promise<Result> {
+/**
+ * Subscribe an email to be notified when a currently-reserved bike frees up.
+ * Open to guests (any email); logged-in users are linked to their account.
+ * Rate limited by IP+bike to prevent abuse.
+ */
+export async function watchBikeAction(input: unknown): Promise<WatchResult> {
   try {
-    const user = await requireUser();
-    if (!(await rateLimit(db, `reserve:${user.id}`, 10, 60))) {
+    const parsed = watchSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: "Date invalide" };
+
+    const session = await auth();
+    const key = `watch:${session?.user?.id ?? parsed.data.email}`;
+    if (!(await rateLimit(db, key, 10, 60))) {
       return { ok: false, error: "Prea multe încercări. Încearcă din nou într-un minut." };
     }
-    await reserveBike(db, bikeId, user.id);
-    return { ok: true };
-  } catch (e) {
-    return fail(e);
-  }
-}
 
-export async function cancelReservationAction(id: string): Promise<Result> {
-  try {
-    const user = await requireUser();
-    await cancelReservation(db, id, user.id);
-    return { ok: true };
+    const res = await watchBike(db, {
+      bikeId: parsed.data.bikeId,
+      email: parsed.data.email,
+      userId: session?.user?.id,
+    });
+    return { ok: true, status: res.status };
   } catch (e) {
-    return fail(e);
+    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
   }
 }

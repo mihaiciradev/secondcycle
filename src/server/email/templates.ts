@@ -33,3 +33,17 @@ export function passwordResetTemplate(link: string) {
     ),
   };
 }
+
+export function bikeAvailableTemplate(input: {
+  bikeLabel: string;
+  link: string;
+}) {
+  return {
+    subject: `Din nou disponibilă: ${input.bikeLabel} — Second Cycle`,
+    html: shell(
+      "Bicicleta e din nou disponibilă",
+      `<p><strong>${input.bikeLabel}</strong> pe care o urmăreai s-a eliberat și poate fi cumpărată acum. Fiind unicat, primul care finalizează comanda o ia.</p>`,
+      { href: input.link, label: "Vezi bicicleta" }
+    ),
+  };
+}

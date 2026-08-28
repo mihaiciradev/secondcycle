@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, lt, lte, or } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
-import { bikes, orders, reservations, serviceRecords } from "@/server/db/schema";
+import { bikes, orderItems, reservations, serviceRecords } from "@/server/db/schema";
 import { canAdminTransitionBike, type BikeStatus } from "@/server/constants/statuses";
 import { Conflict, NotFound } from "@/server/errors";
 import { expireOverdueReservations } from "@/server/services/reservations";
@@ -157,7 +157,11 @@ export async function deleteDraftBike(db: DB, id: string) {
   if (!bike) throw NotFound("Bicicleta nu există");
   if (bike.status !== "draft") throw Conflict("Doar ciornele pot fi șterse");
 
-  const [o] = await db.select({ id: orders.id }).from(orders).where(eq(orders.bikeId, id)).limit(1);
+  const [o] = await db
+    .select({ id: orderItems.id })
+    .from(orderItems)
+    .where(eq(orderItems.bikeId, id))
+    .limit(1);
   const [s] = await db
     .select({ id: serviceRecords.id })
     .from(serviceRecords)

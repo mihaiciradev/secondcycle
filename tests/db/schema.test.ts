@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { eq } from "drizzle-orm";
 import { bikes, orders, reservations, users } from "@/server/db/schema";
 import { setupTestDb, teardownTestDb, truncateAll, type TestDb } from "../helpers/testDb";
 
@@ -47,17 +48,18 @@ describe("schema (migrations against real Postgres)", () => {
     ).rejects.toThrow();
   });
 
-  it("enforces one active reservation per user (partial unique index)", async () => {
+  it("allows a user to hold several bikes at once (basket)", async () => {
     const [u] = await t.db.insert(users).values({ email: "solo@sc.ro" }).returning();
     const b1 = await seedBike("RO-1");
     const b2 = await seedBike("RO-2");
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
     await t.db.insert(reservations).values({ bikeId: b1.id, userId: u.id, expiresAt });
+    // No longer rejected — one hold per bike, but many per user.
+    await t.db.insert(reservations).values({ bikeId: b2.id, userId: u.id, expiresAt });
 
-    await expect(
-      t.db.insert(reservations).values({ bikeId: b2.id, userId: u.id, expiresAt })
-    ).rejects.toThrow();
+    const held = await t.db.select().from(reservations).where(eq(reservations.userId, u.id));
+    expect(held).toHaveLength(2);
   });
 
   it("treats email as case-insensitive (citext unique)", async () => {
@@ -72,9 +74,7 @@ describe("schema (migrations against real Postgres)", () => {
     const [o] = await t.db
       .insert(orders)
       .values({
-        bikeId: b.id,
         userId: u.id,
-        bikePriceCents: b.priceCents,
         totalCents: b.priceCents,
         billingType: "individual",
         billingName: "Ion Popescu",
