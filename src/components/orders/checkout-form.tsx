@@ -93,9 +93,16 @@ export function CheckoutForm({ bikeId }: { bikeId: string }) {
       termsAccepted: true as const,
     };
     const res = await createOrderAction(input);
+    if (res.ok) {
+      if (res.checkoutUrl) {
+        window.location.href = res.checkoutUrl; // hand off to Stripe checkout
+        return;
+      }
+      router.push(`/account/orders/${res.orderId}`);
+      return;
+    }
     setLoading(false);
-    if (res.ok) router.push(`/account/orders/${res.orderId}`);
-    else setError(res.error);
+    setError(res.error);
   }
 
   return (

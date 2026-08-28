@@ -4,19 +4,29 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getOrderForUser } from "@/server/services/orders";
 import { Card, Row } from "@/components/auth/account-ui";
+import { PayButton } from "@/components/orders/pay-button";
+import { isPaymentEnabled } from "@/server/payments/stripe";
 import { formatLei } from "@/lib/money";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OrderDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ paid?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const { id } = await params;
+  const { paid } = await searchParams;
   const row = await getOrderForUser(db, id, session.user.id);
   if (!row) notFound();
   const { order, bike } = row;
+  const awaitingPayment = order.status === "pending" && !order.paidAt && isPaymentEnabled();
 
   const delivery =
     order.deliveryMethod === "courier"
@@ -37,6 +47,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {ORDER_STATUS_LABEL[order.status]}
         </span>
       </div>
+
+      {paid ? (
+        <p className="mt-4 rounded-md border border-blue/25 bg-blue/5 px-3.5 py-2.5 text-sm text-blue">
+          Plata a fost inițiată. Confirmarea apare imediat ce Stripe o procesează.
+        </p>
+      ) : null}
 
       <div className="mt-6 space-y-4">
         <Card title="Bicicleta">
@@ -61,9 +77,24 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </dl>
         </Card>
 
-        <p className="text-sm text-steel">
-          Comanda e înregistrată. Te contactăm pentru confirmare și pentru pasul de plată.
-        </p>
+        <Card title="Plată">
+          {order.paidAt ? (
+            <p className="text-sm text-foreground/80">
+              Plătită pe {new Date(order.paidAt).toLocaleDateString("ro-RO")}.
+            </p>
+          ) : awaitingPayment ? (
+            <div>
+              <p className="mb-4 text-sm text-foreground/70">
+                Comanda așteaptă plata. Finalizează plata în siguranță prin Stripe.
+              </p>
+              <PayButton orderId={order.id} />
+            </div>
+          ) : (
+            <p className="text-sm text-steel">
+              Comanda e înregistrată. Te contactăm pentru confirmare și livrare.
+            </p>
+          )}
+        </Card>
       </div>
     </div>
   );

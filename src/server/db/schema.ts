@@ -309,6 +309,10 @@ export const orders = pgTable("orders", {
   termsAcceptedIp: inet("terms_accepted_ip").notNull(),
   customerNote: text("customer_note"),
   adminNote: text("admin_note"),
+  // Stripe payment tracking (null until checkout starts / completes).
+  stripeSessionId: text("stripe_session_id"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
