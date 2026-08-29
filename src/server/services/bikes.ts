@@ -88,6 +88,12 @@ export async function getBikeById(db: DB, id: string) {
   return row ?? null;
 }
 
+/** Replace a bike's ordered photo keys (first key is the cover). */
+export async function setBikePhotos(db: DB, id: string, photos: string[]) {
+  const [row] = await db.update(bikes).set({ photos }).where(eq(bikes.id, id)).returning();
+  return row ?? null;
+}
+
 function isUniqueViolation(e: unknown): boolean {
   return typeof e === "object" && e !== null && (e as { code?: string }).code === "23505";
 }

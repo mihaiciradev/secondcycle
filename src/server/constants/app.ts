@@ -22,6 +22,8 @@ export const FREE_TIER = {
   resendEmailsPerDay: 100,
   /** Neon free plan storage per project (0.5 GB). */
   neonStorageBytes: 0.5 * 1024 * 1024 * 1024,
+  /** Cloudflare R2 free plan storage (10 GB). */
+  r2StorageBytes: 10 * 1024 * 1024 * 1024,
 } as const;
 
 /**

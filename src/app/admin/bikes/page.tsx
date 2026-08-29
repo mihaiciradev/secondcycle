@@ -92,7 +92,14 @@ export default async function AdminBikesPage({
                       </Link>
                     </td>
                     <td className="py-3 pr-4">
-                      {b.brand} {b.model}
+                      <Link href={`/admin/bikes/${b.id}`} className="font-medium hover:underline">
+                        {b.brand} {b.model}
+                      </Link>
+                      {b.photos.length > 0 ? (
+                        <span className="ml-2 font-mono text-xs text-steel">📷 {b.photos.length}</span>
+                      ) : (
+                        <span className="ml-2 font-mono text-xs text-amber-600 dark:text-amber-400">fără poze</span>
+                      )}
                     </td>
                     <td className="py-3 pr-4 font-mono">{formatLei(b.priceCents)}</td>
                     <td className="py-3 pr-4">{statusLabel[b.status] ?? b.status}</td>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/server/db/client";
 import { getAdminStats } from "@/server/services/admin-stats";
 import { getStripeSnapshot } from "@/server/services/payments";
+import { getStorageStats } from "@/server/storage/r2";
 import {
   MiniBars,
   SectionTitle,
@@ -18,7 +19,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const [s, stripe] = await Promise.all([getAdminStats(db), getStripeSnapshot()]);
+  const [s, stripe, storage] = await Promise.all([
+    getAdminStats(db),
+    getStripeSnapshot(),
+    getStorageStats(),
+  ]);
   const months = lastSixMonths(s.revenue.monthly);
 
   return (
@@ -164,6 +169,16 @@ export default async function AdminOverviewPage() {
                 limit={FREE_TIER.neonStorageBytes}
                 format={formatBytes}
               />
+              {storage ? (
+                <UsageBar
+                  label={`Poze (R2 · ${storage.objects} fișiere)`}
+                  used={storage.bytes}
+                  limit={FREE_TIER.r2StorageBytes}
+                  format={formatBytes}
+                />
+              ) : (
+                <p className="text-xs text-steel">Stocarea foto (R2) nu e configurată în acest mediu.</p>
+              )}
               {s.email.failedMonth > 0 ? (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
                   {s.email.failedMonth} e-mailuri eșuate luna aceasta — verifică Resend.
