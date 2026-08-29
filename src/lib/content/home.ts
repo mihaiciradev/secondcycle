@@ -11,119 +11,24 @@
 
 export type Locale = "ro" | "en";
 
-export interface Bike {
-  serial: string;
-  model: string;
+/**
+ * A real in-stock bike, mapped from the DB for the home page's featured grid.
+ * (The home page used to carry an illustrative sample array; it now shows only
+ * genuine stock, or an empty-state message when there is none.)
+ */
+export interface HomeBike {
+  sku: string;
+  title: string; // "Brand Model"
   symbol: "bike-city" | "bike-road" | "bike-mtb";
   category: "city" | "mountain" | "road";
-  grade: "a" | "b" | "c";
-  year: number;
+  year: number | null;
   frame: string;
   wheel: string; // inches, without the quote mark
-  speed: number;
-  price: number; // RON, illustrative
-  work: Record<Locale, string[]>;
+  price: number; // RON (lei)
+  work: string[];
+  photo: string | null;
+  reserved: boolean;
 }
-
-/** Sample stock. Illustrative catalogue, one of one, no stock count implied. */
-export const bikes: Bike[] = [
-  {
-    serial: "RO-4471",
-    model: "Pegas Clasic Mixt",
-    symbol: "bike-city",
-    category: "city",
-    grade: "a",
-    year: 2019,
-    frame: "M",
-    wheel: "28",
-    speed: 3,
-    price: 850,
-    work: {
-      ro: ["Lanț și plăcuțe noi", "Ambele roți centrate", "Anvelope, șa și mânere noi"],
-      en: ["New chain and pads", "Both wheels trued", "New tyres, saddle, grips"],
-    },
-  },
-  {
-    serial: "RO-4468",
-    model: "Cube Aim Race",
-    symbol: "bike-mtb",
-    category: "mountain",
-    grade: "a",
-    year: 2020,
-    frame: "L",
-    wheel: "29",
-    speed: 18,
-    price: 1590,
-    work: {
-      ro: ["Furcă revizuită", "Pinioane și lanț noi", "Frâne purjate, plăcuțe noi"],
-      en: ["Fork serviced", "New cassette and chain", "Brakes bled, new pads"],
-    },
-  },
-  {
-    serial: "RO-4463",
-    model: "Bianchi Via Nirone 7",
-    symbol: "bike-road",
-    category: "road",
-    grade: "b",
-    year: 2017,
-    frame: "54",
-    wheel: "28",
-    speed: 20,
-    price: 2450,
-    work: {
-      ro: ["Bandă de ghidon și cabluri noi", "Butuci regresați", "Vopsea sărită pe tubul superior"],
-      en: ["New bar tape and cables", "Hubs regreased", "Paint chips on the top tube"],
-    },
-  },
-  {
-    serial: "RO-4459",
-    model: "Btwin Elops 520",
-    symbol: "bike-city",
-    category: "city",
-    grade: "a",
-    year: 2021,
-    frame: "S",
-    wheel: "26",
-    speed: 6,
-    price: 990,
-    work: {
-      ro: ["Plăcuțe de frână noi", "Portbagaj și aripi montate", "Lumini incluse"],
-      en: ["New brake pads", "Rack and mudguards fitted", "Lights included"],
-    },
-  },
-  {
-    serial: "RO-4455",
-    model: "Ideal Freeder",
-    symbol: "bike-mtb",
-    category: "mountain",
-    grade: "b",
-    year: 2016,
-    frame: "M",
-    wheel: "27.5",
-    speed: 21,
-    price: 690,
-    work: {
-      ro: ["Transmisie înlocuită complet", "Mânere și pedale noi", "Janta spate prezintă uzură"],
-      en: ["Full drivetrain replaced", "New grips and pedals", "Rear rim shows wear"],
-    },
-  },
-  {
-    serial: "RO-4450",
-    model: "Giant Contend 3",
-    symbol: "bike-road",
-    category: "road",
-    grade: "a",
-    year: 2019,
-    frame: "M",
-    wheel: "28",
-    speed: 16,
-    price: 2190,
-    work: {
-      ro: ["Anvelope și camere noi", "Viteze reindexate", "Pedalier înlocuit"],
-      en: ["New tyres and tubes", "Gears re-indexed", "Bottom bracket replaced"],
-    },
-  },
-];
 
 interface Dict {
   htmlLang: string;
@@ -155,6 +60,7 @@ interface Dict {
     see: string;
     more: string;
     empty: string;
+    emptyStock: { title: string; text: string };
   };
   sell: {
     eyebrow: string;
@@ -234,6 +140,10 @@ export const messages: Record<Locale, Dict> = {
       see: "Vezi",
       more: "Vezi toate bicicletele",
       empty: "Nicio bicicletă în acest filtru deocamdată.",
+      emptyStock: {
+        title: "Momentan nu avem biciclete în stoc",
+        text: "Pregătim următoarele modele în atelier. Revenim curând — lasă-ne adresa de e-mail dacă vrei să te anunțăm.",
+      },
     },
     sell: {
       eyebrow: "Vinde-ne bicicleta ta",
@@ -345,6 +255,10 @@ export const messages: Record<Locale, Dict> = {
       see: "See it",
       more: "See all bikes",
       empty: "No bikes in this filter yet.",
+      emptyStock: {
+        title: "No bikes in stock right now",
+        text: "We're prepping the next ones in the workshop. Back soon — leave your email if you'd like a heads-up.",
+      },
     },
     sell: {
       eyebrow: "Sell us yours",

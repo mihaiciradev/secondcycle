@@ -149,6 +149,11 @@
 .home .price{font-family:var(--font-archivo),sans-serif;font-variation-settings:'wdth' 112;font-weight:800;font-size:23px;white-space:nowrap}
 .home .more{display:flex;justify-content:center;margin-top:38px}
 
+/* empty stock */
+.home .stock-empty{border:1px dashed rgba(21,24,27,.22);border-radius:var(--r);padding:56px 28px;text-align:center;background:var(--manila)}
+.home .stock-empty h3{font-size:clamp(20px,2.4vw,26px);margin:0 0 10px}
+.home .stock-empty p{color:var(--steel);max-width:44ch;margin:0 auto;line-height:1.55}
+
 /* sell */
 .home .dark{background:var(--asphalt);color:var(--paper)}
 .home .dark .sec__head p{color:rgba(237,239,234,.72)}
