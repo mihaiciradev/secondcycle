@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getOrderForUser, getOrderHoldExpiry } from "@/server/services/orders";
 import { reconcileOrderPayment } from "@/server/services/payments";
+import { getPaymentsLive, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
 import { Card, Row } from "@/components/auth/account-ui";
 import { PayButton } from "@/components/orders/pay-button";
 import { HoldCountdown } from "@/components/orders/hold-countdown";
@@ -37,8 +38,10 @@ export default async function OrderDetailPage({
   const { order, items } = row;
   // Don't show "Pay" while we're on the return-from-Stripe screen (`paid`),
   // even in the rare case reconciliation is still catching up.
-  const awaitingPayment =
-    order.status === "pending" && !order.paidAt && isPaymentEnabled() && !paid;
+  const unpaidPending = order.status === "pending" && !order.paidAt && !paid;
+  const paymentsLive = unpaidPending ? await getPaymentsLive(db) : false;
+  const awaitingPayment = unpaidPending && paymentsLive;
+  const paymentsOff = unpaidPending && !paymentsLive;
   const holdExpiry = awaitingPayment ? await getOrderHoldExpiry(db, order.id) : null;
 
   const delivery =
@@ -132,6 +135,10 @@ export default async function OrderDetailPage({
               ) : null}
               <PayButton orderId={order.id} />
             </div>
+          ) : paymentsOff ? (
+            <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-300">
+              {PAYMENTS_OFF_MESSAGE}
+            </p>
           ) : (
             <p className="text-sm text-steel">
               Comanda e înregistrată. Te contactăm pentru confirmare și livrare.

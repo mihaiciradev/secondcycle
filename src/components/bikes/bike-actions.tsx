@@ -16,14 +16,25 @@ export function BikeActions({
   bike,
   status,
   userEmail,
+  paymentsLive = true,
 }: {
   bike: CartItem;
   status: "available" | "reserved" | "sold" | "draft" | "withdrawn";
   userEmail?: string;
+  paymentsLive?: boolean;
 }) {
   const router = useRouter();
   const { has, add } = useCart();
   const inCart = has(bike.bikeId);
+
+  if (status === "available" && !paymentsLive) {
+    return (
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+        Comenzile online sunt momentan indisponibile din motive tehnice. Revino în curând sau
+        contactează-ne.
+      </div>
+    );
+  }
 
   if (status === "available") {
     return (

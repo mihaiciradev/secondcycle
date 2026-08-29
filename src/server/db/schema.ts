@@ -399,6 +399,15 @@ export const campaignRecipients = pgTable("campaign_recipients", {
 });
 
 // ---------------------------------------------------------------------------
+// App settings (admin-controlled boolean feature flags)
+// ---------------------------------------------------------------------------
+export const appSettings = pgTable("app_settings", {
+  key: text("key").primaryKey(),
+  enabled: boolean("enabled").notNull().default(false),
+  updatedAt: updatedAt(),
+});
+
+// ---------------------------------------------------------------------------
 // Rate limiting (fixed window)
 // ---------------------------------------------------------------------------
 export const rateLimits = pgTable(

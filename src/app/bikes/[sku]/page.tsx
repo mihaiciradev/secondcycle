@@ -4,6 +4,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getPublicBikeBySku } from "@/server/services/bikes";
+import { getPaymentsLive } from "@/server/services/settings";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { BikeActions } from "@/components/bikes/bike-actions";
@@ -33,7 +34,7 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
   const bike = await getPublicBikeBySku(db, sku);
   if (!bike) notFound();
 
-  const session = await auth();
+  const [session, paymentsLive] = await Promise.all([auth(), getPaymentsLive(db)]);
   const photo = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
   const specs: [string, string][] = [
     ["Serial", bike.sku],
@@ -94,6 +95,7 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
                   }}
                   status={bike.status}
                   userEmail={session?.user?.email ?? undefined}
+                  paymentsLive={paymentsLive}
                 />
                 <p className="mt-3 text-sm text-steel">
                   Cu acte, verificare tehnică și garanție legală de conformitate ({WARRANTY_MONTHS} luni).

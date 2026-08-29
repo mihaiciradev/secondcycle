@@ -5,7 +5,7 @@ import { db } from "@/server/db/client";
 import { requireUser } from "@/server/auth/guards";
 import { createOrder } from "@/server/services/orders";
 import { createCheckoutSession } from "@/server/services/payments";
-import { isPaymentEnabled } from "@/server/payments/stripe";
+import { getPaymentsLive, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
 import { createOrderSchema } from "@/server/validation/orders";
 import { AppError } from "@/server/errors";
 
@@ -22,6 +22,9 @@ function originFrom(h: Headers): string {
 export async function createOrderAction(input: unknown): Promise<CreateResult> {
   try {
     const user = await requireUser();
+    // Ordering is gated on the admin flag + Stripe being configured.
+    if (!(await getPaymentsLive(db))) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
+
     const parsed = createOrderSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
 
@@ -33,15 +36,11 @@ export async function createOrderAction(input: unknown): Promise<CreateResult> {
       termsIp: ip,
     });
 
-    // If Stripe is configured for this environment, hand off to hosted checkout.
-    let checkoutUrl: string | undefined;
-    if (isPaymentEnabled()) {
-      checkoutUrl = await createCheckoutSession(db, {
-        orderId: order.id,
-        userId: user.id,
-        origin: originFrom(h),
-      });
-    }
+    const checkoutUrl = await createCheckoutSession(db, {
+      orderId: order.id,
+      userId: user.id,
+      origin: originFrom(h),
+    });
     return { ok: true, orderId: order.id, checkoutUrl, unavailable };
   } catch (e) {
     return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
@@ -54,7 +53,7 @@ export async function createCheckoutAction(
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   try {
     const user = await requireUser();
-    if (!isPaymentEnabled()) return { ok: false, error: "Plata nu este disponibilă." };
+    if (!(await getPaymentsLive(db))) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
     const h = await headers();
     const url = await createCheckoutSession(db, { orderId, userId: user.id, origin: originFrom(h) });
     return { ok: true, url };
