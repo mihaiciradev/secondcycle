@@ -57,8 +57,8 @@ export async function generateMetadata({
   const title = `${bike.brand} ${bike.model}, bicicletă ${cat} second-hand`;
   const description = bikeDescription(bike);
   const url = `${SITE_URL}/bikes/${bike.sku}`;
-  const image = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
 
+  // og:image / twitter:image come from the sibling opengraph-image.tsx.
   return {
     title,
     description,
@@ -68,10 +68,9 @@ export async function generateMetadata({
       url,
       title: `${bike.brand} ${bike.model} | Second Cycle`,
       description,
-      images: image ? [{ url: image, alt: `${bike.brand} ${bike.model}` }] : undefined,
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: `${bike.brand} ${bike.model} | Second Cycle`,
       description,
     },
