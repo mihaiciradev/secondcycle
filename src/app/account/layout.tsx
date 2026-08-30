@@ -19,7 +19,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   const area =
     user.role === "admin"
-      ? { href: "/admin/bikes", label: "Panou admin" }
+      ? { href: "/admin", label: "Panou admin" }
       : user.role === "workshop"
         ? { href: "/workshop", label: "Deschide atelierul" }
         : null;

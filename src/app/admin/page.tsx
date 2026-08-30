@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/server/db/client";
 import { getAdminStats } from "@/server/services/admin-stats";
 import { getStripeSnapshot } from "@/server/services/payments";
-import { getStorageStats } from "@/server/storage/r2";
+import { getStorageStats, isStorageEnabled } from "@/server/storage/r2";
 import {
   MiniBars,
   SectionTitle,
@@ -176,6 +176,11 @@ export default async function AdminOverviewPage() {
                   limit={FREE_TIER.r2StorageBytes}
                   format={formatBytes}
                 />
+              ) : isStorageEnabled() ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  R2 e configurat, dar nu am putut citi utilizarea (verifică permisiunile tokenului
+                  sau conexiunea).
+                </p>
               ) : (
                 <p className="text-xs text-steel">Stocarea foto (R2) nu e configurată în acest mediu.</p>
               )}
