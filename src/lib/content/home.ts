@@ -142,7 +142,7 @@ export const messages: Record<Locale, Dict> = {
       empty: "Nicio bicicletă în acest filtru deocamdată.",
       emptyStock: {
         title: "Momentan nu avem biciclete în stoc",
-        text: "Pregătim următoarele modele în atelier. Revenim curând — lasă-ne adresa de e-mail dacă vrei să te anunțăm.",
+        text: "Pregătim următoarele modele în atelier. Revenim curând. Lasă-ne adresa de e-mail dacă vrei să te anunțăm.",
       },
     },
     sell: {
@@ -257,7 +257,7 @@ export const messages: Record<Locale, Dict> = {
       empty: "No bikes in this filter yet.",
       emptyStock: {
         title: "No bikes in stock right now",
-        text: "We're prepping the next ones in the workshop. Back soon — leave your email if you'd like a heads-up.",
+        text: "We're prepping the next ones in the workshop. Back soon. Leave your email if you'd like a heads-up.",
       },
     },
     sell: {

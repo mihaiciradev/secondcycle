@@ -7,7 +7,7 @@ import { Conflict, NotFound } from "@/server/errors";
 
 /**
  * Best-effort live Stripe balance for the admin dashboard. Returns null if
- * payments are off or Stripe errors — it must never block the page.
+ * payments are off or Stripe errors - it must never block the page.
  */
 export async function getStripeSnapshot(): Promise<{
   mode: "test" | "live";
@@ -73,7 +73,7 @@ export async function createCheckoutSession(
 /**
  * Synchronously reconcile an order against Stripe (used on the checkout return
  * page so the UI is correct immediately, without waiting for the webhook).
- * Never throws on Stripe errors — the webhook remains the reliable backstop.
+ * Never throws on Stripe errors - the webhook remains the reliable backstop.
  */
 export async function reconcileOrderPayment(
   db: DB,

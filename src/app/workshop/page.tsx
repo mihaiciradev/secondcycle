@@ -86,7 +86,7 @@ export default async function WorkshopHomePage() {
                 data={months.map((m) => ({
                   label: m.label,
                   value: m.cents,
-                  caption: m.cents > 0 ? formatLei(m.cents) : "—",
+                  caption: m.cents > 0 ? formatLei(m.cents) : "-",
                 }))}
               />
             </section>

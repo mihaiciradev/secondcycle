@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   if (!signature) return new Response("Missing signature", { status: 400 });
 
-  const payload = await request.text(); // raw body — required for signature check
+  const payload = await request.text(); // raw body - required for signature check
   let event;
   try {
     event = getStripe().webhooks.constructEvent(payload, signature, secret);

@@ -86,7 +86,7 @@ export async function deleteObject(key: string): Promise<void> {
 
 /**
  * Live storage usage for this environment's prefix: object count + total bytes.
- * Best-effort — returns null if R2 is off or errors, so it never blocks a page.
+ * Best-effort - returns null if R2 is off or errors, so it never blocks a page.
  */
 export async function getStorageStats(): Promise<{
   objects: number;

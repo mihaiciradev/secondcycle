@@ -16,6 +16,8 @@ import { GoogleIcon } from "@/components/auth/google-icon";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Unchecked by default: GDPR/ePrivacy requires opt-in to be an affirmative act.
+  const [newsletter, setNewsletter] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const res = await registerAction({ email, password });
+    const res = await registerAction({ email, password, marketingOptIn: newsletter });
     setLoading(false);
     if (res.ok) setDone(true);
     else setError(res.error);
@@ -106,6 +108,18 @@ export default function RegisterPage() {
           />
           <p className="mt-1.5 text-xs text-steel">Minim 10 caractere.</p>
         </div>
+        <label className="flex items-start gap-3 rounded-lg border border-border bg-card/50 p-3.5 text-sm">
+          <input
+            type="checkbox"
+            checked={newsletter}
+            onChange={(e) => setNewsletter(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 accent-[color:var(--color-blue)]"
+          />
+          <span className="text-foreground/80">
+            Vreau bicicletele bune înaintea tuturor. Trimite-mi ocazional noutăți: modele nou intrate
+            în stoc și oferte. Fără spam, te poți dezabona oricând.
+          </span>
+        </label>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         <button type="submit" className={primaryBtn} disabled={loading}>
           {loading ? "Se creează…" : "Creează cont"}

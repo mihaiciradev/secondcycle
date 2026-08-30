@@ -14,7 +14,7 @@ function shell(title: string, body: string, cta: { href: string; label: string }
 
 export function verifyEmailTemplate(link: string) {
   return {
-    subject: "Confirmă adresa de e-mail — Second Cycle",
+    subject: "Confirmă adresa de e-mail | Second Cycle",
     html: shell(
       "Confirmă adresa de e-mail",
       "<p>Bine ai venit. Confirmă adresa de e-mail ca să îți activezi contul Second Cycle.</p>",
@@ -25,7 +25,7 @@ export function verifyEmailTemplate(link: string) {
 
 export function passwordResetTemplate(link: string) {
   return {
-    subject: "Resetare parolă — Second Cycle",
+    subject: "Resetare parolă | Second Cycle",
     html: shell(
       "Resetare parolă",
       "<p>Ai cerut resetarea parolei. Linkul este valabil o oră.</p>",
@@ -39,7 +39,7 @@ export function bikeAvailableTemplate(input: {
   link: string;
 }) {
   return {
-    subject: `Din nou disponibilă: ${input.bikeLabel} — Second Cycle`,
+    subject: `Din nou disponibilă: ${input.bikeLabel} | Second Cycle`,
     html: shell(
       "Bicicleta e din nou disponibilă",
       `<p><strong>${input.bikeLabel}</strong> pe care o urmăreai s-a eliberat și poate fi cumpărată acum. Fiind unicat, primul care finalizează comanda o ia.</p>`,

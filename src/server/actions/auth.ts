@@ -22,7 +22,11 @@ async function clientIp(): Promise<string> {
 }
 
 /** Register. Uniform 200 response (no account enumeration). Rate limit 3/min/IP. */
-export async function registerAction(input: { email: string; password: string }): Promise<Result> {
+export async function registerAction(input: {
+  email: string;
+  password: string;
+  marketingOptIn?: boolean;
+}): Promise<Result> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
   if (!(await rateLimit(db, `register:${await clientIp()}`, 3, 60))) {

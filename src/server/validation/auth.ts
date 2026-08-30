@@ -8,7 +8,11 @@ const password = z
   .refine((p) => !isCommonPassword(p), "Alege o parolă mai puțin comună");
 
 export const registerSchema = z
-  .object({ email: z.string().email("Adresă de e-mail invalidă").max(255), password })
+  .object({
+    email: z.string().email("Adresă de e-mail invalidă").max(255),
+    password,
+    marketingOptIn: z.boolean().optional(),
+  })
   .strict();
 
 export const forgotSchema = z

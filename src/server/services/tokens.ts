@@ -54,6 +54,6 @@ export async function consumeToken(
     .where(and(eq(tokens.id, row.id), isNull(tokens.usedAt)))
     .returning({ id: tokens.id });
 
-  if (!claimed) return null; // lost the race — already consumed
+  if (!claimed) return null; // lost the race - already consumed
   return { userId: row.userId, email: row.email };
 }

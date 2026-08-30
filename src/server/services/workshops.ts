@@ -86,7 +86,7 @@ const num = (v: unknown): number => (v == null ? 0 : Number(v));
  * Dashboard metrics for one workshop: the bikes it prepared that went on to
  * sell (count + sale value, all-time / this month / last 6 months) and how many
  * service papers it has filed. Sale value is the price the bike sold for, from
- * the paid order — the workshop's throughput, not a payout.
+ * the paid order - the workshop's throughput, not a payout.
  */
 export async function getWorkshopStats(db: DB, workshopId: string) {
   const soldJoin = db

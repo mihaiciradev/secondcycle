@@ -63,7 +63,7 @@ export default async function AdminOrdersPage({
                 <tr key={order.id} className="border-b border-border/70">
                   <td className="py-3 pr-4 font-mono text-xs">{order.orderNumber}</td>
                   <td className="py-3 pr-4">
-                    {items[0] ? `${items[0].brand} ${items[0].model}` : "—"}
+                    {items[0] ? `${items[0].brand} ${items[0].model}` : "-"}
                     {items.length > 1 ? <span className="text-steel"> +{items.length - 1}</span> : null}
                   </td>
                   <td className="py-3 pr-4 text-foreground/80">{order.billingEmail}</td>

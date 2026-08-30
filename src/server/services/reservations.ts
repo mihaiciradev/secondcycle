@@ -5,7 +5,7 @@ import { notifyBikeAvailable } from "@/server/services/watchers";
 
 /**
  * Reservation model (v2): a bike is NOT locked while browsing or sitting in a
- * basket. It is locked only when the buyer starts checkout — `createOrder`
+ * basket. It is locked only when the buyer starts checkout - `createOrder`
  * inserts an active hold per basket item (see services/orders.ts), all sharing
  * one 30-minute expiry and the order id. If the order isn't paid in time, the
  * holds expire, the bikes are released, the pending order is cancelled, and any

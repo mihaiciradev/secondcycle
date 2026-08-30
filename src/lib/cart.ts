@@ -41,7 +41,7 @@ function commit(next: CartItem[]): void {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(next));
   } catch {
-    // storage may be unavailable (private mode) — in-memory cache still works
+    // storage may be unavailable (private mode) - in-memory cache still works
   }
   for (const l of listeners) l();
 }

@@ -1,4 +1,4 @@
-/** A small deny-list of the most common weak passwords (no composition rules —
+/** A small deny-list of the most common weak passwords (no composition rules -
  *  length ≥ 10 plus this list, per the brief). Compared case-insensitively. */
 const COMMON = new Set([
   "password",

@@ -26,7 +26,7 @@ export default async function AdminSettingsPage() {
           <div>
             <h3 className="font-heading text-base font-semibold">Plăți online active</h3>
             <p className="mt-1 text-sm text-steel">
-              Când e oprit, clienții nu văd butonul de plată/comandă — în locul lui apare un mesaj
+              Când e oprit, clienții nu văd butonul de plată/comandă; în locul lui apare un mesaj
               că plățile sunt indisponibile temporar. Trebuie pornit ca să se poată plasa comenzi
               prin Stripe.
             </p>
@@ -45,7 +45,7 @@ export default async function AdminSettingsPage() {
             label="Stripe configurat în acest mediu"
             ok={stripeConfigured}
             okText={mode === "live" ? "Da · LIVE" : "Da · TEST"}
-            offText="Nu — lipsesc cheile"
+            offText="Nu, lipsesc cheile"
           />
           <div className="mt-3">
             <span

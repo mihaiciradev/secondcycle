@@ -419,7 +419,7 @@ export function HomeClient({ bikes }: { bikes: HomeBike[] }) {
           </div>
         </section>
 
-        {/* Sell — compact CTA to the dedicated page (keeps the buy flow clear) */}
+        {/* Sell - compact CTA to the dedicated page (keeps the buy flow clear) */}
         <section className="dark" id="sell" style={{ paddingTop: 0 }}>
           <div className="wrap" style={{ paddingTop: 56, paddingBottom: 56 }}>
             <div className="sell-cta" data-reveal>

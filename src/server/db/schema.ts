@@ -4,7 +4,7 @@
  * Conventions (from the brief):
  * - uuid PKs via gen_random_uuid() (built into Neon/Postgres 15).
  * - created_at / updated_at timestamptz everywhere.
- * - money as integer bani (RON cents) — never floats.
+ * - money as integer bani (RON cents) - never floats.
  * - Postgres enums for every status/kind.
  *
  * NOTE: no repair tiers. A bike carries a single admin-set price; an order
@@ -115,7 +115,7 @@ export const users = pgTable("users", {
   updatedAt: updatedAt(),
 });
 
-/** Auth.js Drizzle-adapter accounts table — used for the Google link only. */
+/** Auth.js Drizzle-adapter accounts table - used for the Google link only. */
 export const accounts = pgTable(
   "accounts",
   {
@@ -257,7 +257,7 @@ export const reservations = pgTable(
   },
   (t) => [
     // Last line of defense: at most one active hold per bike. (A single user may
-    // now hold several bikes at once — one per basket item.)
+    // now hold several bikes at once - one per basket item.)
     uniqueIndex("reservations_bike_active_uq")
       .on(t.bikeId)
       .where(sql`status = 'active'`),
@@ -304,7 +304,7 @@ export const orders = pgTable("orders", {
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
   status: orderStatusEnum("status").notNull().default("pending"),
-  // Sum of the order's line items, snapshotted at creation — later bike edits
+  // Sum of the order's line items, snapshotted at creation - later bike edits
   // must not change orders. Per-bike prices live in order_items.
   totalCents: integer("total_cents").notNull(),
   billingType: billingTypeEnum("billing_type").notNull(),

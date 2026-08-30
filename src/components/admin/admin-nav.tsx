@@ -8,6 +8,7 @@ const items = [
   { href: "/admin/bikes", label: "Biciclete" },
   { href: "/admin/workshops", label: "Ateliere" },
   { href: "/admin/orders", label: "Comenzi" },
+  { href: "/admin/users", label: "Utilizatori" },
   { href: "/admin/settings", label: "Setări" },
 ];
 

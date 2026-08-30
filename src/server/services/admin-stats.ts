@@ -187,7 +187,7 @@ export async function getAdminStats(db: DB) {
         totalCents: o.totalCents,
         paidAt: o.paidAt,
         createdAt: o.createdAt,
-        label: it ? `${it.brand} ${it.model}` : "—",
+        label: it ? `${it.brand} ${it.model}` : "-",
         itemCount: it?.count ?? 0,
       };
     }),

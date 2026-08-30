@@ -109,7 +109,7 @@
 .home .sec__head p{color:#3a413c;max-width:48ch}
 
 /* check */
-.home .checks{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.home .checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
 .home .check{background:var(--paper);padding:26px 22px 28px;transition:background .2s}
 .home .check:hover{background:#fff}
 .home .check__n{font-family:var(--font-plex-mono),monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);display:block;margin-bottom:14px}
@@ -187,7 +187,7 @@
   .home .callouts-m{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 22px;margin-top:20px}
   .home .callouts-m li{font-family:var(--font-plex-mono),monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding-left:15px;position:relative;line-height:1.45}
   .home .callouts-m li::before{content:"";position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:99px;background:var(--blue)}
-  .home .checks{grid-template-columns:repeat(2,1fr)}
+  .home .checks{grid-template-columns:repeat(2,minmax(0,1fr))}
   .home .steps{grid-template-columns:repeat(2,1fr)}
   .home .grid{grid-template-columns:repeat(2,1fr)}
   .home .foot__top{grid-template-columns:1fr 1fr;gap:34px}

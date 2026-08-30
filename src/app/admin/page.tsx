@@ -73,7 +73,7 @@ export default async function AdminOverviewPage() {
               data={months.map((m) => ({
                 label: m.label,
                 value: m.cents,
-                caption: m.cents > 0 ? formatLei(m.cents) : "—",
+                caption: m.cents > 0 ? formatLei(m.cents) : "-",
               }))}
             />
           </section>
@@ -140,7 +140,7 @@ export default async function AdminOverviewPage() {
                   </div>
                 </div>
                 {stripe.mode === "test" ? (
-                  <p className="mt-3 text-xs text-steel">Mediu de test — bani fictivi.</p>
+                  <p className="mt-3 text-xs text-steel">Mediu de test: bani fictivi.</p>
                 ) : null}
               </div>
             ) : (
@@ -186,7 +186,7 @@ export default async function AdminOverviewPage() {
               )}
               {s.email.failedMonth > 0 ? (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  {s.email.failedMonth} e-mailuri eșuate luna aceasta — verifică Resend.
+                  {s.email.failedMonth} e-mailuri eșuate luna aceasta. Verifică Resend.
                 </p>
               ) : null}
             </div>

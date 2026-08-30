@@ -103,7 +103,7 @@
   h1, h2, h3, h4 {
     @apply font-heading;
   }
-  /* Tailwind v4 drops the default pointer on buttons — restore it for anything clickable. */
+  /* Tailwind v4 drops the default pointer on buttons - restore it for anything clickable. */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   label:has(> input[type="checkbox"]:not(:disabled)),

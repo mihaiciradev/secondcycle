@@ -14,7 +14,7 @@ function baseUrl(): string {
 /**
  * Subscribe an email to be notified when a currently-reserved bike frees up.
  * No-op-ish if the bike is already available (caller can just buy it). One
- * pending watch per (bike, email) — the partial unique index dedupes.
+ * pending watch per (bike, email) - the partial unique index dedupes.
  */
 export async function watchBike(
   db: DB,

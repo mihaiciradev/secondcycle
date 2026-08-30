@@ -9,8 +9,8 @@ export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
 
 /**
  * Transitions an ADMIN may perform directly on a bike.
- * (System transitions — available→reserved on hold, reserved→sold on order
- * confirm, reserved→available on expiry/cancel — happen inside services, not
+ * (System transitions - available→reserved on hold, reserved→sold on order
+ * confirm, reserved→available on expiry/cancel - happen inside services, not
  * through the admin transition endpoint.)
  * reserved→available is a force-release that also cancels the active hold.
  */

@@ -37,7 +37,7 @@ function dummyHash(): Promise<string> {
   return dummyHashPromise;
 }
 
-/** Internal — includes password_hash. Never returned to a client. */
+/** Internal - includes password_hash. Never returned to a client. */
 async function getUserByEmailInternal(db: DB, email: string) {
   const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
   return row ?? null;
@@ -99,7 +99,10 @@ async function issueVerifyEmail(db: DB, userId: string, email: string) {
 }
 
 /** Register. Uniform outcome (no account enumeration): always resolves. */
-export async function registerUser(db: DB, input: { email: string; password: string }) {
+export async function registerUser(
+  db: DB,
+  input: { email: string; password: string; marketingOptIn?: boolean }
+) {
   const email = input.email.trim().toLowerCase();
   const existing = await getUserByEmailInternal(db, email);
   if (existing) {
@@ -107,9 +110,16 @@ export async function registerUser(db: DB, input: { email: string; password: str
     return;
   }
   const passwordHash = await hashPassword(input.password);
+  const optIn = Boolean(input.marketingOptIn);
   const [created] = await db
     .insert(users)
-    .values({ email, passwordHash, role: "customer" })
+    .values({
+      email,
+      passwordHash,
+      role: "customer",
+      marketingOptIn: optIn,
+      marketingOptInAt: optIn ? new Date() : null,
+    })
     .returning({ id: users.id });
   await issueVerifyEmail(db, created.id, email);
 }

@@ -14,7 +14,7 @@ export const RESERVATION_TTL_MINUTES = 30;
 
 /**
  * Free-tier ceilings of the external services, for the admin usage panel.
- * Approximate published limits — update if a plan changes.
+ * Approximate published limits - update if a plan changes.
  */
 export const FREE_TIER = {
   /** Resend free plan. */

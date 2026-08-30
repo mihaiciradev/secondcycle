@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react";
  *
  * Built as HTML/CSS (not hand-plotted SVG) so it stays legible and responsive:
  * a left-to-right five-step lifecycle, anchored by a line-drawn bike, with the
- * one fact that matters made unmissable — Second Cycle is the seller throughout,
+ * one fact that matters made unmissable - Second Cycle is the seller throughout,
  * not a marketplace.
  */
 

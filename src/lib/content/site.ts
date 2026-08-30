@@ -1,7 +1,7 @@
 /**
  * Site-wide company identity.
  *
- * Second Cycle is a brand / subproject of WEBBINGHUB S.R.L. — that company is
+ * Second Cycle is a brand / subproject of WEBBINGHUB S.R.L. - that company is
  * the legal trader and seller, so its identifiers are what the law requires to
  * be shown (Legea 365/2002, Legea 31/1990, OUG 34/2014).
  *

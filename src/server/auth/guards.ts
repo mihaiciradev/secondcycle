@@ -10,7 +10,7 @@ export async function requireUser(): Promise<{ id: string; role: "customer" | "a
   return { id: session.user.id, role: session.user.role };
 }
 
-/** Require an admin — role is re-read from the DB, never trusted from the token. */
+/** Require an admin - role is re-read from the DB, never trusted from the token. */
 export async function requireAdmin() {
   const session = await auth();
   if (!session?.user?.id) throw Unauthorized();

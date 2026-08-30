@@ -51,7 +51,7 @@ export function BikeActions({
         </button>
         {inCart ? (
           <Link href="/cart" className={ghostBtn}>
-            În coș ✓ — vezi coșul
+            În coș ✓ · vezi coșul
           </Link>
         ) : (
           <button type="button" onClick={() => add(bike)} className={ghostBtn}>
@@ -102,7 +102,7 @@ function NotifyMe({ bikeId, defaultEmail }: { bikeId: string; defaultEmail?: str
         </p>
       ) : state === "available" ? (
         <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">
-          Vești bune — s-a eliberat între timp. Reîncarcă pagina ca s-o cumperi.
+          Vești bune: s-a eliberat între timp. Reîncarcă pagina ca s-o cumperi.
         </p>
       ) : (
         <form onSubmit={submit} className="max-w-sm">
