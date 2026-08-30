@@ -178,6 +178,10 @@
 .home .foot li{margin-bottom:9px}
 .home .foot li a{font-size:14.5px;color:rgba(237,239,234,.8)}
 .home .foot li a:hover{color:var(--hivis)}
+.home .foot__anpc{display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:26px 0;margin-top:8px;border-bottom:1px solid rgba(237,239,234,.15)}
+.home .foot__anpc img{width:150px;height:auto;display:block;background:#fff;border-radius:8px;padding:8px}
+.home .foot__anpc-link{font-size:14px;color:rgba(237,239,234,.8);text-decoration:underline;text-underline-offset:4px}
+.home .foot__anpc-link:hover{color:var(--hivis)}
 .home .foot__bot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:24px;color:rgba(237,239,234,.55);font-size:12.5px}
 .home .foot__bot .mono{font-size:11px;text-transform:none;letter-spacing:.02em}
 

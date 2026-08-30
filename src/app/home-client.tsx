@@ -483,6 +483,20 @@ export function HomeClient({
               </div>
             ))}
           </div>
+          <div className="foot__anpc">
+            <a
+              href="https://anpc.ro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ANPC - Autoritatea Națională pentru Protecția Consumatorilor"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/anpc.png" alt="Autoritatea Națională pentru Protecția Consumatorilor" width={150} />
+            </a>
+            <a href="https://anpc.ro/sal" target="_blank" rel="noopener noreferrer" className="foot__anpc-link">
+              {lang === "ro" ? "Soluționarea Alternativă a Litigiilor (SAL)" : "Alternative Dispute Resolution (SAL)"}
+            </a>
+          </div>
           <div className="foot__bot">
             <span className="mono">
               {company.legal.entityName} · {company.legal.cui} · {company.legal.tradeRegister} ·{" "}

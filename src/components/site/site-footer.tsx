@@ -52,7 +52,33 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/55 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-paper/15 pt-8">
+          <a
+            href="https://anpc.ro/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="ANPC - Autoritatea Națională pentru Protecția Consumatorilor"
+            className="inline-block rounded-md bg-white p-2 transition-opacity hover:opacity-90"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/anpc.png"
+              alt="Autoritatea Națională pentru Protecția Consumatorilor"
+              width={150}
+              className="h-auto w-[150px]"
+            />
+          </a>
+          <a
+            href="https://anpc.ro/sal"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-paper/80 underline-offset-4 hover:text-paper hover:underline"
+          >
+            Soluționarea Alternativă a Litigiilor (SAL)
+          </a>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/55 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {company.name}. Toate drepturile rezervate.
           </p>
