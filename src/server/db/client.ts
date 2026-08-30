@@ -10,10 +10,24 @@ import * as schema from "./schema";
  * DIRECT connection (DATABASE_URL_UNPOOLED) and go through drizzle-kit, not
  * this client.
  */
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
+const rawUrl = process.env.DATABASE_URL;
+if (!rawUrl) {
   throw new Error("DATABASE_URL is not set");
 }
+
+// Drop `sslmode` from the URL: we set TLS explicitly below (with certificate
+// verification). This also silences pg-connection-string's warning that legacy
+// sslmode values will change meaning in a future major.
+function stripSslMode(url: string): string {
+  try {
+    const u = new URL(url);
+    u.searchParams.delete("sslmode");
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+const connectionString = stripSslMode(rawUrl);
 
 const globalForDb = globalThis as unknown as { __scPool?: Pool };
 
@@ -22,8 +36,9 @@ const pool =
   new Pool({
     connectionString,
     max: 10,
-    // Neon requires TLS; the connection string carries sslmode=require.
-    ssl: { rejectUnauthorized: false },
+    // Encrypted AND authenticated: verify Neon's certificate (chains to a public
+    // CA) to prevent man-in-the-middle. Do not set rejectUnauthorized:false.
+    ssl: { rejectUnauthorized: true },
   });
 
 if (process.env.NODE_ENV !== "production") {

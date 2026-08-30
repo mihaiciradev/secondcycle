@@ -37,7 +37,12 @@ function client(): S3Client {
     cached = new S3Client({
       region: "auto",
       endpoint: process.env.R2_ENDPOINT,
-      forcePathStyle: true, // most reliable against R2's account/jurisdiction host
+      forcePathStyle: true, // most reliable against R2's account host
+      // R2 doesn't support the SDK's default flexible checksums; leaving them on
+      // signs an x-amz-checksum header the browser never sends, breaking
+      // presigned PUTs. Only add checksums when an operation truly requires them.
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
       credentials: {
         accessKeyId: process.env.R2_ACCESS_KEY_ID as string,
         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY as string,
