@@ -3,6 +3,8 @@ import { db } from "@/server/db/client";
 import { listPublicBikes } from "@/server/services/bikes";
 import { getUserById } from "@/server/services/auth";
 import type { HomeBike } from "@/lib/content/home";
+import { JsonLd } from "@/components/seo/json-ld";
+import { SITE_URL, company } from "@/lib/content/site";
 import { HomeClient } from "./home-client";
 
 export const runtime = "nodejs";
@@ -51,5 +53,41 @@ export default async function HomePage() {
     }
   }
 
-  return <HomeClient bikes={bikes} loggedIn={loggedIn} subscribed={subscribed} />;
+  const orgLd = {
+    "@context": "https://schema.org",
+    "@type": "BikeStore",
+    "@id": `${SITE_URL}/#store`,
+    name: company.name,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logos/logo_with_text_on_white.svg`,
+    image: `${SITE_URL}/logos/logo_with_text_on_white.svg`,
+    description:
+      "Biciclete second-hand verificate piesă cu piesă, reparate și vândute cu acte, garanție 12 luni și retur în 14 zile. Livrare în toată România.",
+    telephone: company.contact.phone,
+    email: company.contact.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Str. Gheorghe Lazăr, nr. 34",
+      addressLocality: company.city,
+      addressCountry: "RO",
+    },
+    areaServed: "RO",
+    priceRange: "$$",
+  };
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: company.name,
+    url: SITE_URL,
+    inLanguage: "ro-RO",
+  };
+
+  return (
+    <>
+      <JsonLd data={orgLd} />
+      <JsonLd data={websiteLd} />
+      <HomeClient bikes={bikes} loggedIn={loggedIn} subscribed={subscribed} />
+    </>
+  );
 }

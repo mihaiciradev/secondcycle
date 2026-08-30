@@ -8,6 +8,10 @@
  * The registered address is published on a dedicated legal page (permanently
  * linked from the footer), not in the footer itself.
  */
+/** Canonical production origin (no trailing slash). Used for metadata, canonical
+ *  URLs, sitemap, robots and structured data. */
+export const SITE_URL = "https://www.secondcycle.ro";
+
 export const company = {
   name: "Second Cycle",
   tagline: "Biciclete second-hand, reparate și garantate.",

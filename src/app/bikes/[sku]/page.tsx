@@ -8,10 +8,41 @@ import { getPaymentsLive } from "@/server/services/settings";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { BikeActions } from "@/components/bikes/bike-actions";
+import { JsonLd } from "@/components/seo/json-ld";
 import { formatLei } from "@/lib/money";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
+import { SITE_URL, company } from "@/lib/content/site";
 
 export const dynamic = "force-dynamic";
+
+const CATEGORY_LABEL: Record<string, string> = {
+  city: "de oraș",
+  trekking: "de trekking",
+  mtb: "de munte (MTB)",
+  road: "cursieră",
+  kids: "pentru copii",
+  ebike: "electrică",
+};
+
+function assetUrl(key: string): string | null {
+  const base = process.env.R2_PUBLIC_URL;
+  return base ? `${base}/${key}` : null;
+}
+
+/** Factual, keyword-relevant description built from real specs. No fluff. */
+function bikeDescription(bike: {
+  brand: string;
+  model: string;
+  category: string;
+  modelYear: number | null;
+  frameSize: string;
+  wheelSize: string;
+  priceCents: number;
+}): string {
+  const cat = CATEGORY_LABEL[bike.category] ?? "";
+  const year = bike.modelYear ? ` din ${bike.modelYear}` : "";
+  return `Bicicletă ${cat} second-hand ${bike.brand} ${bike.model}${year}, mărime cadru ${bike.frameSize}, roți ${bike.wheelSize}". Verificată piesă cu piesă și reparată, cu acte, garanție ${WARRANTY_MONTHS} luni și retur în 14 zile. Preț ${formatLei(bike.priceCents)}. Livrare în toată România.`;
+}
 
 export async function generateMetadata({
   params,
@@ -20,13 +51,31 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { sku } = await params;
   const bike = await getPublicBikeBySku(db, sku);
-  if (!bike) return { title: "Bicicletă negăsită" };
-  return { title: `${bike.brand} ${bike.model} · ${bike.sku}` };
-}
+  if (!bike) return { title: "Bicicletă negăsită", robots: { index: false, follow: false } };
 
-function assetUrl(key: string): string | null {
-  const base = process.env.R2_PUBLIC_URL;
-  return base ? `${base}/${key}` : null;
+  const cat = CATEGORY_LABEL[bike.category] ?? "";
+  const title = `${bike.brand} ${bike.model}, bicicletă ${cat} second-hand`;
+  const description = bikeDescription(bike);
+  const url = `${SITE_URL}/bikes/${bike.sku}`;
+  const image = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/bikes/${bike.sku}` },
+    openGraph: {
+      type: "website",
+      url,
+      title: `${bike.brand} ${bike.model} | Second Cycle`,
+      description,
+      images: image ? [{ url: image, alt: `${bike.brand} ${bike.model}` }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: `${bike.brand} ${bike.model} | Second Cycle`,
+      description,
+    },
+  };
 }
 
 export default async function BikeDetailPage({ params }: { params: Promise<{ sku: string }> }) {
@@ -36,6 +85,47 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
 
   const [session, paymentsLive] = await Promise.all([auth(), getPaymentsLive(db)]);
   const photo = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
+
+  const url = `${SITE_URL}/bikes/${bike.sku}`;
+  const photoUrls = bike.photos.map((k) => assetUrl(k)).filter((u): u is string => Boolean(u));
+  const availability =
+    bike.status === "available"
+      ? "https://schema.org/InStock"
+      : bike.status === "reserved"
+        ? "https://schema.org/LimitedAvailability"
+        : "https://schema.org/SoldOut";
+
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${bike.brand} ${bike.model}`,
+    ...(photoUrls.length ? { image: photoUrls } : {}),
+    description: bikeDescription(bike),
+    sku: bike.sku,
+    brand: { "@type": "Brand", name: bike.brand },
+    category: CATEGORY_LABEL[bike.category] ?? bike.category,
+    itemCondition: "https://schema.org/UsedCondition",
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: "RON",
+      price: (bike.priceCents / 100).toFixed(2),
+      itemCondition: "https://schema.org/UsedCondition",
+      availability,
+      seller: { "@type": "Organization", name: company.name },
+    },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Acasă", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Biciclete", item: `${SITE_URL}/bikes` },
+      { "@type": "ListItem", position: 3, name: `${bike.brand} ${bike.model}`, item: url },
+    ],
+  };
+
   const specs: [string, string][] = [
     ["Serial", bike.sku],
     ["Marcă", bike.brand],
@@ -47,6 +137,8 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
 
   return (
     <>
+      <JsonLd data={productLd} />
+      <JsonLd data={breadcrumbLd} />
       <SiteHeader />
       <main id="continut" className="flex-1">
         <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14">

@@ -9,9 +9,17 @@ import { BikeCard } from "@/components/bikes/bike-card";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Biciclete în stoc",
+  title: "Biciclete second-hand în stoc",
   description:
-    "Biciclete second-hand verificate, reparate și vândute cu acte și garanție. Fiecare bicicletă e un unicat.",
+    "Biciclete second-hand verificate piesă cu piesă, reparate și vândute cu acte, garanție 12 luni și retur în 14 zile. Oraș, MTB, cursiere, trekking și copii. Fiecare bicicletă e un unicat.",
+  alternates: { canonical: "/bikes" },
+  openGraph: {
+    type: "website",
+    url: "/bikes",
+    title: "Biciclete second-hand în stoc | Second Cycle",
+    description:
+      "Biciclete second-hand reparate și garantate, cu acte și retur în 14 zile. Livrare în toată România.",
+  },
 };
 
 const CATEGORIES = [

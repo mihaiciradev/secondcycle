@@ -6,7 +6,15 @@ import { company } from "@/lib/content/site";
 export const metadata: Metadata = {
   title: "Vinde-ne bicicleta ta",
   description:
-    "O luăm în consignație și o vindem pentru tine, cu o parte convenită din preț. Fără anunțuri și fără necunoscuți la ușă.",
+    "O luăm în consignație și o vindem pentru tine, cu o parte convenită din preț. Fără anunțuri și fără necunoscuți la ușă. Evaluare corectă printr-un atelier partener.",
+  alternates: { canonical: "/sell" },
+  openGraph: {
+    type: "website",
+    url: "/sell",
+    title: "Vinde-ne bicicleta ta | Second Cycle",
+    description:
+      "O luăm în consignație, o pregătim și o vindem în numele tău. Primești o parte convenită din preț.",
+  },
 };
 
 const steps = [

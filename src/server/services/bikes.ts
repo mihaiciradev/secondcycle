@@ -64,6 +64,15 @@ export async function listPublicBikes(db: DB, filters: ListFilters = {}) {
   return { items, nextCursor: hasMore && last ? encodeCursor(last.createdAt, last.id) : null };
 }
 
+/** Lightweight list of publicly-indexable bike SKUs, for the sitemap. */
+export async function listPublicBikeSkus(db: DB) {
+  return db
+    .select({ sku: bikes.sku, updatedAt: bikes.updatedAt })
+    .from(bikes)
+    .where(inArray(bikes.status, [...PUBLIC_STATUSES]))
+    .orderBy(desc(bikes.updatedAt));
+}
+
 /** Public detail: draft/withdrawn are hidden (caller returns 404). */
 export async function getPublicBikeBySku(db: DB, sku: string) {
   await expireOverdueReservations(db); // lazy expiry before reading the bike's status
