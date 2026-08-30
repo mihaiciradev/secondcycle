@@ -31,7 +31,7 @@ export function HeaderAccount({ lang }: { lang: "ro" | "en" }) {
       >
         {name.charAt(0).toUpperCase()}
       </span>
-      {name}
+      <span className="hidden max-w-[14ch] truncate sm:inline">{name}</span>
     </Link>
   );
 }

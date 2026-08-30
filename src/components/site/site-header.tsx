@@ -23,7 +23,7 @@ export async function SiteHeader() {
         >
           <BrandLogo tone="light" height={56} priority />
         </Link>
-        <nav className="flex items-center gap-5 sm:gap-6">
+        <nav className="flex items-center gap-4 sm:gap-6">
           <Link href="/bikes" className={link}>
             Biciclete
           </Link>
@@ -49,7 +49,9 @@ export async function SiteHeader() {
               >
                 {displayName(session!.user).charAt(0).toUpperCase()}
               </span>
-              {displayName(session!.user)}
+              <span className="hidden max-w-[14ch] truncate sm:inline">
+                {displayName(session!.user)}
+              </span>
             </Link>
           ) : (
             <Link

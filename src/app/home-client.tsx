@@ -122,6 +122,7 @@ export function HomeClient({
 }) {
   const [lang, setLang] = useState<Locale>("ro");
   const [filter, setFilter] = useState("all");
+  const [menuOpen, setMenuOpen] = useState(false);
   const t = messages[lang];
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -217,8 +218,35 @@ export function HomeClient({
             <a className="btn btn--fill" href="/bikes">
               {t.nav.browse}
             </a>
+            <button
+              type="button"
+              className="nav__burger"
+              aria-label={lang === "ro" ? "Meniu" : "Menu"}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span style={{ transform: menuOpen ? "translateY(7px) rotate(45deg)" : "none" }} />
+              <span style={{ opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ transform: menuOpen ? "translateY(-7px) rotate(-45deg)" : "none" }} />
+            </button>
           </div>
         </div>
+        {menuOpen ? (
+          <nav className="wrap nav__mobile" aria-label={lang === "ro" ? "Meniu" : "Menu"}>
+            <Link href="/bikes" onClick={() => setMenuOpen(false)}>
+              {t.nav.bikes}
+            </Link>
+            <a href="#check" onClick={() => setMenuOpen(false)}>
+              {t.nav.check}
+            </a>
+            <Link href="/sell" onClick={() => setMenuOpen(false)}>
+              {t.nav.sell}
+            </Link>
+            <a className="btn btn--fill" href="/bikes" onClick={() => setMenuOpen(false)}>
+              {t.nav.browse}
+            </a>
+          </nav>
+        ) : null}
       </header>
 
       <main id="continut">
