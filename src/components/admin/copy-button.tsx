@@ -22,7 +22,7 @@ export function CopyButton({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // clipboard blocked (insecure context) — select-and-copy fallback
+      // clipboard blocked (insecure context): select-and-copy fallback
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);

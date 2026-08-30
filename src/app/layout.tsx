@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { CookieNotice } from "@/components/site/cookie-notice";
 
 // Archivo is a variable font; the Plex families need explicit weights.
 // latin-ext covers the Romanian diacritics ă â î ș ț.
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
+        <CookieNotice />
       </body>
     </html>
   );
