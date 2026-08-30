@@ -111,7 +111,15 @@ function BikeSprite() {
   );
 }
 
-export function HomeClient({ bikes }: { bikes: HomeBike[] }) {
+export function HomeClient({
+  bikes,
+  loggedIn = false,
+  subscribed = false,
+}: {
+  bikes: HomeBike[];
+  loggedIn?: boolean;
+  subscribed?: boolean;
+}) {
   const [lang, setLang] = useState<Locale>("ro");
   const [filter, setFilter] = useState("all");
   const t = messages[lang];
@@ -350,6 +358,18 @@ export function HomeClient({ bikes }: { bikes: HomeBike[] }) {
               <div className="stock-empty" data-reveal>
                 <h3>{t.bikes.emptyStock.title}</h3>
                 <p>{t.bikes.emptyStock.text}</p>
+                {subscribed ? (
+                  <p className="stock-empty__news">✓ {t.bikes.emptyStock.subscribed}</p>
+                ) : (
+                  <p className="stock-empty__news">
+                    {t.bikes.emptyStock.prompt}{" "}
+                    {loggedIn ? (
+                      <a href="/account/preferences">{t.bikes.emptyStock.ctaSubscribe}</a>
+                    ) : (
+                      <a href="/register">{t.bikes.emptyStock.ctaJoin}</a>
+                    )}
+                  </p>
+                )}
               </div>
             ) : (
               <>

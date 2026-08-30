@@ -153,6 +153,9 @@
 .home .stock-empty{border:1px dashed rgba(21,24,27,.22);border-radius:var(--r);padding:56px 28px;text-align:center;background:var(--manila)}
 .home .stock-empty h3{font-size:clamp(20px,2.4vw,26px);margin:0 0 10px}
 .home .stock-empty p{color:var(--steel);max-width:44ch;margin:0 auto;line-height:1.55}
+.home .stock-empty__news{margin-top:14px;color:var(--asphalt);font-weight:500}
+.home .stock-empty__news a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+.home .stock-empty__news a:hover{opacity:.85}
 
 /* sell */
 .home .dark{background:var(--asphalt);color:var(--paper)}

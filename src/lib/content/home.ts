@@ -60,7 +60,14 @@ interface Dict {
     see: string;
     more: string;
     empty: string;
-    emptyStock: { title: string; text: string };
+    emptyStock: {
+      title: string;
+      text: string;
+      subscribed: string;
+      prompt: string;
+      ctaSubscribe: string;
+      ctaJoin: string;
+    };
   };
   sell: {
     eyebrow: string;
@@ -142,7 +149,11 @@ export const messages: Record<Locale, Dict> = {
       empty: "Nicio bicicletă în acest filtru deocamdată.",
       emptyStock: {
         title: "Momentan nu avem biciclete în stoc",
-        text: "Pregătim următoarele modele în atelier. Revenim curând. Lasă-ne adresa de e-mail dacă vrei să te anunțăm.",
+        text: "Pregătim următoarele modele în atelier. Revenim curând.",
+        subscribed: "Ești pe lista de newsletter, așa că vei afla printre primii când apar.",
+        prompt: "Vrei să fii primul care le vede?",
+        ctaSubscribe: "Activează newsletter-ul din contul tău",
+        ctaJoin: "Fă-ți cont și abonează-te la newsletter",
       },
     },
     sell: {
@@ -257,7 +268,11 @@ export const messages: Record<Locale, Dict> = {
       empty: "No bikes in this filter yet.",
       emptyStock: {
         title: "No bikes in stock right now",
-        text: "We're prepping the next ones in the workshop. Back soon. Leave your email if you'd like a heads-up.",
+        text: "We're prepping the next ones in the workshop. Back soon.",
+        subscribed: "You're on the newsletter, so you'll be among the first to know when they land.",
+        prompt: "Want to be the first to see them?",
+        ctaSubscribe: "Turn on the newsletter in your account",
+        ctaJoin: "Create an account and subscribe",
       },
     },
     sell: {

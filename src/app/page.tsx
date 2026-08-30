@@ -1,5 +1,7 @@
+import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { listPublicBikes } from "@/server/services/bikes";
+import { getUserById } from "@/server/services/auth";
 import type { HomeBike } from "@/lib/content/home";
 import { HomeClient } from "./home-client";
 
@@ -37,5 +39,17 @@ export default async function HomePage() {
     reserved: b.status === "reserved",
   }));
 
-  return <HomeClient bikes={bikes} />;
+  // Only needed for the empty-stock newsletter prompt; skip the query when in stock.
+  let loggedIn = false;
+  let subscribed = false;
+  if (bikes.length === 0) {
+    const session = await auth();
+    if (session?.user?.id) {
+      loggedIn = true;
+      const user = await getUserById(db, session.user.id);
+      subscribed = Boolean(user?.marketingOptIn);
+    }
+  }
+
+  return <HomeClient bikes={bikes} loggedIn={loggedIn} subscribed={subscribed} />;
 }
