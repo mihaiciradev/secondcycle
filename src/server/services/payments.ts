@@ -3,7 +3,15 @@ import { eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, reservations } from "@/server/db/schema";
 import { getStripe, isPaymentEnabled } from "@/server/payments/stripe";
+import { sendEmail } from "@/server/email/send";
+import { orderConfirmedTemplate } from "@/server/email/templates";
 import { Conflict, NotFound } from "@/server/errors";
+
+function baseUrl(): string {
+  if (process.env.AUTH_URL) return process.env.AUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3082";
+}
 
 /**
  * Best-effort live Stripe balance for the admin dashboard. Returns null if
@@ -105,9 +113,13 @@ export async function handleCheckoutCompleted(
   const orderId = session.metadata?.orderId;
   if (!orderId) return;
 
-  await db.transaction(async (tx) => {
+  // Returns the order + items only for the caller that actually processed the
+  // payment (the paidAt guard makes this run exactly once), so the confirmation
+  // email is sent a single time even though the webhook and the return-page
+  // reconcile both call this.
+  const processed = await db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.id, orderId)).for("update").limit(1);
-    if (!order || order.paidAt) return; // unknown or already processed
+    if (!order || order.paidAt) return null; // unknown or already processed
 
     const paymentIntentId =
       typeof session.payment_intent === "string" ? session.payment_intent : null;
@@ -129,5 +141,29 @@ export async function handleCheckoutCompleted(
       .update(reservations)
       .set({ status: "converted" })
       .where(eq(reservations.orderId, orderId));
+
+    return { order, items };
+  });
+
+  if (!processed) return;
+
+  // Send the confirmation email outside the transaction (network I/O). sendEmail
+  // self-logs and never throws, so a mail hiccup can't undo a completed payment.
+  const { subject, html } = orderConfirmedTemplate({
+    orderNumber: processed.order.orderNumber,
+    items: processed.items.map((it) => ({
+      brand: it.brand,
+      model: it.model,
+      sku: it.sku,
+      priceCents: it.priceCents,
+    })),
+    totalCents: processed.order.totalCents,
+    link: `${baseUrl()}/account/orders/${processed.order.id}`,
+  });
+  await sendEmail(db, {
+    to: processed.order.billingEmail,
+    subject,
+    html,
+    template: "order_confirmed",
   });
 }
