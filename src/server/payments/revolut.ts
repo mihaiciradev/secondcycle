@@ -80,6 +80,26 @@ export async function retrieveRevolutOrder(id: string): Promise<RevolutOrder> {
   return api<RevolutOrder>(`/api/orders/${id}`, { method: "GET" });
 }
 
+export type RevolutWebhook = {
+  id: string;
+  url: string;
+  events: string[];
+  state?: string;
+  signing_secret?: string; // returned on creation (and on retrieve)
+};
+
+/** Register a webhook. The response's signing_secret goes in REVOLUT_WEBHOOK_SECRET. */
+export async function createRevolutWebhook(input: {
+  url: string;
+  events: string[];
+}): Promise<RevolutWebhook> {
+  return api<RevolutWebhook>("/api/1.0/webhooks", { method: "POST", body: input });
+}
+
+export async function listRevolutWebhooks(): Promise<RevolutWebhook[]> {
+  return api<RevolutWebhook[]>("/api/1.0/webhooks", { method: "GET" });
+}
+
 /**
  * Verify a Revolut webhook signature. Revolut signs `v1.{timestamp}.{rawBody}`
  * with the endpoint's signing secret (HMAC-SHA256, hex) and sends it in the
