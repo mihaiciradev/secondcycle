@@ -18,3 +18,14 @@ export async function setPaymentsEnabledAction(enabled: boolean): Promise<Result
     return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
   }
 }
+
+export async function setRevolutEnabledAction(enabled: boolean): Promise<Result> {
+  try {
+    await requireAdmin();
+    await setFlag(db, SETTING.revolutEnabled, Boolean(enabled));
+    revalidatePath("/admin/settings");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+  }
+}

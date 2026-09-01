@@ -3,9 +3,11 @@ import { eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, reservations } from "@/server/db/schema";
 import { getStripe, isPaymentEnabled } from "@/server/payments/stripe";
+import { createRevolutOrder, retrieveRevolutOrder } from "@/server/payments/revolut";
 import { sendEmail } from "@/server/email/send";
 import { orderConfirmedTemplate } from "@/server/email/templates";
 import { Conflict, NotFound } from "@/server/errors";
+import type { PaymentProvider } from "@/server/services/settings";
 
 function baseUrl(): string {
   if (process.env.AUTH_URL) return process.env.AUTH_URL;
@@ -34,23 +36,33 @@ export async function getStripeSnapshot(): Promise<{
   }
 }
 
-/**
- * Create a Stripe Checkout Session for a pending order owned by the caller. One
- * line item per bike in the order (amounts snapshotted in bani). Returns the
- * hosted checkout URL. The order is only marked paid by the webhook / return
- * reconciliation, never here.
- */
+/** Load + validate a pending, unpaid order owned by the caller. */
+async function loadPayableOrder(db: DB, orderId: string, userId: string) {
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order || order.userId !== userId) throw NotFound("Comanda nu există");
+  if (order.paidAt) throw Conflict("Comanda este deja plătită");
+  if (order.status !== "pending") throw Conflict("Comanda nu mai poate fi plătită");
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
+  if (items.length === 0) throw Conflict("Comanda nu are produse");
+  return { order, items };
+}
+
+/** Route to the active provider's hosted checkout; returns the redirect URL. */
+export async function startCheckout(
+  db: DB,
+  input: { orderId: string; userId: string; origin: string },
+  provider: PaymentProvider
+): Promise<string> {
+  return provider === "revolut" ? createRevolutCheckout(db, input) : createCheckoutSession(db, input);
+}
+
+// --- Stripe ----------------------------------------------------------------
+
 export async function createCheckoutSession(
   db: DB,
   input: { orderId: string; userId: string; origin: string }
 ): Promise<string> {
-  const [order] = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
-  if (!order || order.userId !== input.userId) throw NotFound("Comanda nu există");
-  if (order.paidAt) throw Conflict("Comanda este deja plătită");
-  if (order.status !== "pending") throw Conflict("Comanda nu mai poate fi plătită");
-
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-  if (items.length === 0) throw Conflict("Comanda nu are produse");
+  const { order, items } = await loadPayableOrder(db, input.orderId, input.userId);
 
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.create({
@@ -66,8 +78,6 @@ export async function createCheckoutSession(
     })),
     metadata: { orderId: order.id },
     payment_intent_data: { metadata: { orderId: order.id } },
-    // Roughly aligned with our 30-minute hold; a small buffer over Stripe's
-    // 30-minute minimum so session creation never races the clock.
     expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
     success_url: `${input.origin}/account/orders/${order.id}?paid=1`,
     cancel_url: `${input.origin}/account/orders/${order.id}`,
@@ -78,57 +88,94 @@ export async function createCheckoutSession(
   return session.url;
 }
 
+/** Stripe webhook: checkout.session.completed. */
+export async function handleCheckoutCompleted(db: DB, session: Stripe.Checkout.Session): Promise<void> {
+  const orderId = session.metadata?.orderId;
+  if (!orderId) return;
+  const paymentIntentId =
+    typeof session.payment_intent === "string" ? session.payment_intent : null;
+  await completeOrder(db, orderId, { stripePaymentIntentId: paymentIntentId });
+}
+
+// --- Revolut ---------------------------------------------------------------
+
+export async function createRevolutCheckout(
+  db: DB,
+  input: { orderId: string; userId: string; origin: string }
+): Promise<string> {
+  const { order } = await loadPayableOrder(db, input.orderId, input.userId);
+
+  const ro = await createRevolutOrder({
+    amountMinor: order.totalCents,
+    currency: "RON",
+    extRef: order.id,
+    redirectUrl: `${input.origin}/account/orders/${order.id}?paid=1`,
+    email: order.billingEmail,
+  });
+
+  await db.update(orders).set({ revolutOrderId: ro.id }).where(eq(orders.id, order.id));
+  if (!ro.checkout_url) throw Conflict("Nu s-a putut deschide plata");
+  return ro.checkout_url;
+}
+
+/** Revolut webhook: ORDER_COMPLETED (order_id is Revolut's). */
+export async function handleRevolutCompleted(db: DB, revolutOrderId: string): Promise<void> {
+  const [order] = await db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(eq(orders.revolutOrderId, revolutOrderId))
+    .limit(1);
+  if (!order) return;
+  await completeOrder(db, order.id, {});
+}
+
+// --- Shared ----------------------------------------------------------------
+
 /**
- * Synchronously reconcile an order against Stripe (used on the checkout return
- * page so the UI is correct immediately, without waiting for the webhook).
- * Never throws on Stripe errors - the webhook remains the reliable backstop.
+ * Reconcile an order against its provider on the return page, so the UI is
+ * correct immediately without waiting for the webhook. Best-effort; the webhook
+ * is the reliable backstop, so this never throws.
  */
 export async function reconcileOrderPayment(
   db: DB,
   input: { orderId: string; userId: string }
 ): Promise<void> {
   const [order] = await db.select().from(orders).where(eq(orders.id, input.orderId)).limit(1);
-  if (!order || order.userId !== input.userId) return;
-  if (order.paidAt || !order.stripeSessionId) return;
+  if (!order || order.userId !== input.userId || order.paidAt) return;
 
   try {
-    const session = await getStripe().checkout.sessions.retrieve(order.stripeSessionId);
-    if (session.payment_status === "paid") {
-      await handleCheckoutCompleted(db, session);
+    if (order.revolutOrderId) {
+      const ro = await retrieveRevolutOrder(order.revolutOrderId);
+      if (ro.state === "completed") await handleRevolutCompleted(db, order.revolutOrderId);
+    } else if (order.stripeSessionId) {
+      const session = await getStripe().checkout.sessions.retrieve(order.stripeSessionId);
+      if (session.payment_status === "paid") await handleCheckoutCompleted(db, session);
     }
   } catch {
-    // Ignore: the webhook will reconcile if this transient lookup failed.
+    // Ignore: the webhook reconciles if this transient lookup failed.
   }
 }
 
 /**
- * Handle checkout.session.completed: mark the order paid + confirmed, sell every
- * bike in it, and consume its holds. Idempotent and race-safe (FOR UPDATE +
- * paidAt guard), so the webhook and the return-page reconcile can't double-run.
+ * Mark an order paid + confirmed, sell every bike in it, consume its holds, and
+ * email the buyer. Provider-agnostic. Idempotent and race-safe (FOR UPDATE +
+ * paidAt guard), so webhook + return-page reconcile can't double-run or
+ * double-send the email.
  */
-export async function handleCheckoutCompleted(
+async function completeOrder(
   db: DB,
-  session: Stripe.Checkout.Session
+  orderId: string,
+  extra: { stripePaymentIntentId?: string | null }
 ): Promise<void> {
-  const orderId = session.metadata?.orderId;
-  if (!orderId) return;
-
-  // Returns the order + items only for the caller that actually processed the
-  // payment (the paidAt guard makes this run exactly once), so the confirmation
-  // email is sent a single time even though the webhook and the return-page
-  // reconcile both call this.
   const processed = await db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.id, orderId)).for("update").limit(1);
     if (!order || order.paidAt) return null; // unknown or already processed
-
-    const paymentIntentId =
-      typeof session.payment_intent === "string" ? session.payment_intent : null;
 
     await tx
       .update(orders)
       .set({
         paidAt: new Date(),
-        stripePaymentIntentId: paymentIntentId,
+        ...(extra.stripePaymentIntentId ? { stripePaymentIntentId: extra.stripePaymentIntentId } : {}),
         status: order.status === "pending" ? "confirmed" : order.status,
       })
       .where(eq(orders.id, orderId));
@@ -147,8 +194,6 @@ export async function handleCheckoutCompleted(
 
   if (!processed) return;
 
-  // Send the confirmation email outside the transaction (network I/O). sendEmail
-  // self-logs and never throws, so a mail hiccup can't undo a completed payment.
   const { subject, html } = orderConfirmedTemplate({
     orderNumber: processed.order.orderNumber,
     items: processed.items.map((it) => ({
@@ -160,10 +205,5 @@ export async function handleCheckoutCompleted(
     totalCents: processed.order.totalCents,
     link: `${baseUrl()}/account/orders/${processed.order.id}`,
   });
-  await sendEmail(db, {
-    to: processed.order.billingEmail,
-    subject,
-    html,
-    template: "order_confirmed",
-  });
+  await sendEmail(db, { to: processed.order.billingEmail, subject, html, template: "order_confirmed" });
 }

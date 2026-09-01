@@ -8,7 +8,6 @@ import { getPaymentsLive, PAYMENTS_OFF_MESSAGE } from "@/server/services/setting
 import { Card, Row } from "@/components/auth/account-ui";
 import { PayButton } from "@/components/orders/pay-button";
 import { HoldCountdown } from "@/components/orders/hold-countdown";
-import { isPaymentEnabled } from "@/server/payments/stripe";
 import { formatLei } from "@/lib/money";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
 
@@ -27,9 +26,10 @@ export default async function OrderDetailPage({
   const { id } = await params;
   const { paid } = await searchParams;
 
-  // Coming back from Stripe: verify the payment now so the page is correct
-  // immediately, instead of waiting for the webhook to arrive.
-  if (paid && isPaymentEnabled()) {
+  // Coming back from the payment provider: verify now so the page is correct
+  // immediately, instead of waiting for the webhook. reconcile self-detects the
+  // provider from the order and no-ops if there's nothing to reconcile.
+  if (paid) {
     await reconcileOrderPayment(db, { orderId: id, userId: session.user.id });
   }
 

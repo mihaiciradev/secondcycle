@@ -4,8 +4,8 @@ import { headers } from "next/headers";
 import { db } from "@/server/db/client";
 import { requireUser } from "@/server/auth/guards";
 import { createOrder } from "@/server/services/orders";
-import { createCheckoutSession } from "@/server/services/payments";
-import { getPaymentsLive, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
+import { startCheckout } from "@/server/services/payments";
+import { getPaymentProvider, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
 import { createOrderSchema } from "@/server/validation/orders";
 import { AppError } from "@/server/errors";
 
@@ -22,8 +22,9 @@ function originFrom(h: Headers): string {
 export async function createOrderAction(input: unknown): Promise<CreateResult> {
   try {
     const user = await requireUser();
-    // Ordering is gated on the admin flag + Stripe being configured.
-    if (!(await getPaymentsLive(db))) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
+    // Ordering is gated on the admin flag + the active provider being configured.
+    const provider = await getPaymentProvider(db);
+    if (!provider) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
 
     const parsed = createOrderSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
@@ -36,11 +37,11 @@ export async function createOrderAction(input: unknown): Promise<CreateResult> {
       termsIp: ip,
     });
 
-    const checkoutUrl = await createCheckoutSession(db, {
-      orderId: order.id,
-      userId: user.id,
-      origin: originFrom(h),
-    });
+    const checkoutUrl = await startCheckout(
+      db,
+      { orderId: order.id, userId: user.id, origin: originFrom(h) },
+      provider
+    );
     return { ok: true, orderId: order.id, checkoutUrl, unavailable };
   } catch (e) {
     return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
@@ -53,9 +54,10 @@ export async function createCheckoutAction(
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   try {
     const user = await requireUser();
-    if (!(await getPaymentsLive(db))) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
+    const provider = await getPaymentProvider(db);
+    if (!provider) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
     const h = await headers();
-    const url = await createCheckoutSession(db, { orderId, userId: user.id, origin: originFrom(h) });
+    const url = await startCheckout(db, { orderId, userId: user.id, origin: originFrom(h) }, provider);
     return { ok: true, url };
   } catch (e) {
     return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };

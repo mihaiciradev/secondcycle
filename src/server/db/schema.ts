@@ -345,6 +345,8 @@ export const orders = pgTable("orders", {
   // Stripe payment tracking (null until checkout starts / completes).
   stripeSessionId: text("stripe_session_id"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
+  // Revolut Merchant order id, when the buyer paid via Revolut Pay.
+  revolutOrderId: text("revolut_order_id"),
   paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
