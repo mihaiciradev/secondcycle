@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { db } from "@/server/db/client";
 import { requireUser } from "@/server/auth/guards";
-import { createOrder } from "@/server/services/orders";
+import { cancelPendingOrder, createOrder } from "@/server/services/orders";
 import { startCheckout } from "@/server/services/payments";
 import { getPaymentProvider, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
 import { createOrderSchema } from "@/server/validation/orders";
@@ -68,6 +68,19 @@ export async function createCheckoutAction(
     const h = await headers();
     const url = await startCheckout(db, { orderId, userId: user.id, origin: originFrom(h) }, provider);
     return { ok: true, url };
+  } catch (e) {
+    return { ok: false, error: errMsg(e) };
+  }
+}
+
+/** Buyer cancels a pending order, releasing the bike(s) back into stock. */
+export async function cancelOrderAction(
+  orderId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const user = await requireUser();
+    await cancelPendingOrder(db, orderId, user.id);
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: errMsg(e) };
   }

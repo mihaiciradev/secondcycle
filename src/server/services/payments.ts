@@ -80,7 +80,7 @@ export async function createCheckoutSession(
     payment_intent_data: { metadata: { orderId: order.id } },
     expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
     success_url: `${input.origin}/account/orders/${order.id}?paid=1`,
-    cancel_url: `${input.origin}/account/orders/${order.id}`,
+    cancel_url: `${input.origin}/account/orders/${order.id}?canceled=1`,
   });
 
   await db.update(orders).set({ stripeSessionId: session.id }).where(eq(orders.id, order.id));

@@ -2,11 +2,12 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
-import { getOrderForUser, getOrderHoldExpiry } from "@/server/services/orders";
+import { cancelPendingOrder, getOrderForUser, getOrderHoldExpiry } from "@/server/services/orders";
 import { reconcileOrderPayment } from "@/server/services/payments";
 import { getPaymentsLive, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
 import { Card, Row } from "@/components/auth/account-ui";
 import { PayButton } from "@/components/orders/pay-button";
+import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { HoldCountdown } from "@/components/orders/hold-countdown";
 import { formatLei } from "@/lib/money";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
@@ -19,18 +20,23 @@ export default async function OrderDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ paid?: string }>;
+  searchParams: Promise<{ paid?: string; canceled?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const { id } = await params;
-  const { paid } = await searchParams;
+  const { paid, canceled } = await searchParams;
 
   // Coming back from the payment provider: verify now so the page is correct
   // immediately, instead of waiting for the webhook. reconcile self-detects the
   // provider from the order and no-ops if there's nothing to reconcile.
   if (paid) {
     await reconcileOrderPayment(db, { orderId: id, userId: session.user.id });
+  }
+  // Returned from a cancelled checkout (Stripe cancel_url): free the bike right
+  // away instead of leaving it locked until the hold expires. No-op if paid.
+  if (canceled) {
+    await cancelPendingOrder(db, id, session.user.id);
   }
 
   const row = await getOrderForUser(db, id, session.user.id);
@@ -126,7 +132,7 @@ export default async function OrderDetailPage({
           ) : awaitingPayment ? (
             <div>
               <p className="mb-2 text-sm text-foreground/70">
-                Comanda așteaptă plata. Finalizează plata în siguranță prin Stripe.
+                Comanda așteaptă plata. Finalizează plata în siguranță.
               </p>
               {holdExpiry ? (
                 <div className="mb-4">
@@ -134,6 +140,7 @@ export default async function OrderDetailPage({
                 </div>
               ) : null}
               <PayButton orderId={order.id} />
+              <CancelOrderButton orderId={order.id} />
             </div>
           ) : paymentsOff ? (
             <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-300">

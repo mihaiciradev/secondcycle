@@ -179,6 +179,19 @@ export async function getOrderForUser(db: DB, orderId: string, userId: string) {
   return { order, items: items.get(orderId) ?? [] };
 }
 
+/**
+ * Buyer cancels their own pending, unpaid order: release the holds (freeing the
+ * bikes + notifying watchers) and mark the order cancelled. No-op if it's
+ * already paid or not pending, so it's safe to call on navigation.
+ */
+export async function cancelPendingOrder(db: DB, orderId: string, userId: string): Promise<void> {
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order || order.userId !== userId) throw NotFound("Comanda nu există");
+  if (order.paidAt || order.status !== "pending") return;
+  await releaseOrderHolds(db, orderId);
+  await db.update(orders).set({ status: "cancelled" }).where(eq(orders.id, orderId));
+}
+
 /** Earliest active hold expiry for an order (drives the checkout countdown). */
 export async function getOrderHoldExpiry(db: DB, orderId: string): Promise<Date | null> {
   const [row] = await db
