@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { isCommonPassword } from "@/server/auth/common-passwords";
-import { SERVICE_CHECK_STATUSES } from "@/server/constants/app";
+import { SERVICE_CHECK_STATUSES_ALL } from "@/server/constants/app";
 
 const password = z
   .string()
@@ -33,13 +33,19 @@ export const serviceRecordSchema = z
       .array(
         z.object({
           item: z.string().min(1).max(120),
-          status: z.enum(SERVICE_CHECK_STATUSES),
+          status: z.enum(SERVICE_CHECK_STATUSES_ALL),
           note: z.string().max(300).optional(),
         })
       )
       .max(50)
       .optional()
       .default([]),
+    // Constatare (intake) valuation + repair estimate, in bani. Internal-only.
+    marketValueCents: z.number().int().nonnegative().max(100_000_000).optional(),
+    suggestedPurchaseCents: z.number().int().nonnegative().max(100_000_000).optional(),
+    estimatedRepairCents: z.number().int().nonnegative().max(100_000_000).optional(),
+    // Final paper: what the repair actually cost. Internal-only.
+    actualRepairCents: z.number().int().nonnegative().max(100_000_000).optional(),
   })
   .strict();
 

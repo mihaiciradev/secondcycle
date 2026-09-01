@@ -191,8 +191,14 @@ export const bikes = pgTable("bikes", {
   frameSize: text("frame_size").notNull(),
   wheelSize: text("wheel_size").notNull(),
   conditionGrade: conditionGradeEnum("condition_grade").notNull(),
+  // Current price: the provisional estimate at intake, replaced by the final
+  // selling price when the bike is published.
   priceCents: integer("price_cents").notNull(),
   oldPriceCents: integer("old_price_cents"),
+  // The rough price agreed with the client at intake (kept for reference).
+  provisionalPriceCents: integer("provisional_price_cents"),
+  // What we actually pay the owner. Set at publish; the TVA-la-marjă input.
+  acquisitionCostCents: integer("acquisition_cost_cents"),
   description: text("description").notNull().default(""),
   workDone: jsonb("work_done").$type<string[]>().notNull().default([]),
   status: bikeStatusEnum("status").notNull().default("draft"),
@@ -205,7 +211,9 @@ export const bikes = pgTable("bikes", {
 
 export type ChecklistItem = {
   item: string;
-  status: "ok" | "replaced" | "repaired" | "attention";
+  // Intake (constatare) uses the planned statuses (to_*); the final paper uses
+  // the done statuses (repaired/replaced/attention). "ok" is valid on both.
+  status: "ok" | "to_repair" | "to_replace" | "to_check" | "repaired" | "replaced" | "attention";
   note?: string;
 };
 
@@ -222,6 +230,11 @@ export const serviceRecords = pgTable(
     kind: serviceKindEnum("kind").notNull(),
     checklist: jsonb("checklist").$type<ChecklistItem[]>().notNull().default([]),
     summary: text("summary"),
+    // Constatare (intake) valuation, all internal. actual_repair on the final paper.
+    marketValueCents: integer("market_value_cents"),
+    suggestedPurchaseCents: integer("suggested_purchase_cents"),
+    estimatedRepairCents: integer("estimated_repair_cents"),
+    actualRepairCents: integer("actual_repair_cents"),
     performedBy: text("performed_by").notNull(),
     performedAt: date("performed_at").notNull(),
     createdBy: uuid("created_by")

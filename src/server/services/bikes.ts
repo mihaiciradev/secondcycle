@@ -97,6 +97,54 @@ export async function getBikeById(db: DB, id: string) {
   return row ?? null;
 }
 
+/**
+ * Set the sale details of a bike (final price, acquisition cost, description,
+ * work done), optionally publishing it. Enforces the intake -> constatare ->
+ * publish flow: publishing requires the workshop's constatare paper to exist.
+ * Price is locked once the bike is reserved or sold.
+ */
+export async function saveBikeSaleDetails(
+  db: DB,
+  id: string,
+  input: {
+    priceCents: number;
+    acquisitionCostCents: number | null;
+    description: string;
+    workDone: string[];
+  },
+  opts: { publish: boolean }
+) {
+  return db.transaction(async (tx) => {
+    const [bike] = await tx.select().from(bikes).where(eq(bikes.id, id)).for("update").limit(1);
+    if (!bike) throw NotFound("Bicicleta nu există");
+    if (bike.status === "sold" || bike.status === "reserved") {
+      throw Conflict("Bicicleta e rezervată sau vândută; prețul nu mai poate fi schimbat");
+    }
+
+    if (opts.publish) {
+      const [intake] = await tx
+        .select({ id: serviceRecords.id })
+        .from(serviceRecords)
+        .where(and(eq(serviceRecords.bikeId, id), eq(serviceRecords.kind, "intake")))
+        .limit(1);
+      if (!intake) throw Conflict("Poți publica doar după fișa de constatare a atelierului");
+    }
+
+    const [updated] = await tx
+      .update(bikes)
+      .set({
+        priceCents: input.priceCents,
+        acquisitionCostCents: input.acquisitionCostCents,
+        description: input.description,
+        workDone: input.workDone,
+        ...(opts.publish ? { status: "available" as const } : {}),
+      })
+      .where(eq(bikes.id, id))
+      .returning();
+    return updated;
+  });
+}
+
 /** Replace a bike's ordered photo keys (first key is the cover). */
 export async function setBikePhotos(db: DB, id: string, photos: string[]) {
   const [row] = await db.update(bikes).set({ photos }).where(eq(bikes.id, id)).returning();
@@ -123,6 +171,8 @@ export async function createBike(db: DB, input: CreateBikeInput) {
         conditionGrade: input.conditionGrade,
         priceCents: input.priceCents,
         oldPriceCents: input.oldPriceCents ?? null,
+        provisionalPriceCents: input.provisionalPriceCents ?? null,
+        acquisitionCostCents: input.acquisitionCostCents ?? null,
         description: input.description ?? "",
         workDone: input.workDone ?? [],
         status: input.status ?? "draft",

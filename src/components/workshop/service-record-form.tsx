@@ -8,8 +8,8 @@ import {
 } from "@/server/actions/workshop/service-records";
 import {
   SERVICE_CHECK_ITEMS,
-  SERVICE_CHECK_STATUSES,
   SERVICE_CHECK_STATUS_LABEL,
+  serviceCheckStatuses,
 } from "@/server/constants/app";
 import { fieldClass, labelClass, primaryBtn } from "@/components/auth/auth-shell";
 
@@ -19,7 +19,28 @@ type Initial = {
   performedAt: string | Date;
   summary: string | null;
   checklist: ChecklistEntry[];
+  marketValueCents?: number | null;
+  suggestedPurchaseCents?: number | null;
+  estimatedRepairCents?: number | null;
+  actualRepairCents?: number | null;
 };
+
+const centsToLei = (c?: number | null) => (c != null ? String(c / 100) : "");
+function leiToCents(v: FormDataEntryValue | null): number | undefined {
+  if (!v) return undefined;
+  const n = parseFloat(String(v).replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : undefined;
+}
+
+function MoneyField({ name, label, hint, defaultValue }: { name: string; label: string; hint?: string; defaultValue?: string }) {
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <input name={name} type="number" min="0" step="1" inputMode="numeric" placeholder="lei" defaultValue={defaultValue} className={fieldClass} />
+      {hint ? <p className="mt-1 text-xs text-steel">{hint}</p> : null}
+    </div>
+  );
+}
 
 export function ServiceRecordForm({
   bikeId,
@@ -37,6 +58,8 @@ export function ServiceRecordForm({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const statuses = serviceCheckStatuses(kind);
+  const defaultStatus = kind === "intake" ? "to_check" : "ok";
 
   const today = new Date().toISOString().slice(0, 10);
   const initialDate = initial
@@ -57,7 +80,7 @@ export function ServiceRecordForm({
       const note = f.get(`note:${item}`);
       return {
         item,
-        status: String(f.get(`status:${item}`) ?? "ok"),
+        status: String(f.get(`status:${item}`) ?? defaultStatus),
         note: note ? String(note).trim() || undefined : undefined,
       };
     });
@@ -68,6 +91,10 @@ export function ServiceRecordForm({
       performedAt: String(f.get("performedAt") ?? today),
       summary: f.get("summary") ? String(f.get("summary")).trim() : undefined,
       checklist,
+      marketValueCents: kind === "intake" ? leiToCents(f.get("marketValueCents")) : undefined,
+      suggestedPurchaseCents: kind === "intake" ? leiToCents(f.get("suggestedPurchaseCents")) : undefined,
+      estimatedRepairCents: kind === "intake" ? leiToCents(f.get("estimatedRepairCents")) : undefined,
+      actualRepairCents: kind === "final" ? leiToCents(f.get("actualRepairCents")) : undefined,
     };
     const res = recordId
       ? await updateServiceRecordAction({ recordId, ...fields })
@@ -98,8 +125,8 @@ export function ServiceRecordForm({
         {SERVICE_CHECK_ITEMS.map((item) => (
           <div key={item} className="grid items-center gap-2 sm:grid-cols-[1fr_150px_1.4fr]">
             <span className="text-sm font-medium">{item}</span>
-            <select name={`status:${item}`} defaultValue={initMap.get(item)?.status ?? "ok"} className={fieldClass}>
-              {SERVICE_CHECK_STATUSES.map((s) => (
+            <select name={`status:${item}`} defaultValue={initMap.get(item)?.status ?? defaultStatus} className={fieldClass}>
+              {statuses.map((s) => (
                 <option key={s} value={s}>
                   {SERVICE_CHECK_STATUS_LABEL[s]}
                 </option>
@@ -113,6 +140,22 @@ export function ServiceRecordForm({
             />
           </div>
         ))}
+      </div>
+
+      {/* Valuation: internal, admin-only (never shown to buyers). */}
+      <div className="rounded-lg border border-dashed border-border p-4">
+        <p className="mb-3 font-mono text-xs uppercase tracking-wider text-steel">Evaluare (intern)</p>
+        {kind === "intake" ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <MoneyField name="marketValueCents" label="Preț de piață (înainte)" hint="Cât valorează acum, nereparată" defaultValue={centsToLei(initial?.marketValueCents)} />
+            <MoneyField name="suggestedPurchaseCents" label="Cât ați da pe ea" hint="Preț de achiziție sugerat" defaultValue={centsToLei(initial?.suggestedPurchaseCents)} />
+            <MoneyField name="estimatedRepairCents" label="Cost reparații estimat" defaultValue={centsToLei(initial?.estimatedRepairCents)} />
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <MoneyField name="actualRepairCents" label="Cost reparații real" defaultValue={centsToLei(initial?.actualRepairCents)} />
+          </div>
+        )}
       </div>
 
       <div>

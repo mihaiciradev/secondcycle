@@ -18,6 +18,8 @@ export const createBikeSchema = z
     conditionGrade: z.enum(gradeValues),
     priceCents: z.number().int().min(0).max(MAX_PRICE_CENTS),
     oldPriceCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
+    provisionalPriceCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
+    acquisitionCostCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
     description: z.string().max(4000).optional().default(""),
     workDone: z.array(z.string().max(200)).max(50).optional().default([]),
     status: z.enum(["draft", "available"]).optional().default("draft"),
@@ -26,3 +28,17 @@ export const createBikeSchema = z
   .strict();
 
 export type CreateBikeInput = z.infer<typeof createBikeSchema>;
+
+/** Publish / edit a bike's sale details after the constatare. */
+export const bikeSaleSchema = z
+  .object({
+    bikeId: z.string().uuid(),
+    priceCents: z.number().int().min(1).max(MAX_PRICE_CENTS),
+    acquisitionCostCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
+    description: z.string().max(4000).optional().default(""),
+    workDone: z.array(z.string().max(200)).max(50).optional().default([]),
+    publish: z.boolean().optional().default(false),
+  })
+  .strict();
+
+export type BikeSaleInput = z.infer<typeof bikeSaleSchema>;

@@ -7,8 +7,9 @@ import {
   adminTransitionBikeStatus,
   createBike,
   deleteDraftBike,
+  saveBikeSaleDetails,
 } from "@/server/services/bikes";
-import { createBikeSchema } from "@/server/validation/bikes";
+import { bikeSaleSchema, createBikeSchema } from "@/server/validation/bikes";
 import { AppError } from "@/server/errors";
 import type { BikeStatus } from "@/server/constants/statuses";
 
@@ -24,6 +25,31 @@ export async function createBikeAction(input: unknown): Promise<Result> {
     const parsed = createBikeSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
     await createBike(db, parsed.data);
+    revalidatePath("/admin/bikes");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function saveBikeSaleAction(input: unknown): Promise<Result> {
+  try {
+    await requireAdmin();
+    const parsed = bikeSaleSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
+    const { bikeId, publish, priceCents, acquisitionCostCents, description, workDone } = parsed.data;
+    await saveBikeSaleDetails(
+      db,
+      bikeId,
+      {
+        priceCents,
+        acquisitionCostCents: acquisitionCostCents ?? null,
+        description: description ?? "",
+        workDone: workDone ?? [],
+      },
+      { publish }
+    );
+    revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");
     return { ok: true };
   } catch (e) {

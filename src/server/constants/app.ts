@@ -42,11 +42,33 @@ export const SERVICE_CHECK_ITEMS = [
   "Altele",
 ] as const;
 
-export const SERVICE_CHECK_STATUSES = ["ok", "replaced", "repaired", "attention"] as const;
+/** Constatare (intake) statuses: a diagnosis of what needs doing. */
+export const SERVICE_CHECK_STATUSES_INTAKE = ["ok", "to_repair", "to_replace", "to_check"] as const;
+/** Final paper statuses: what was actually done. */
+export const SERVICE_CHECK_STATUSES_FINAL = ["ok", "repaired", "replaced", "attention"] as const;
+
+/** Every status that may appear on either paper (for validation). */
+export const SERVICE_CHECK_STATUSES_ALL = [
+  "ok",
+  "to_repair",
+  "to_replace",
+  "to_check",
+  "repaired",
+  "replaced",
+  "attention",
+] as const;
+
+export function serviceCheckStatuses(kind: "intake" | "final") {
+  return kind === "intake" ? SERVICE_CHECK_STATUSES_INTAKE : SERVICE_CHECK_STATUSES_FINAL;
+}
+
 export const SERVICE_CHECK_STATUS_LABEL: Record<string, string> = {
   ok: "În regulă",
-  replaced: "Înlocuit",
+  to_repair: "De reparat",
+  to_replace: "De înlocuit",
+  to_check: "De verificat",
   repaired: "Reparat",
+  replaced: "Înlocuit",
   attention: "De atenție",
 };
 

@@ -26,6 +26,10 @@ export async function createServiceRecord(
         kind: input.kind,
         checklist: input.checklist ?? [],
         summary: input.summary ?? null,
+        marketValueCents: input.marketValueCents ?? null,
+        suggestedPurchaseCents: input.suggestedPurchaseCents ?? null,
+        estimatedRepairCents: input.estimatedRepairCents ?? null,
+        actualRepairCents: input.actualRepairCents ?? null,
         performedBy: input.performedBy,
         performedAt: input.performedAt,
         createdBy: input.createdBy,
@@ -62,6 +66,10 @@ export async function updateServiceRecord(
     .set({
       checklist: input.checklist ?? [],
       summary: input.summary ?? null,
+      marketValueCents: input.marketValueCents ?? null,
+      suggestedPurchaseCents: input.suggestedPurchaseCents ?? null,
+      estimatedRepairCents: input.estimatedRepairCents ?? null,
+      actualRepairCents: input.actualRepairCents ?? null,
       performedBy: input.performedBy,
       performedAt: input.performedAt,
     })
