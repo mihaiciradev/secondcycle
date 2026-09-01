@@ -1,11 +1,11 @@
 export const runtime = "nodejs";
 
 import { db } from "@/server/db/client";
-import { verifyRevolutWebhook } from "@/server/payments/revolut";
+import { revolutWebhookSecret, verifyRevolutWebhook } from "@/server/payments/revolut";
 import { handleRevolutCompleted } from "@/server/services/payments";
 
 export async function POST(request: Request) {
-  const secret = process.env.REVOLUT_WEBHOOK_SECRET;
+  const secret = revolutWebhookSecret();
   if (!secret) return new Response("Payments not configured", { status: 503 });
 
   const payload = await request.text(); // raw body, required for signature check

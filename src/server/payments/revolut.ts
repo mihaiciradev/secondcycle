@@ -12,12 +12,30 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 // Pinned Merchant API version (YYYY-MM-DD). Required on every request.
 const API_VERSION = "2024-09-01";
 
+/** Read an env var, tolerating accidental surrounding quotes / whitespace
+ *  (a common slip when pasting into the Vercel dashboard, which does NOT strip
+ *  quotes the way dotenv does). */
+function cleanEnv(name: string): string | undefined {
+  const v = process.env[name];
+  if (v == null) return undefined;
+  const trimmed = v.trim().replace(/^["']|["']$/g, "").trim();
+  return trimmed || undefined;
+}
+
+function secretKey(): string | undefined {
+  return cleanEnv("REVOLUT_SECRET_KEY");
+}
+
 export function isRevolutConfigured(): boolean {
-  return Boolean(process.env.REVOLUT_SECRET_KEY);
+  return Boolean(secretKey());
+}
+
+export function revolutWebhookSecret(): string | undefined {
+  return cleanEnv("REVOLUT_WEBHOOK_SECRET");
 }
 
 export function revolutMode(): "sandbox" | "production" {
-  return process.env.REVOLUT_ENV === "production" ? "production" : "sandbox";
+  return cleanEnv("REVOLUT_ENV") === "production" ? "production" : "sandbox";
 }
 
 function baseUrl(): string {
@@ -27,7 +45,7 @@ function baseUrl(): string {
 }
 
 async function api<T>(path: string, init: { method: string; body?: unknown }): Promise<T> {
-  const key = process.env.REVOLUT_SECRET_KEY;
+  const key = secretKey();
   if (!key) throw new Error("REVOLUT_SECRET_KEY is not set");
   const res = await fetch(`${baseUrl()}${path}`, {
     method: init.method,
