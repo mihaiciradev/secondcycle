@@ -19,6 +19,15 @@ function originFrom(h: Headers): string {
   return `${proto}://${host}`;
 }
 
+/** User-facing error. Logs everything; reveals the real message outside prod. */
+function errMsg(e: unknown): string {
+  if (e instanceof AppError) return e.message;
+  console.error("[checkout]", e);
+  return process.env.VERCEL_ENV === "production"
+    ? "A apărut o eroare"
+    : `Eroare: ${e instanceof Error ? e.message : String(e)}`;
+}
+
 export async function createOrderAction(input: unknown): Promise<CreateResult> {
   try {
     const user = await requireUser();
@@ -44,7 +53,7 @@ export async function createOrderAction(input: unknown): Promise<CreateResult> {
     );
     return { ok: true, orderId: order.id, checkoutUrl, unavailable };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: errMsg(e) };
   }
 }
 
@@ -60,6 +69,6 @@ export async function createCheckoutAction(
     const url = await startCheckout(db, { orderId, userId: user.id, origin: originFrom(h) }, provider);
     return { ok: true, url };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: errMsg(e) };
   }
 }

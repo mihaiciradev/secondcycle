@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, sql } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, reservations } from "@/server/db/schema";
 import { RESERVATION_TTL_MINUTES, TERMS_VERSION } from "@/server/constants/app";
@@ -33,8 +33,8 @@ export async function createOrder(
         unavailable.push({ bikeId });
         continue;
       }
-      // Lazily clear this bike's own expired hold before judging availability.
       if (bike.status === "reserved") {
+        // Lazily clear this bike's own expired hold before judging availability.
         const cleared = await tx
           .update(reservations)
           .set({ status: "expired" })
@@ -49,6 +49,30 @@ export async function createOrder(
         if (cleared.length) {
           await tx.update(bikes).set({ status: "available" }).where(eq(bikes.id, bikeId));
           bike.status = "available";
+        } else {
+          // Still actively held. If it's the caller's OWN hold (a failed or
+          // abandoned attempt), release it and cancel that pending order so they
+          // can retry; a hold by someone else means it's genuinely taken.
+          const [own] = await tx
+            .select({
+              id: reservations.id,
+              userId: reservations.userId,
+              orderId: reservations.orderId,
+            })
+            .from(reservations)
+            .where(and(eq(reservations.bikeId, bikeId), eq(reservations.status, "active")))
+            .limit(1);
+          if (own && own.userId === params.userId) {
+            await tx.update(reservations).set({ status: "cancelled" }).where(eq(reservations.id, own.id));
+            if (own.orderId) {
+              await tx
+                .update(orders)
+                .set({ status: "cancelled" })
+                .where(and(eq(orders.id, own.orderId), eq(orders.status, "pending"), isNull(orders.paidAt)));
+            }
+            await tx.update(bikes).set({ status: "available" }).where(eq(bikes.id, bikeId));
+            bike.status = "available";
+          }
         }
       }
       if (bike.status !== "available") {
