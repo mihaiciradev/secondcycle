@@ -8,6 +8,7 @@ import { getPaymentsLive } from "@/server/services/settings";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { BikeActions } from "@/components/bikes/bike-actions";
+import { BikeGallery } from "@/components/bikes/bike-gallery";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatLei } from "@/lib/money";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
@@ -146,18 +147,7 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
           </Link>
 
           <div className="mt-6 grid gap-10 lg:grid-cols-2">
-            <div className="overflow-hidden rounded border border-border bg-manila/40">
-              <div className="aspect-[4/3]">
-                {photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photo} alt={`${bike.brand} ${bike.model}`} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center font-mono text-lg text-asphalt/40">
-                    {bike.sku}
-                  </div>
-                )}
-              </div>
-            </div>
+            <BikeGallery photos={photoUrls} alt={`${bike.brand} ${bike.model}`} sku={bike.sku} />
 
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">

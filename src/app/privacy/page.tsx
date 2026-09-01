@@ -169,10 +169,14 @@ export default function PrivacyPage() {
           <H2>Cookie-uri</H2>
           <P>
             Folosim doar cookie-uri strict necesare pentru funcționarea platformei, în
-            special cookie-ul de sesiune care te menține autentificat (httpOnly). Nu
-            folosim cookie-uri de urmărire în scop publicitar. Dacă vom adăuga în viitor
-            instrumente de analiză, vom actualiza această politică și îți vom cere
-            consimțământul acolo unde legea o cere.
+            special cookie-ul de sesiune care te menține autentificat (httpOnly). Pentru
+            statistici de trafic folosim Vercel Analytics, un instrument fără cookie-uri și
+            anonim, care nu te identifică și nu te urmărește pe alte site-uri. Nu folosim
+            cookie-uri de urmărire în scop publicitar. Detalii în{" "}
+            <a href="/cookies" className="text-blue underline-offset-2 hover:underline">
+              Politica de cookies
+            </a>
+            .
           </P>
 
           <H2>Securitate</H2>

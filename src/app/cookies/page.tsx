@@ -8,10 +8,10 @@ import { BrandLogo } from "@/components/site/brand-logo";
 export const metadata: Metadata = {
   title: "Politica de cookies",
   description:
-    "Ce cookie-uri și stocare locală folosește Second Cycle: doar strictul necesar pentru autentificare și coș, fără urmărire.",
+    "Ce cookie-uri și stocare locală folosește Second Cycle: doar strictul necesar pentru autentificare și coș, plus analiză de trafic anonimă, fără cookie-uri de urmărire.",
 };
 
-const UPDATED = "30 august 2026";
+const UPDATED = "1 septembrie 2026";
 
 function H2({ children }: { children: React.ReactNode }) {
   return <h2 className="mt-10 font-heading text-xl font-semibold tracking-tight">{children}</h2>;
@@ -81,9 +81,10 @@ export default function CookiesPage() {
 
           <P>
             Ținem lucrurile simple: folosim doar cookie-uri strict necesare pentru ca site-ul să
-            funcționeze și un pic de stocare locală pentru coșul tău. Nu folosim cookie-uri de
-            analiză sau de publicitate și nu te urmărim pe alte site-uri. De aceea nici nu-ți cerem
-            să „accepți" cookie-uri de marketing: nu avem așa ceva.
+            funcționeze și un pic de stocare locală pentru coșul tău. Pentru statistici de trafic
+            folosim un instrument fără cookie-uri (Vercel Analytics), care nu te identifică personal
+            și nu te urmărește pe alte site-uri. Nu folosim cookie-uri de publicitate sau de
+            marketing, așa că nu-ți cerem să „accepți" astfel de cookie-uri: nu avem.
           </P>
 
           <H2>Cookie-uri strict necesare</H2>
@@ -130,26 +131,38 @@ export default function CookiesPage() {
             ))}
           </ul>
 
+          <H2>Analiză de trafic (fără cookie-uri)</H2>
+          <P>
+            Folosim <strong>Vercel Analytics</strong> ca să înțelegem, la nivel agregat, ce pagini
+            sunt vizitate și cum se comportă site-ul. Este un instrument care <strong>nu folosește
+            cookie-uri</strong> și <strong>nu te identifică personal</strong>: datele sunt
+            anonimizate și nu ești urmărit(ă) pe alte site-uri. Fiind fără cookie-uri și fără date
+            personale stocate pe dispozitivul tău, nu necesită consimțământ conform legii, dar
+            preferăm să fim transparenți.
+          </P>
+
           <H2>Ce NU folosim</H2>
           <P>
-            Fără Google Analytics sau alte instrumente de analiză, fără pixeli de publicitate, fără
-            cookie-uri de la rețele sociale și fără vânzarea datelor tale. Punct.
+            Fără cookie-uri de publicitate, fără pixeli de tracking, fără cookie-uri de la rețele
+            sociale și fără vânzarea datelor tale. Singura analiză pe care o facem e cea de mai sus
+            (Vercel Analytics), fără cookie-uri și anonimă.
           </P>
 
           <H2>Servicii ale terților</H2>
           <P>
-            Plata este procesată de Stripe, pe paginile lor securizate; cookie-urile setate acolo
-            sunt guvernate de politica Stripe. Dacă alegi „Continuă cu Google", autentificarea e
-            gestionată de Google conform politicii lor. Aceste servicii intervin doar când le
+            Site-ul este găzduit pe Vercel, care ne oferă și analiza de trafic anonimă descrisă mai
+            sus. Plata este procesată de Stripe, pe paginile lor securizate; cookie-urile setate
+            acolo sunt guvernate de politica Stripe. Dacă alegi „Continuă cu Google", autentificarea
+            e gestionată de Google conform politicii lor. Aceste servicii intervin doar când le
             folosești tu.
           </P>
 
           <H2>Cum le controlezi</H2>
           <P>
             Poți șterge sau bloca cookie-urile din setările browserului. Reține că, dacă blochezi
-            cookie-urile strict necesare, autentificarea nu va mai funcționa. Dacă adăugăm vreodată
-            instrumente de analiză, vom actualiza această pagină și îți vom cere consimțământul
-            explicit, așa cum cere legea.
+            cookie-urile strict necesare, autentificarea nu va mai funcționa. Dacă vom adăuga vreodată
+            instrumente care necesită consimțământ (de exemplu cookie-uri de marketing), vom actualiza
+            această pagină și îți vom cere consimțământul explicit, așa cum cere legea.
           </P>
 
           <H2>Contact</H2>
