@@ -2,7 +2,7 @@ import { and, count, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, serviceRecords, users, workshops } from "@/server/db/schema";
 import { hashPassword } from "@/server/auth/password";
-import { Conflict } from "@/server/errors";
+import { Conflict, NotFound } from "@/server/errors";
 import type { CreateWorkshopInput } from "@/server/validation/workshops";
 
 function isUniqueViolation(e: unknown): boolean {
@@ -90,6 +90,33 @@ export async function promoteUserToWorkshop(
       .where(eq(users.id, user.id));
 
     return { workshop, userEmail: user.email };
+  });
+}
+
+/**
+ * Demote a workshop back to a plain customer: flip its linked login(s) to role
+ * 'customer', unlink them, and deactivate the workshop. The workshop row is kept
+ * (bikes + service_records reference it, onDelete restrict) so history stays
+ * attributed; it just can't take new assignments. Bumps session_version so the
+ * account loses workshop access on its next request.
+ */
+export async function demoteWorkshopToCustomer(db: DB, workshopId: string) {
+  return db.transaction(async (tx) => {
+    const [ws] = await tx.select().from(workshops).where(eq(workshops.id, workshopId)).limit(1);
+    if (!ws) throw NotFound("Atelierul nu există");
+
+    await tx
+      .update(users)
+      .set({
+        role: "customer",
+        workshopId: null,
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+      })
+      .where(eq(users.workshopId, workshopId));
+
+    await tx.update(workshops).set({ active: false }).where(eq(workshops.id, workshopId));
+
+    return { workshopId };
   });
 }
 

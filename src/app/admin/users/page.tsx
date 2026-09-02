@@ -2,6 +2,7 @@ import { db } from "@/server/db/client";
 import { adminListUsers } from "@/server/services/admin-users";
 import { SectionTitle, StatCard } from "@/components/admin/dashboard-ui";
 import { CopyButton } from "@/components/admin/copy-button";
+import { PromoteUserButton } from "@/components/admin/promote-user-button";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,7 +88,10 @@ export default async function AdminUsersPage() {
                     {new Date(u.createdAt).toLocaleDateString("ro-RO")}
                   </td>
                   <td className="py-2.5">
-                    <CopyButton text={u.email} label="Copiază e-mail" size="sm" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CopyButton text={u.email} label="Copiază e-mail" size="sm" />
+                      {u.role === "customer" ? <PromoteUserButton email={u.email} /> : null}
+                    </div>
                   </td>
                 </tr>
               ))}

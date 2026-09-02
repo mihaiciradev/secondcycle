@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
-import { createWorkshopAccount, promoteUserToWorkshop } from "@/server/services/workshops";
+import {
+  createWorkshopAccount,
+  demoteWorkshopToCustomer,
+  promoteUserToWorkshop,
+} from "@/server/services/workshops";
 import { assignBikeToWorkshop } from "@/server/services/bikes";
 import { createWorkshopSchema, promoteWorkshopSchema } from "@/server/validation/workshops";
 import { AppError } from "@/server/errors";
@@ -34,6 +38,19 @@ export async function promoteUserToWorkshopAction(input: unknown): Promise<Resul
     if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
     await promoteUserToWorkshop(db, parsed.data);
     revalidatePath("/admin/workshops");
+    revalidatePath("/admin/users");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function demoteWorkshopToCustomerAction(workshopId: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    await demoteWorkshopToCustomer(db, workshopId);
+    revalidatePath("/admin/workshops");
+    revalidatePath("/admin/users");
     return { ok: true };
   } catch (e) {
     return fail(e);
