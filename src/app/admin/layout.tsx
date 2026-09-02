@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
+import { countPendingReturns } from "@/server/services/returns";
 import { SiteHeader } from "@/components/site/site-header";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { RoleBadge } from "@/components/auth/role-badge";
@@ -15,6 +16,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const me = await getUserById(db, session.user.id);
   if (!me || me.role !== "admin") redirect("/");
 
+  const pendingReturns = await countPendingReturns(db);
+
   return (
     <>
       <SiteHeader />
@@ -24,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Panou</p>
             <RoleBadge role="admin" />
           </div>
-          <AdminNav />
+          <AdminNav badges={{ "/admin/returns": pendingReturns }} />
           <div className="mt-8">{children}</div>
         </div>
       </main>

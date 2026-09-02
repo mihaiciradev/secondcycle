@@ -94,6 +94,7 @@ export const deliveryMethodEnum = pgEnum("delivery_method", ["pickup", "courier"
 export const emailStatusEnum = pgEnum("email_status", ["sent", "failed"]);
 export const campaignStatusEnum = pgEnum("campaign_status", ["draft", "sending", "sent"]);
 export const recipientStatusEnum = pgEnum("recipient_status", ["pending", "sent", "failed"]);
+export const returnStatusEnum = pgEnum("return_status", ["pending", "handled"]);
 
 // ---------------------------------------------------------------------------
 // Auth / users
@@ -436,6 +437,38 @@ export const campaignRecipients = pgTable("campaign_recipients", {
 export const appSettings = pgTable("app_settings", {
   key: text("key").primaryKey(),
   enabled: boolean("enabled").notNull().default(false),
+  // Optional string payload, for non-boolean settings (e.g. a notification email).
+  value: text("value"),
+  updatedAt: updatedAt(),
+});
+
+/** One bike a customer wants to return, snapshotted from their paid order. */
+export type ReturnItem = {
+  orderId: string;
+  orderNumber: string;
+  bikeId: string;
+  sku: string;
+  brand: string;
+  model: string;
+};
+
+/**
+ * A customer's exercise of the 14-day right of withdrawal (retur). Kept as a
+ * durable record so the admin panel can surface it as a task even if the
+ * notification email fails. `userId` is nullable so the row survives if the
+ * account is later deleted.
+ */
+export const returnRequests = pgTable("return_requests", {
+  id: pk(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  contactName: text("contact_name").notNull(),
+  contactEmail: citext("contact_email").notNull(),
+  contactPhone: text("contact_phone"),
+  items: jsonb("items").$type<ReturnItem[]>().notNull().default([]),
+  reason: text("reason"),
+  status: returnStatusEnum("status").notNull().default("pending"),
+  handledAt: timestamp("handled_at", { withTimezone: true }),
+  createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
 

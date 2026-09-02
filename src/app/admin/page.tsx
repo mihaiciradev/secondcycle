@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/server/db/client";
 import { getAdminStats } from "@/server/services/admin-stats";
+import { countPendingReturns } from "@/server/services/returns";
 import { getStripeSnapshot } from "@/server/services/payments";
 import { getStorageStats, isStorageEnabled } from "@/server/storage/r2";
 import {
@@ -19,15 +20,45 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const [s, stripe, storage] = await Promise.all([
+  const [s, stripe, storage, pendingReturns] = await Promise.all([
     getAdminStats(db),
     getStripeSnapshot(),
     getStorageStats(),
+    countPendingReturns(db),
   ]);
   const months = lastSixMonths(s.revenue.monthly);
 
+  const todos: { label: string; href: string; count: number }[] = [
+    { label: "cereri de retur de tratat", href: "/admin/returns", count: pendingReturns },
+    { label: "comenzi în așteptare", href: "/admin/orders?status=pending", count: s.orders.pending },
+  ].filter((t) => t.count > 0);
+
   return (
     <div className="space-y-10">
+      {/* Things that need attention */}
+      {todos.length > 0 ? (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 sm:p-5">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-amber-700 dark:text-amber-400">
+            De făcut
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {todos.map((t) => (
+              <li key={t.href}>
+                <Link
+                  href={t.href}
+                  className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-paper px-3.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-amber-500"
+                >
+                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[0.65rem] font-bold text-white">
+                    {t.count}
+                  </span>
+                  {t.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {/* Headline numbers */}
       <div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

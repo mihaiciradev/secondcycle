@@ -66,6 +66,38 @@ export function orderConfirmedTemplate(input: {
   };
 }
 
+export function returnRequestTemplate(input: {
+  items: { brand: string; model: string; sku: string; orderNumber: string }[];
+  reason: string | null;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string | null;
+  link: string;
+}) {
+  const rows = input.items
+    .map(
+      (it) =>
+        `<tr><td style="padding:7px 0;color:#2b3033">${it.brand} ${it.model} <span style="color:#727a75;font-size:13px">${it.sku}</span></td><td style="padding:7px 0;text-align:right;white-space:nowrap;color:#727a75;font-size:13px">${it.orderNumber}</td></tr>`
+    )
+    .join("");
+  const body = `
+    <p>Un client a cerut retragerea din contract (retur) pentru:</p>
+    <table style="width:100%;border-collapse:collapse;margin:18px 0">${rows}</table>
+    <p><strong>Client:</strong> ${input.contactName}<br>
+    <strong>E-mail:</strong> ${input.contactEmail}${input.contactPhone ? `<br><strong>Telefon:</strong> ${input.contactPhone}` : ""}</p>
+    <p><strong>Motiv:</strong> ${input.reason ? input.reason : "(niciunul, nu este obligatoriu)"}</p>
+    <p>Termenul legal de rambursare este de 14 zile de la anunț. Tratează cererea în panou.</p>`;
+  return {
+    subject: `Cerere de retur | Second Cycle`,
+    html: shell(
+      "Cerere de retur",
+      body,
+      { href: input.link, label: "Vezi în panou" },
+      "E-mail intern, generat automat de site."
+    ),
+  };
+}
+
 export function bikeAvailableTemplate(input: {
   bikeLabel: string;
   link: string;

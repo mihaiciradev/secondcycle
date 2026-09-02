@@ -11,6 +11,7 @@ const legalLinks = [
   { href: "/about", label: "Ce facem" },
   { href: "/legal-data", label: "Date legale" },
   { href: "/withdrawal-form", label: "Formular de retragere" },
+  { href: "/retur", label: "Retur (14 zile)" },
   { href: "/terms", label: "Termeni și condiții" },
   { href: "/privacy", label: "Politica de confidențialitate" },
   { href: "/cookies", label: "Politica de cookies" },

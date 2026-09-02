@@ -1,8 +1,9 @@
 import { db } from "@/server/db/client";
-import { getFlag, getPaymentProvider, SETTING } from "@/server/services/settings";
+import { getFlag, getPaymentProvider, getReturnsNotifyEmail, SETTING } from "@/server/services/settings";
 import { isPaymentEnabled } from "@/server/payments/stripe";
 import { isRevolutConfigured, revolutMode } from "@/server/payments/revolut";
 import { SettingToggle } from "@/components/admin/setting-toggle";
+import { NotifyEmailForm } from "@/components/admin/notify-email-form";
 import { setPaymentsEnabledAction, setRevolutEnabledAction } from "@/server/actions/admin/settings";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 
@@ -10,10 +11,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const [paymentsOn, revolutOn, provider] = await Promise.all([
+  const [paymentsOn, revolutOn, provider, returnsEmail] = await Promise.all([
     getFlag(db, SETTING.paymentsEnabled),
     getFlag(db, SETTING.revolutEnabled),
     getPaymentProvider(db),
+    getReturnsNotifyEmail(db),
   ]);
 
   const stripeConfigured = isPaymentEnabled();
@@ -54,6 +56,16 @@ export default async function AdminSettingsPage() {
           </div>
           <SettingToggle initial={revolutOn} action={setRevolutEnabledAction} />
         </div>
+      </div>
+
+      {/* Returns notification email */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h3 className="font-heading text-base font-semibold">E-mail pentru cereri de retur</h3>
+        <p className="mt-1 mb-4 text-sm text-steel">
+          Aici primești o notificare de fiecare dată când un client trimite o cerere de retur.
+          Cererea rămâne oricum vizibilă în tab-ul „Retururi”, chiar dacă e-mailul nu ajunge.
+        </p>
+        <NotifyEmailForm initial={returnsEmail} />
       </div>
 
       {/* Status */}

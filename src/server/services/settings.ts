@@ -11,6 +11,15 @@ export const SETTING = {
   revolutEnabled: "revolut_enabled",
 } as const;
 
+/** Known string-valued setting keys (stored in app_settings.value). */
+export const TEXT_SETTING = {
+  /** Where new return (retur) requests are announced. */
+  returnsNotifyEmail: "returns_notify_email",
+} as const;
+
+/** Fallback if the admin has not set a returns notification address yet. */
+export const DEFAULT_RETURNS_NOTIFY_EMAIL = "secondcycle_romania@proton.me";
+
 export type PaymentProvider = "stripe" | "revolut";
 
 /** Shown to customers wherever the buy flow is gated off. */
@@ -27,6 +36,26 @@ export async function setFlag(db: DB, key: string, enabled: boolean): Promise<vo
     .insert(appSettings)
     .values({ key, enabled })
     .onConflictDoUpdate({ target: appSettings.key, set: { enabled, updatedAt: new Date() } });
+}
+
+/** Read a string setting (app_settings.value), or null if unset/empty. */
+export async function getSetting(db: DB, key: string): Promise<string | null> {
+  const [row] = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+  const v = row?.value?.trim();
+  return v ? v : null;
+}
+
+/** Write a string setting. */
+export async function setSetting(db: DB, key: string, value: string): Promise<void> {
+  await db
+    .insert(appSettings)
+    .values({ key, value })
+    .onConflictDoUpdate({ target: appSettings.key, set: { value, updatedAt: new Date() } });
+}
+
+/** The email that return requests are announced to (falls back to the default). */
+export async function getReturnsNotifyEmail(db: DB): Promise<string> {
+  return (await getSetting(db, TEXT_SETTING.returnsNotifyEmail)) ?? DEFAULT_RETURNS_NOTIFY_EMAIL;
 }
 
 /**

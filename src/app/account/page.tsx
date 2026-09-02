@@ -44,6 +44,19 @@ export default async function AccountDetailsPage() {
         ) : null}
       </Card>
 
+      <Card title="Retur (drept de retragere)">
+        <p className="text-sm leading-relaxed text-steel">
+          Ai 14 zile de la primirea bicicletei ca să te retragi din contract, fără să dai un motiv.
+          Deschide formularul de retur, alege bicicleta cumpărată și trimite cererea.
+        </p>
+        <Link
+          href="/retur"
+          className="mt-4 inline-flex h-10 items-center rounded-full bg-asphalt px-5 text-sm font-semibold text-paper transition-colors hover:bg-asphalt/90"
+        >
+          Deschide formularul de retur
+        </Link>
+      </Card>
+
       {listed.length > 0 ? (
         <Card title="Bicicletele tale la vânzare">
           <p className="text-sm text-steel">
