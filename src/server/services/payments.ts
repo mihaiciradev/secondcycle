@@ -68,14 +68,28 @@ export async function createCheckoutSession(
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     customer_email: order.billingEmail,
-    line_items: items.map((it) => ({
-      quantity: 1,
-      price_data: {
-        currency: "ron",
-        unit_amount: it.priceCents,
-        product_data: { name: `${it.brand} ${it.model}`, description: `Serial ${it.sku}` },
-      },
-    })),
+    line_items: [
+      ...items.map((it) => ({
+        quantity: 1,
+        price_data: {
+          currency: "ron",
+          unit_amount: it.priceCents,
+          product_data: { name: `${it.brand} ${it.model}`, description: `Serial ${it.sku}` },
+        },
+      })),
+      ...(order.deliveryFeeCents > 0
+        ? [
+            {
+              quantity: 1,
+              price_data: {
+                currency: "ron",
+                unit_amount: order.deliveryFeeCents,
+                product_data: { name: "Livrare prin curier" },
+              },
+            },
+          ]
+        : []),
+    ],
     metadata: { orderId: order.id },
     payment_intent_data: { metadata: { orderId: order.id } },
     expires_at: Math.floor(Date.now() / 1000) + 31 * 60,

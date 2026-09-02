@@ -5,6 +5,7 @@ import { RESERVATION_TTL_MINUTES, TERMS_VERSION } from "@/server/constants/app";
 import { canAdminTransitionOrder, type OrderStatus } from "@/server/constants/statuses";
 import { normalizeCui } from "@/server/constants/cui";
 import { releaseOrderHolds } from "@/server/services/reservations";
+import { deliveryFeeCents } from "@/lib/delivery";
 import { Conflict, NotFound } from "@/server/errors";
 import type { CreateOrderInput } from "@/server/validation/orders";
 
@@ -86,9 +87,18 @@ export async function createOrder(
       throw Conflict("Bicicletele din coș nu mai sunt disponibile");
     }
 
-    const totalCents = available.reduce((sum, b) => sum + b.priceCents, 0);
     const isCompany = params.billingType === "company";
     const isCourier = params.deliveryMethod === "courier";
+
+    const itemsCents = available.reduce((sum, b) => sum + b.priceCents, 0);
+    // Fee from the DELIVERY destination (courier) or 0 (pickup). Computed here,
+    // server-side, so it can't be tampered with from the client.
+    const deliveryFee = deliveryFeeCents(
+      params.deliveryMethod,
+      isCourier ? (params.deliveryCounty ?? "") : "",
+      isCourier ? (params.deliveryCity ?? "") : ""
+    );
+    const totalCents = itemsCents + deliveryFee;
 
     const [order] = await tx
       .insert(orders)
@@ -96,6 +106,7 @@ export async function createOrder(
         userId: params.userId,
         status: "pending",
         totalCents,
+        deliveryFeeCents: deliveryFee,
         billingType: params.billingType,
         billingName: params.billingName,
         billingEmail: params.billingEmail,

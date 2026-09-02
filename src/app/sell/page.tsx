@@ -4,14 +4,14 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { company } from "@/lib/content/site";
 
 export const metadata: Metadata = {
-  title: "Vinde-ne bicicleta ta",
+  title: "Vinde-ți bicicleta",
   description:
     "O luăm în consignație și o vindem pentru tine, cu o parte convenită din preț. Fără anunțuri și fără necunoscuți la ușă. Evaluare corectă printr-un atelier partener.",
   alternates: { canonical: "/sell" },
   openGraph: {
     type: "website",
     url: "/sell",
-    title: "Vinde-ne bicicleta ta | Second Cycle",
+    title: "Vinde-ți bicicleta | Second Cycle",
     description:
       "O luăm în consignație, o pregătim și o vindem în numele tău. Primești o parte convenită din preț.",
   },
@@ -52,7 +52,7 @@ export default function SellPage() {
           <div className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel">Consignație</p>
             <h1 className="mt-3 text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
-              Vinde-ne bicicleta ta
+              Vinde-ți bicicleta
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-foreground/80">
               O luăm în consignație: o vindem pentru tine și primești o parte convenită din

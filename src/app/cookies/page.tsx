@@ -151,8 +151,8 @@ export default function CookiesPage() {
           <H2>Servicii ale terților</H2>
           <P>
             Site-ul este găzduit pe Vercel, care ne oferă și analiza de trafic anonimă descrisă mai
-            sus. Plata este procesată de Stripe, pe paginile lor securizate; cookie-urile setate
-            acolo sunt guvernate de politica Stripe. Dacă alegi „Continuă cu Google", autentificarea
+            sus. Plata este procesată de Stripe sau Revolut, pe paginile lor securizate; cookie-urile
+            setate acolo sunt guvernate de politica lor. Dacă alegi „Continuă cu Google", autentificarea
             e gestionată de Google conform politicii lor. Aceste servicii intervin doar când le
             folosești tu.
           </P>

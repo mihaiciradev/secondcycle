@@ -88,13 +88,13 @@ interface Dict {
 export const messages: Record<Locale, Dict> = {
   ro: {
     htmlLang: "ro",
-    nav: { bikes: "Biciclete în stoc", sell: "Vinde-ne", check: "Verificarea", browse: "Vezi bicicletele" },
+    nav: { bikes: "Biciclete în stoc", sell: "Vinde-ți", check: "Verificarea", browse: "Vezi bicicletele" },
     hero: {
       eyebrow: "Biciclete second-hand",
       h1: { pre: "Biciclete second-hand cu ", em: "garanție 12 luni", post: ", verificate piesă cu piesă." },
       sub: "Le alegem, le reparăm și ți le vindem cu acte și garanție. Vezi exact ce am reparat la fiecare, înainte să plătești. Livrăm în toată România.",
       browse: "Vezi bicicletele",
-      sell: "Vinde-ne bicicleta ta",
+      sell: "Vinde-ți bicicleta",
       proof: [
         { b: "Garanție 12 luni", s: "garanția legală de conformitate" },
         { b: "Cu acte", s: "transfer de proprietate și factură" },
@@ -157,7 +157,7 @@ export const messages: Record<Locale, Dict> = {
       },
     },
     sell: {
-      eyebrow: "Vinde-ne bicicleta ta",
+      eyebrow: "Vinde-ți bicicleta",
       h2: "Bicicleta din hol are o valoare",
       p: "O luăm în consignație: încercăm să o vindem, iar tu primești o parte convenită din preț. Fără obligații, ți-o dăm înapoi dacă nu se vinde.",
       steps: [
@@ -171,7 +171,7 @@ export const messages: Record<Locale, Dict> = {
     sellBanner: {
       title: "Ai o bicicletă de vândut?",
       text: "O luăm în consignație și o vindem pentru tine. Fără anunțuri, fără necunoscuți la ușă.",
-      cta: "Vinde-ne bicicleta ta",
+      cta: "Vinde-ți bicicleta",
     },
     footer: {
       blurb: "Biciclete second-hand, cumpărate, reparate și vândute în România. Curând e-bike și trotinete.",
@@ -207,13 +207,13 @@ export const messages: Record<Locale, Dict> = {
   },
   en: {
     htmlLang: "en",
-    nav: { bikes: "Bikes in stock", sell: "Sell us yours", check: "The check", browse: "Browse bikes" },
+    nav: { bikes: "Bikes in stock", sell: "Sell your bike", check: "The check", browse: "Browse bikes" },
     hero: {
       eyebrow: "Used bikes",
       h1: { pre: "Used bikes with a ", em: "12-month warranty", post: ", checked part by part." },
       sub: "We pick them, fix them and sell them with papers and a warranty. See exactly what we repaired on each one before you pay. We deliver across Romania.",
       browse: "Browse bikes",
-      sell: "Sell us your bike",
+      sell: "Sell your bike",
       proof: [
         { b: "12-month warranty", s: "the legal warranty of conformity" },
         { b: "With papers", s: "transfer of ownership and invoice" },
@@ -276,7 +276,7 @@ export const messages: Record<Locale, Dict> = {
       },
     },
     sell: {
-      eyebrow: "Sell us yours",
+      eyebrow: "Sell your bike",
       h2: "That bike in the hallway is worth money",
       p: "We take it on consignment: we try to sell it and you get an agreed share of the price. No obligation, and we give it back if it does not sell.",
       steps: [
@@ -290,7 +290,7 @@ export const messages: Record<Locale, Dict> = {
     sellBanner: {
       title: "Got a bike to sell?",
       text: "We take it on consignment and sell it for you. No listings, no strangers at your door.",
-      cta: "Sell us your bike",
+      cta: "Sell your bike",
     },
     footer: {
       blurb: "Second-hand bikes, bought, repaired and sold across Romania. E-bikes and scooters soon.",

@@ -128,7 +128,7 @@ export default function PrivacyPage() {
               "Resend: trimiterea e-mailurilor tranzacționale și de marketing.",
               "Cloudflare R2: stocarea imaginilor.",
               "Google: autentificarea cu Google.",
-              "Stripe: procesarea plăților cu cardul.",
+              "Stripe și Revolut: procesarea plăților online.",
               "Autorităților publice, atunci când legea ne obligă.",
             ]}
           />

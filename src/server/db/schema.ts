@@ -205,6 +205,11 @@ export const bikes = pgTable("bikes", {
   photos: jsonb("photos").$type<string[]>().notNull().default([]), // ordered R2 keys
   // Admin assigns the bike to a workshop that files its service papers.
   workshopId: uuid("workshop_id").references(() => workshops.id, { onDelete: "set null" }),
+  // The owner who consigned the bike (a registered user). Lets them request its
+  // withdrawal from their account. Null for bikes we sourced ourselves.
+  ownerUserId: uuid("owner_user_id").references((): AnyPgColumn => users.id, {
+    onDelete: "set null",
+  }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -317,9 +322,11 @@ export const orders = pgTable("orders", {
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
   status: orderStatusEnum("status").notNull().default("pending"),
-  // Sum of the order's line items, snapshotted at creation - later bike edits
-  // must not change orders. Per-bike prices live in order_items.
+  // Grand total charged (line items + delivery), snapshotted at creation so
+  // later bike edits never change the order. Per-bike prices live in order_items.
   totalCents: integer("total_cents").notNull(),
+  // Courier fee included in totalCents (0 for pickup). Kept for the breakdown.
+  deliveryFeeCents: integer("delivery_fee_cents").notNull().default(0),
   billingType: billingTypeEnum("billing_type").notNull(),
   billingName: text("billing_name").notNull(),
   billingEmail: citext("billing_email").notNull(),

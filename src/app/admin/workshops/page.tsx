@@ -1,6 +1,7 @@
 import { db } from "@/server/db/client";
 import { listWorkshops } from "@/server/services/workshops";
 import { WorkshopCreateForm } from "@/components/admin/workshop-create-form";
+import { PromoteWorkshopForm } from "@/components/admin/promote-workshop-form";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,19 @@ export default async function AdminWorkshopsPage() {
         <h2 className="font-heading text-lg font-semibold tracking-tight">Adaugă un atelier</h2>
         <div className="mt-4">
           <WorkshopCreateForm />
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-lg border border-border bg-card p-5 sm:p-6">
+        <h2 className="font-heading text-lg font-semibold tracking-tight">
+          Transformă un utilizator în atelier
+        </h2>
+        <p className="mt-1 text-sm text-steel">
+          Contul trebuie să existe deja (rol client). Îi completezi datele de atelier și devine cont
+          de atelier.
+        </p>
+        <div className="mt-4">
+          <PromoteWorkshopForm />
         </div>
       </section>
 

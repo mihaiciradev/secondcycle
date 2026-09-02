@@ -8,6 +8,7 @@ import { useCart } from "@/components/cart/use-cart";
 import { COUNTIES } from "@/server/constants/counties";
 import { fieldClass, labelClass, primaryBtn } from "@/components/auth/auth-shell";
 import { formatLei } from "@/lib/money";
+import { deliveryFeeCents } from "@/lib/delivery";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 
 type BillingType = "individual" | "company";
@@ -32,24 +33,6 @@ function segmented<T extends string>(value: T, set: (v: T) => void, options: [T,
   );
 }
 
-function CountySelect({ name, label }: { name: string; label: string }) {
-  return (
-    <div>
-      <label className={labelClass}>{label}</label>
-      <select name={name} required className={fieldClass} defaultValue="">
-        <option value="" disabled>
-          Alege județul
-        </option>
-        {COUNTIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
 export function CheckoutForm({
   defaultName,
   defaultEmail,
@@ -63,7 +46,13 @@ export function CheckoutForm({
 
   const [billingType, setBillingType] = useState<BillingType>("individual");
   const [delivery, setDelivery] = useState<Delivery>("pickup");
+  const [deliveryCounty, setDeliveryCounty] = useState("");
+  const [deliveryCity, setDeliveryCity] = useState("");
   const [terms, setTerms] = useState(false);
+
+  const feeKnown = delivery === "pickup" || (Boolean(deliveryCounty) && Boolean(deliveryCity));
+  const fee = feeKnown ? deliveryFeeCents(delivery, deliveryCounty, deliveryCity) : 0;
+  const grandTotal = total + fee;
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<{ url: string; gone: string[] } | null>(null);
@@ -209,12 +198,40 @@ export function CheckoutForm({
             ])}
           </div>
           {delivery === "courier" ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <input name="deliveryStreet" placeholder="Stradă și număr" required className={`${fieldClass} sm:col-span-2`} />
-              <input name="deliveryCity" placeholder="Oraș" required className={fieldClass} />
-              <CountySelect name="deliveryCounty" label="" />
-              <input name="deliveryPostalCode" placeholder="Cod poștal" required className={fieldClass} />
-            </div>
+            <>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <input name="deliveryStreet" placeholder="Stradă și număr" required className={`${fieldClass} sm:col-span-2`} />
+                <input
+                  name="deliveryCity"
+                  placeholder="Oraș"
+                  required
+                  value={deliveryCity}
+                  onChange={(e) => setDeliveryCity(e.target.value)}
+                  className={fieldClass}
+                />
+                <select
+                  name="deliveryCounty"
+                  required
+                  value={deliveryCounty}
+                  onChange={(e) => setDeliveryCounty(e.target.value)}
+                  className={fieldClass}
+                >
+                  <option value="" disabled>
+                    Județ
+                  </option>
+                  {COUNTIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <input name="deliveryPostalCode" placeholder="Cod poștal" required className={fieldClass} />
+              </div>
+              <p className="mt-2 text-xs text-steel">
+                Livrare doar în România. Timișoara și împrejurimi 30 lei · restul județului Timiș 80
+                lei · restul țării 130 lei.
+              </p>
+            </>
           ) : (
             <p className="mt-3 text-sm text-steel">Ridici bicicleta de la atelier, cu proces-verbal de predare.</p>
           )}
@@ -264,9 +281,21 @@ export function CheckoutForm({
               </li>
             ))}
           </ul>
-          <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
+          <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3 text-sm">
+            <span className="text-foreground/70">Produse</span>
+            <span className="font-mono">{formatLei(total)}</span>
+          </div>
+          <div className="mt-1.5 flex items-baseline justify-between text-sm">
+            <span className="text-foreground/70">
+              Livrare {delivery === "pickup" ? "(ridicare)" : "(curier)"}
+            </span>
+            <span className="font-mono">
+              {delivery === "pickup" ? "Gratuit" : feeKnown ? formatLei(fee) : "Se calculează"}
+            </span>
+          </div>
+          <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
             <span className="text-sm text-foreground/70">Total</span>
-            <span className="font-heading text-xl font-bold tracking-tight">{formatLei(total)}</span>
+            <span className="font-heading text-xl font-bold tracking-tight">{formatLei(grandTotal)}</span>
           </div>
           <p className="mt-4 rounded border border-blue/25 bg-blue/5 px-3 py-2 text-xs text-blue">
             Când mergi la plată, {count === 1 ? "bicicleta se blochează" : "bicicletele se blochează"} pentru

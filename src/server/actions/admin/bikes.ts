@@ -5,6 +5,7 @@ import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
 import {
   adminTransitionBikeStatus,
+  assignBikeOwner,
   createBike,
   deleteDraftBike,
   saveBikeSaleDetails,
@@ -51,6 +52,17 @@ export async function saveBikeSaleAction(input: unknown): Promise<Result> {
     );
     revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function assignBikeOwnerAction(bikeId: string, email: string): Promise<Result> {
+  try {
+    await requireAdmin();
+    await assignBikeOwner(db, bikeId, email);
+    revalidatePath(`/admin/bikes/${bikeId}`);
     return { ok: true };
   } catch (e) {
     return fail(e);

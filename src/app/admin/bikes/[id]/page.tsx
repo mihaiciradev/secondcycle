@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { getBikeById } from "@/server/services/bikes";
 import { getServiceRecords } from "@/server/services/service-records";
+import { users } from "@/server/db/schema";
 import { isStorageEnabled, publicUrl } from "@/server/storage/r2";
 import { PhotoUploader } from "@/components/admin/photo-uploader";
 import { BikeSaleForm } from "@/components/admin/bike-sale-form";
+import { BikeOwnerForm } from "@/components/admin/bike-owner-form";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
 import { formatLei } from "@/lib/money";
@@ -95,6 +98,16 @@ export default async function AdminBikeManagePage({
   const intake = records.find((r) => r.kind === "intake") ?? null;
   const final = records.find((r) => r.kind === "final") ?? null;
 
+  let ownerEmail: string | null = null;
+  if (bike.ownerUserId) {
+    const [owner] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, bike.ownerUserId))
+      .limit(1);
+    ownerEmail = owner?.email ?? null;
+  }
+
   const storage = isStorageEnabled();
   const initial = storage ? bike.photos.map((key) => ({ key, url: publicUrl(key) })) : [];
 
@@ -145,6 +158,11 @@ export default async function AdminBikeManagePage({
             valuations={[{ label: "Reparații reale", value: final?.actualRepairCents ?? null }]}
           />
         </div>
+      </section>
+
+      <section>
+        <SectionTitle hint="consignatar">Proprietar</SectionTitle>
+        <BikeOwnerForm bikeId={bike.id} currentEmail={ownerEmail} />
       </section>
 
       <section>

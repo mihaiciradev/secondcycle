@@ -45,6 +45,54 @@ export async function createWorkshopAccount(db: DB, input: CreateWorkshopInput) 
   });
 }
 
+/**
+ * Promote an existing customer account to a workshop: create the workshop
+ * record, link the user to it, and flip their role. Bumps session_version so
+ * their current session picks up the new role on next request.
+ */
+export async function promoteUserToWorkshop(
+  db: DB,
+  input: {
+    userEmail: string;
+    name: string;
+    location?: string;
+    workHours?: string;
+    contactName?: string;
+    phone?: string;
+  }
+) {
+  const email = input.userEmail.trim().toLowerCase();
+  return db.transaction(async (tx) => {
+    const [user] = await tx.select().from(users).where(eq(users.email, email)).limit(1);
+    if (!user) throw Conflict("Nu există un cont cu acest e-mail");
+    if (user.role !== "customer") throw Conflict("Contul are deja rol de admin sau atelier");
+
+    const [workshop] = await tx
+      .insert(workshops)
+      .values({
+        name: input.name,
+        location: input.location ?? null,
+        workHours: input.workHours ?? null,
+        contactName: input.contactName ?? null,
+        phone: input.phone ?? null,
+        email: user.email,
+        active: true,
+      })
+      .returning();
+
+    await tx
+      .update(users)
+      .set({
+        role: "workshop",
+        workshopId: workshop.id,
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+      })
+      .where(eq(users.id, user.id));
+
+    return { workshop, userEmail: user.email };
+  });
+}
+
 export async function listWorkshops(db: DB) {
   return db
     .select({ workshop: workshops, accountEmail: users.email })

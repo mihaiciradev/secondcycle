@@ -97,7 +97,8 @@ export default function TermsPage() {
 
           <H2>Plata</H2>
           <P>
-            Plata se face cu cardul, prin procesatorul de plăți Stripe. Banii sunt
+            Plata se face online (card sau Revolut Pay), prin procesatorii de plăți Stripe și
+            Revolut. Banii sunt
             încasați de {company.legal.entityName}. Factura este emisă de noi, în nume
             propriu.
           </P>

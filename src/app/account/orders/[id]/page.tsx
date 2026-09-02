@@ -98,6 +98,9 @@ export default async function OrderDetailPage({
                 {formatLei(it.priceCents)}
               </Row>
             ))}
+            <Row label="Livrare">
+              {order.deliveryFeeCents > 0 ? formatLei(order.deliveryFeeCents) : "Gratuit"}
+            </Row>
             <Row label="Total">{formatLei(order.totalCents)}</Row>
           </dl>
         </Card>

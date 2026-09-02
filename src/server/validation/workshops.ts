@@ -22,6 +22,20 @@ export const createWorkshopSchema = z
 
 export type CreateWorkshopInput = z.infer<typeof createWorkshopSchema>;
 
+/** Promote an existing customer account to a workshop. */
+export const promoteWorkshopSchema = z
+  .object({
+    userEmail: z.string().email("Adresă de e-mail invalidă").max(255),
+    name: z.string().trim().min(2).max(120),
+    location: z.string().trim().max(200).optional(),
+    workHours: z.string().trim().max(200).optional(),
+    contactName: z.string().trim().max(120).optional(),
+    phone: z.string().trim().max(40).optional(),
+  })
+  .strict();
+
+export type PromoteWorkshopInput = z.infer<typeof promoteWorkshopSchema>;
+
 export const serviceRecordSchema = z
   .object({
     bikeId: z.string().uuid(),

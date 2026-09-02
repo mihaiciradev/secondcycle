@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, lt, lte, or } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
-import { bikes, orderItems, reservations, serviceRecords } from "@/server/db/schema";
+import { bikes, orderItems, reservations, serviceRecords, users } from "@/server/db/schema";
 import { canAdminTransitionBike, type BikeStatus } from "@/server/constants/statuses";
 import { Conflict, NotFound } from "@/server/errors";
 import { expireOverdueReservations } from "@/server/services/reservations";
@@ -143,6 +143,33 @@ export async function saveBikeSaleDetails(
       .returning();
     return updated;
   });
+}
+
+/**
+ * Set (or clear, with an empty email) the bike's owner by their account email.
+ * The owner must be a registered user so they can request withdrawal from their
+ * account.
+ */
+export async function assignBikeOwner(db: DB, bikeId: string, email: string) {
+  const clean = email.trim().toLowerCase();
+  let ownerUserId: string | null = null;
+  if (clean) {
+    const [u] = await db.select({ id: users.id }).from(users).where(eq(users.email, clean)).limit(1);
+    if (!u) throw Conflict("Nu există un cont cu acest e-mail. Proprietarul trebuie să aibă cont.");
+    ownerUserId = u.id;
+  }
+  const [row] = await db.update(bikes).set({ ownerUserId }).where(eq(bikes.id, bikeId)).returning();
+  if (!row) throw NotFound("Bicicleta nu există");
+  return row;
+}
+
+/** Bikes a user consigned that are still listed (not sold/withdrawn). */
+export async function getListedBikesForOwner(db: DB, userId: string) {
+  return db
+    .select()
+    .from(bikes)
+    .where(and(eq(bikes.ownerUserId, userId), inArray(bikes.status, ["draft", "available", "reserved"])))
+    .orderBy(desc(bikes.createdAt));
 }
 
 /** Replace a bike's ordered photo keys (first key is the cover). */
