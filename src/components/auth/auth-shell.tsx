@@ -49,6 +49,20 @@ export function AuthShell({
               </li>
             ))}
           </ul>
+          <div className="mt-10 space-y-3">
+            <Link
+              href="/"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full border border-paper/25 px-6 text-base font-semibold text-paper transition-colors hover:bg-paper/10"
+            >
+              Continuă fără cont
+            </Link>
+            <Link
+              href="/bikes"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-paper px-6 text-base font-semibold text-asphalt transition-colors hover:bg-paper/90"
+            >
+              Vezi bicicletele
+            </Link>
+          </div>
         </div>
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-paper/45">
           Second Cycle · Timișoara
@@ -75,6 +89,14 @@ export function AuthShell({
             {footer ? (
               <div className="mt-8 border-t border-border pt-6 text-sm text-foreground/70">{footer}</div>
             ) : null}
+            <div className="mt-6 text-center">
+              <Link
+                href="/"
+                className="text-sm text-foreground/60 underline-offset-2 hover:text-foreground hover:underline"
+              >
+                Continuă fără cont
+              </Link>
+            </div>
           </div>
         </div>
       </section>
