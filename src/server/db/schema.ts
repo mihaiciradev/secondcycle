@@ -13,6 +13,7 @@
 import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  bigint,
   boolean,
   customType,
   date,
@@ -107,6 +108,11 @@ export const users = pgTable("users", {
   marketingOptInAt: timestamp("marketing_opt_in_at", { withTimezone: true }),
   // Bumped on password reset to invalidate existing JWT sessions.
   sessionVersion: integer("session_version").notNull().default(0),
+  // Stable numeric partner id for accounting (SoftPro requires an identifier
+  // for individuals). Assigned by a DB sequence.
+  partnerNo: bigint("partner_no", { mode: "number" })
+    .notNull()
+    .default(sql`nextval('users_partner_no_seq')`),
   // For role='workshop': the workshop this login belongs to.
   workshopId: uuid("workshop_id").references((): AnyPgColumn => workshops.id, {
     onDelete: "set null",
@@ -355,6 +361,10 @@ export const orders = pgTable("orders", {
   // Revolut Merchant order id, when the buyer paid via Revolut Pay.
   revolutOrderId: text("revolut_order_id"),
   paidAt: timestamp("paid_at", { withTimezone: true }),
+  // SoftPro invoicing outcome (ok / error / null=not attempted).
+  spInvoiceStatus: text("sp_invoice_status"),
+  spInvoiceInfo: text("sp_invoice_info"),
+  spInvoicedAt: timestamp("sp_invoiced_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

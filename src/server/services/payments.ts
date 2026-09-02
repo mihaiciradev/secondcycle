@@ -6,6 +6,7 @@ import { getStripe, isPaymentEnabled } from "@/server/payments/stripe";
 import { createRevolutOrder, retrieveRevolutOrder } from "@/server/payments/revolut";
 import { sendEmail } from "@/server/email/send";
 import { orderConfirmedTemplate } from "@/server/email/templates";
+import { issueInvoiceForOrder } from "@/server/accounting/softpro";
 import { Conflict, NotFound } from "@/server/errors";
 import type { PaymentProvider } from "@/server/services/settings";
 
@@ -220,4 +221,8 @@ async function completeOrder(
     link: `${baseUrl()}/account/orders/${processed.order.id}`,
   });
   await sendEmail(db, { to: processed.order.billingEmail, subject, html, template: "order_confirmed" });
+
+  // Issue the fiscal invoice via SoftPro (best-effort, self-logs its outcome on
+  // the order; never throws, so it can't undo a completed payment).
+  await issueInvoiceForOrder(db, processed.order.id);
 }

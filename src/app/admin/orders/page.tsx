@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/server/db/client";
 import { adminListOrders } from "@/server/services/orders";
 import { OrderRowActions } from "@/components/admin/order-row-actions";
+import { InvoiceStatus } from "@/components/admin/invoice-status";
 import { formatLei } from "@/lib/money";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
 import type { OrderStatus } from "@/server/constants/statuses";
@@ -55,6 +56,7 @@ export default async function AdminOrdersPage({
                 <th className="py-2 pr-4">Client</th>
                 <th className="py-2 pr-4">Total</th>
                 <th className="py-2 pr-4">Stare</th>
+                <th className="py-2 pr-4">Factură</th>
                 <th className="py-2">Acțiuni</th>
               </tr>
             </thead>
@@ -72,6 +74,17 @@ export default async function AdminOrdersPage({
                     <span className={`rounded px-2 py-0.5 font-mono text-[0.65rem] ${ORDER_STATUS_BADGE[order.status]}`}>
                       {ORDER_STATUS_LABEL[order.status]}
                     </span>
+                  </td>
+                  <td className="py-3 pr-4">
+                    {order.paidAt ? (
+                      <InvoiceStatus
+                        orderId={order.id}
+                        status={order.spInvoiceStatus}
+                        info={order.spInvoiceInfo}
+                      />
+                    ) : (
+                      <span className="font-mono text-[0.65rem] text-steel">-</span>
+                    )}
                   </td>
                   <td className="py-3">
                     <OrderRowActions id={order.id} status={order.status as OrderStatus} />

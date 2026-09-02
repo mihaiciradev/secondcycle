@@ -54,3 +54,20 @@ const COUNTY_SET = new Set<string>(COUNTIES);
 export function isValidCounty(value: string): value is County {
   return COUNTY_SET.has(value);
 }
+
+/** Auto-registration / SoftPro county codes (judet), keyed by county name. */
+export const COUNTY_CODE: Record<string, string> = {
+  Alba: "AB", Arad: "AR", Argeș: "AG", Bacău: "BC", Bihor: "BH",
+  "Bistrița-Năsăud": "BN", Botoșani: "BT", Brașov: "BV", Brăila: "BR",
+  Buzău: "BZ", "Caraș-Severin": "CS", Călărași: "CL", Cluj: "CJ",
+  Constanța: "CT", Covasna: "CV", Dâmbovița: "DB", Dolj: "DJ", Galați: "GL",
+  Giurgiu: "GR", Gorj: "GJ", Harghita: "HR", Hunedoara: "HD", Ialomița: "IL",
+  Iași: "IS", Ilfov: "IF", Maramureș: "MM", Mehedinți: "MH", Mureș: "MS",
+  Neamț: "NT", Olt: "OT", Prahova: "PH", "Satu Mare": "SM", Sălaj: "SJ",
+  Sibiu: "SB", Suceava: "SV", Teleorman: "TR", Timiș: "TM", Tulcea: "TL",
+  Vaslui: "VS", Vâlcea: "VL", Vrancea: "VN", București: "B",
+};
+
+export function countyCode(name: string): string {
+  return COUNTY_CODE[name] ?? "";
+}
