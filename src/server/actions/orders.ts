@@ -5,7 +5,12 @@ import { db } from "@/server/db/client";
 import { requireUser } from "@/server/auth/guards";
 import { cancelPendingOrder, createOrder } from "@/server/services/orders";
 import { startCheckout } from "@/server/services/payments";
-import { getPaymentProvider, PAYMENTS_OFF_MESSAGE } from "@/server/services/settings";
+import {
+  getPaymentProvider,
+  getPrebookEnabled,
+  PAYMENTS_OFF_MESSAGE,
+  PREBOOK_MESSAGE,
+} from "@/server/services/settings";
 import { createOrderSchema } from "@/server/validation/orders";
 import { AppError } from "@/server/errors";
 
@@ -31,6 +36,8 @@ function errMsg(e: unknown): string {
 export async function createOrderAction(input: unknown): Promise<CreateResult> {
   try {
     const user = await requireUser();
+    // Prebook mode: buying is off; visitors prebook instead.
+    if (await getPrebookEnabled(db)) return { ok: false, error: PREBOOK_MESSAGE };
     // Ordering is gated on the admin flag + the active provider being configured.
     const provider = await getPaymentProvider(db);
     if (!provider) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
@@ -63,6 +70,7 @@ export async function createCheckoutAction(
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   try {
     const user = await requireUser();
+    if (await getPrebookEnabled(db)) return { ok: false, error: PREBOOK_MESSAGE };
     const provider = await getPaymentProvider(db);
     if (!provider) return { ok: false, error: PAYMENTS_OFF_MESSAGE };
     const h = await headers();

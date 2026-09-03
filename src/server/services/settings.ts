@@ -9,7 +9,16 @@ export const SETTING = {
   paymentsEnabled: "payments_enabled",
   /** When on (and Revolut is configured), Revolut Pay is used instead of Stripe. */
   revolutEnabled: "revolut_enabled",
+  /**
+   * Prebook mode: bikes are visible but not buyable. The buy CTA becomes a
+   * "prebook" lead form and order creation is refused server-side.
+   */
+  prebookEnabled: "prebook_enabled",
 } as const;
+
+/** Shown wherever a purchase is attempted while prebook mode is on. */
+export const PREBOOK_MESSAGE =
+  "Momentan bicicletele nu se pot cumpăra online. Fă un prebook și te contactăm noi.";
 
 /** Known string-valued setting keys (stored in app_settings.value). */
 export const TEXT_SETTING = {
@@ -79,4 +88,9 @@ export async function getPaymentProvider(db: DB): Promise<PaymentProvider | null
 /** Whether customers can actually pay right now (some provider is live). */
 export async function getPaymentsLive(db: DB): Promise<boolean> {
   return (await getPaymentProvider(db)) !== null;
+}
+
+/** Prebook mode: buying is replaced by a lead-capture form. */
+export async function getPrebookEnabled(db: DB): Promise<boolean> {
+  return getFlag(db, SETTING.prebookEnabled);
 }

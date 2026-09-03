@@ -95,6 +95,7 @@ export const emailStatusEnum = pgEnum("email_status", ["sent", "failed"]);
 export const campaignStatusEnum = pgEnum("campaign_status", ["draft", "sending", "sent"]);
 export const recipientStatusEnum = pgEnum("recipient_status", ["pending", "sent", "failed"]);
 export const returnStatusEnum = pgEnum("return_status", ["pending", "handled"]);
+export const prebookStatusEnum = pgEnum("prebook_status", ["pending", "contacted"]);
 
 // ---------------------------------------------------------------------------
 // Auth / users
@@ -180,6 +181,25 @@ export const workshops = pgTable("workshops", {
   phone: text("phone"),
   email: citext("email"),
   active: boolean("active").notNull().default(true),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+// ---------------------------------------------------------------------------
+// Prebookings (interest capture while buying is off; does NOT hold the bike)
+// ---------------------------------------------------------------------------
+export const prebookings = pgTable("prebookings", {
+  id: pk(),
+  bikeId: uuid("bike_id")
+    .notNull()
+    .references(() => bikes.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references((): AnyPgColumn => users.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  email: citext("email").notNull(),
+  phone: text("phone"),
+  note: text("note"),
+  status: prebookStatusEnum("status").notNull().default("pending"),
+  handledAt: timestamp("handled_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

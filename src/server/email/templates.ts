@@ -104,6 +104,34 @@ export function returnRequestTemplate(input: {
   };
 }
 
+export function prebookRequestTemplate(input: {
+  bikeLabel: string;
+  bikeSku: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  link: string;
+}) {
+  const body = `
+    <p>Cineva a făcut un <strong>prebook</strong> pentru:</p>
+    <p style="font-size:16px;margin:10px 0"><strong>${input.bikeLabel}</strong>
+      <span style="color:#727a75;font-size:13px">${input.bikeSku}</span></p>
+    <p><strong>Client:</strong> ${input.name}<br>
+    <strong>E-mail:</strong> ${input.email}${input.phone ? `<br><strong>Telefon:</strong> ${input.phone}` : ""}</p>
+    ${input.note ? `<p><strong>Mesaj:</strong> ${input.note}</p>` : ""}
+    <p>Contacteaz-o persoana ca sa finalizati vanzarea. Bicicleta NU este blocata.</p>`;
+  return {
+    subject: `Prebook: ${input.bikeLabel} | Second Cycle`,
+    html: shell(
+      "Prebook nou",
+      body,
+      { href: input.link, label: "Vezi în panou" },
+      "E-mail intern, generat automat de site."
+    ),
+  };
+}
+
 export function bikeAvailableTemplate(input: {
   bikeLabel: string;
   link: string;

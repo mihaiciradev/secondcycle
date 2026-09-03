@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/server/db/client";
 import { getAdminStats } from "@/server/services/admin-stats";
 import { countPendingReturns } from "@/server/services/returns";
+import { countPendingPrebookings } from "@/server/services/prebookings";
 import { getStripeSnapshot } from "@/server/services/payments";
 import { getStorageStats, isStorageEnabled } from "@/server/storage/r2";
 import {
@@ -20,15 +21,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const [s, stripe, storage, pendingReturns] = await Promise.all([
+  const [s, stripe, storage, pendingReturns, pendingPrebookings] = await Promise.all([
     getAdminStats(db),
     getStripeSnapshot(),
     getStorageStats(),
     countPendingReturns(db),
+    countPendingPrebookings(db),
   ]);
   const months = lastSixMonths(s.revenue.monthly);
 
   const todos: { label: string; href: string; count: number }[] = [
+    { label: "prebookings de contactat", href: "/admin/prebookings", count: pendingPrebookings },
     { label: "cereri de retur de tratat", href: "/admin/returns", count: pendingReturns },
     { label: "comenzi în așteptare", href: "/admin/orders?status=pending", count: s.orders.pending },
   ].filter((t) => t.count > 0);

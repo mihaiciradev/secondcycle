@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart/use-cart";
 import { watchBikeAction } from "@/server/actions/reservations";
+import { PrebookButton } from "@/components/bikes/prebook-button";
 import type { CartItem } from "@/lib/cart";
 
 const solidBtn =
@@ -17,15 +18,28 @@ export function BikeActions({
   status,
   userEmail,
   paymentsLive = true,
+  prebook = false,
 }: {
   bike: CartItem;
   status: "available" | "reserved" | "sold" | "draft" | "withdrawn";
   userEmail?: string;
   paymentsLive?: boolean;
+  prebook?: boolean;
 }) {
   const router = useRouter();
   const { has, add } = useCart();
   const inCart = has(bike.bikeId);
+
+  // Prebook mode: buying is off, capture interest instead (doesn't hold the bike).
+  if (prebook && (status === "available" || status === "reserved")) {
+    return (
+      <PrebookButton
+        bikeId={bike.bikeId}
+        bikeLabel={`${bike.brand} ${bike.model}`}
+        defaultEmail={userEmail}
+      />
+    );
+  }
 
   if (status === "available" && !paymentsLive) {
     return (

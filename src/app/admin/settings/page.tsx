@@ -4,16 +4,21 @@ import { isPaymentEnabled } from "@/server/payments/stripe";
 import { isRevolutConfigured, revolutMode } from "@/server/payments/revolut";
 import { SettingToggle } from "@/components/admin/setting-toggle";
 import { NotifyEmailForm } from "@/components/admin/notify-email-form";
-import { setPaymentsEnabledAction, setRevolutEnabledAction } from "@/server/actions/admin/settings";
+import {
+  setPaymentsEnabledAction,
+  setPrebookEnabledAction,
+  setRevolutEnabledAction,
+} from "@/server/actions/admin/settings";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const [paymentsOn, revolutOn, provider, returnsEmail] = await Promise.all([
+  const [paymentsOn, revolutOn, prebookOn, provider, returnsEmail] = await Promise.all([
     getFlag(db, SETTING.paymentsEnabled),
     getFlag(db, SETTING.revolutEnabled),
+    getFlag(db, SETTING.prebookEnabled),
     getPaymentProvider(db),
     getReturnsNotifyEmail(db),
   ]);
@@ -55,6 +60,21 @@ export default async function AdminSettingsPage() {
             </p>
           </div>
           <SettingToggle initial={revolutOn} action={setRevolutEnabledAction} />
+        </div>
+      </div>
+
+      {/* Prebook mode */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h3 className="font-heading text-base font-semibold">Mod prebook</h3>
+            <p className="mt-1 text-sm text-steel">
+              Pornit: bicicletele sunt vizibile dar nu se pot cumpăra. În locul butonului de
+              cumpărare apare <strong>Prebook</strong> (captăm interesul, fără să blocăm bicicleta) și
+              orice comandă e refuzată. Le vezi în tab-ul „Prebook”.
+            </p>
+          </div>
+          <SettingToggle initial={prebookOn} action={setPrebookEnabledAction} />
         </div>
       </div>
 
