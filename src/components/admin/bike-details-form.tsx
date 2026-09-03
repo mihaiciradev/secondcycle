@@ -1,0 +1,175 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { updateBikeDetailsAction } from "@/server/actions/admin/bikes";
+import { fieldClass, labelClass } from "@/components/auth/auth-shell";
+
+const CATEGORIES: { value: string; label: string }[] = [
+  { value: "city", label: "Oraș" },
+  { value: "trekking", label: "Trekking" },
+  { value: "mtb", label: "MTB" },
+  { value: "road", label: "Cursieră" },
+  { value: "kids", label: "Copii" },
+  { value: "ebike", label: "Electrică" },
+];
+const GRADES = ["A", "B", "C"];
+
+const centsToLei = (c?: number | null) => (c != null ? String(c / 100) : "");
+const leiToCents = (v: FormDataEntryValue | null): number | null => {
+  if (!v || !String(v).trim()) return null;
+  const n = parseFloat(String(v).replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
+};
+
+export function BikeDetailsForm({
+  bike,
+}: {
+  bike: {
+    id: string;
+    sku: string;
+    frameNumber: string;
+    brand: string;
+    model: string;
+    modelYear: number | null;
+    category: string;
+    frameSize: string;
+    wheelSize: string;
+    conditionGrade: string;
+    oldPriceCents: number | null;
+  };
+}) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+    setLoading(true);
+    setError(null);
+    setSaved(false);
+    const f = new FormData(form);
+    const yearRaw = String(f.get("modelYear") ?? "").trim();
+    const res = await updateBikeDetailsAction({
+      bikeId: bike.id,
+      sku: String(f.get("sku") ?? "").trim(),
+      frameNumber: String(f.get("frameNumber") ?? "").trim(),
+      brand: String(f.get("brand") ?? "").trim(),
+      model: String(f.get("model") ?? "").trim(),
+      modelYear: yearRaw ? Number(yearRaw) : null,
+      category: String(f.get("category") ?? ""),
+      frameSize: String(f.get("frameSize") ?? "").trim(),
+      wheelSize: String(f.get("wheelSize") ?? "").trim(),
+      conditionGrade: String(f.get("conditionGrade") ?? ""),
+      oldPriceCents: leiToCents(f.get("oldPriceLei")),
+    });
+    setLoading(false);
+    if (res.ok) {
+      setSaved(true);
+      router.refresh();
+    } else {
+      setError(res.error);
+    }
+  }
+
+  return (
+    <form ref={formRef} onSubmit={submit} className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={labelClass}>Marcă</label>
+          <input name="brand" required defaultValue={bike.brand} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Model</label>
+          <input name="model" required defaultValue={bike.model} className={fieldClass} />
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label className={labelClass}>An</label>
+          <input
+            name="modelYear"
+            type="number"
+            min="1970"
+            max="2100"
+            defaultValue={bike.modelYear ?? ""}
+            className={fieldClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Categorie</label>
+          <select name="category" defaultValue={bike.category} className={fieldClass}>
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Stare (grad)</label>
+          <select name="conditionGrade" defaultValue={bike.conditionGrade} className={fieldClass}>
+            {GRADES.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={labelClass}>Mărime cadru</label>
+          <input name="frameSize" required defaultValue={bike.frameSize} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Mărime roți</label>
+          <input name="wheelSize" required defaultValue={bike.wheelSize} className={fieldClass} />
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label className={labelClass}>SKU</label>
+          <input name="sku" required defaultValue={bike.sku} className={fieldClass} />
+          <p className="mt-1 text-xs text-steel">Schimbarea SKU schimbă și linkul public.</p>
+        </div>
+        <div>
+          <label className={labelClass}>Serie cadru</label>
+          <input name="frameNumber" required defaultValue={bike.frameNumber} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Preț vechi (lei)</label>
+          <input
+            name="oldPriceLei"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={centsToLei(bike.oldPriceCents)}
+            className={fieldClass}
+          />
+          <p className="mt-1 text-xs text-steel">Pentru afișarea reducerii (opțional).</p>
+        </div>
+      </div>
+
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex h-11 cursor-pointer items-center rounded-full border border-asphalt/25 px-6 text-sm font-semibold text-foreground transition-colors hover:border-asphalt/50 disabled:opacity-60"
+        >
+          {loading ? "Se salvează…" : "Salvează detaliile"}
+        </button>
+        {saved ? <span className="text-sm text-emerald-600 dark:text-emerald-400">Salvat ✓</span> : null}
+      </div>
+    </form>
+  );
+}

@@ -36,17 +36,6 @@ export function BikeSaleForm({
   const locked = bike.status === "sold" || bike.status === "reserved";
   const isDraft = bike.status === "draft";
 
-  if (locked) {
-    return (
-      <div className="rounded-lg border border-border bg-card p-5">
-        <p className="text-sm text-foreground/80">
-          Bicicleta e {bike.status === "sold" ? "vândută" : "rezervată"}. Prețul (
-          <strong>{formatLei(bike.priceCents)}</strong>) este blocat și nu mai poate fi modificat.
-        </p>
-      </div>
-    );
-  }
-
   async function submit(publish: boolean) {
     const form = formRef.current;
     if (!form) return;
@@ -55,8 +44,12 @@ export function BikeSaleForm({
     const f = new FormData(form);
     const input = {
       bikeId: bike.id,
-      priceCents: leiToCents(f.get("priceLei")) ?? 0,
-      acquisitionCostCents: leiToCents(f.get("acquisitionLei")),
+      // When locked the price input is disabled (omitted from FormData); fall
+      // back to the current price so validation passes. The server ignores it.
+      priceCents: leiToCents(f.get("priceLei")) ?? bike.priceCents,
+      acquisitionCostCents: locked
+        ? bike.acquisitionCostCents
+        : leiToCents(f.get("acquisitionLei")),
       description: String(f.get("description") ?? "").trim(),
       workDone: String(f.get("workDone") ?? "")
         .split("\n")
@@ -83,14 +76,39 @@ export function BikeSaleForm({
         <p className="text-xs text-steel">Preț provizoriu la intake: {formatLei(bike.provisionalPriceCents)}</p>
       ) : null}
 
+      {locked ? (
+        <p className="rounded-md bg-manila/40 px-3 py-2 text-xs text-foreground/80">
+          Bicicleta e {bike.status === "sold" ? "vândută" : "rezervată"}: prețul (
+          <strong>{formatLei(bike.priceCents)}</strong>) e blocat. Poți încă modifica descrierea și
+          lista de intervenții.
+        </p>
+      ) : null}
+
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Preț de vânzare (lei)</label>
-          <input name="priceLei" type="number" step="0.01" min="0" required defaultValue={centsToLei(bike.priceCents)} className={fieldClass} />
+          <input
+            name="priceLei"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+            disabled={locked}
+            defaultValue={centsToLei(bike.priceCents)}
+            className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-60`}
+          />
         </div>
         <div>
           <label className={labelClass}>Cost de achiziție (lei)</label>
-          <input name="acquisitionLei" type="number" step="0.01" min="0" defaultValue={centsToLei(bike.acquisitionCostCents)} className={fieldClass} />
+          <input
+            name="acquisitionLei"
+            type="number"
+            step="0.01"
+            min="0"
+            disabled={locked}
+            defaultValue={centsToLei(bike.acquisitionCostCents)}
+            className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-60`}
+          />
           <p className="mt-1 text-xs text-steel">Cât plătim proprietarului (pentru TVA la marjă).</p>
         </div>
       </div>

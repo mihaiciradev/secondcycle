@@ -117,8 +117,16 @@ export async function saveBikeSaleDetails(
   return db.transaction(async (tx) => {
     const [bike] = await tx.select().from(bikes).where(eq(bikes.id, id)).for("update").limit(1);
     if (!bike) throw NotFound("Bicicleta nu există");
+
+    // Reserved/sold: the price is frozen, but the copy (description + work list)
+    // stays editable so typos can still be fixed. Ignore any price change.
     if (bike.status === "sold" || bike.status === "reserved") {
-      throw Conflict("Bicicleta e rezervată sau vândută; prețul nu mai poate fi schimbat");
+      const [updated] = await tx
+        .update(bikes)
+        .set({ description: input.description, workDone: input.workDone })
+        .where(eq(bikes.id, id))
+        .returning();
+      return updated;
     }
 
     if (opts.publish) {
@@ -206,6 +214,52 @@ export async function createBike(db: DB, input: CreateBikeInput) {
         workshopId: input.workshopId ?? null,
       })
       .returning();
+    return row;
+  } catch (e) {
+    if (isUniqueViolation(e)) throw Conflict("Există deja o bicicletă cu acest SKU");
+    throw e;
+  }
+}
+
+/**
+ * Edit a bike's core specs (brand, model, category, sizes, condition, SKU,
+ * frame number, year, old price). Allowed in any status. Changing the SKU also
+ * changes the public URL (/bikes/<sku>).
+ */
+export async function updateBikeDetails(
+  db: DB,
+  id: string,
+  input: {
+    sku: string;
+    frameNumber: string;
+    brand: string;
+    model: string;
+    modelYear: number | null;
+    category: (typeof bikes.$inferInsert)["category"];
+    frameSize: string;
+    wheelSize: string;
+    conditionGrade: (typeof bikes.$inferInsert)["conditionGrade"];
+    oldPriceCents: number | null;
+  }
+) {
+  try {
+    const [row] = await db
+      .update(bikes)
+      .set({
+        sku: input.sku,
+        frameNumber: input.frameNumber,
+        brand: input.brand,
+        model: input.model,
+        modelYear: input.modelYear,
+        category: input.category,
+        frameSize: input.frameSize,
+        wheelSize: input.wheelSize,
+        conditionGrade: input.conditionGrade,
+        oldPriceCents: input.oldPriceCents,
+      })
+      .where(eq(bikes.id, id))
+      .returning();
+    if (!row) throw NotFound("Bicicleta nu există");
     return row;
   } catch (e) {
     if (isUniqueViolation(e)) throw Conflict("Există deja o bicicletă cu acest SKU");

@@ -9,8 +9,13 @@ import {
   createBike,
   deleteDraftBike,
   saveBikeSaleDetails,
+  updateBikeDetails,
 } from "@/server/services/bikes";
-import { bikeSaleSchema, createBikeSchema } from "@/server/validation/bikes";
+import {
+  bikeSaleSchema,
+  createBikeSchema,
+  updateBikeDetailsSchema,
+} from "@/server/validation/bikes";
 import { AppError } from "@/server/errors";
 import type { BikeStatus } from "@/server/constants/statuses";
 
@@ -50,6 +55,32 @@ export async function saveBikeSaleAction(input: unknown): Promise<Result> {
       },
       { publish }
     );
+    revalidatePath(`/admin/bikes/${bikeId}`);
+    revalidatePath("/admin/bikes");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function updateBikeDetailsAction(input: unknown): Promise<Result> {
+  try {
+    await requireAdmin();
+    const parsed = updateBikeDetailsSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
+    const { bikeId, ...rest } = parsed.data;
+    await updateBikeDetails(db, bikeId, {
+      sku: rest.sku,
+      frameNumber: rest.frameNumber,
+      brand: rest.brand,
+      model: rest.model,
+      modelYear: rest.modelYear ?? null,
+      category: rest.category,
+      frameSize: rest.frameSize,
+      wheelSize: rest.wheelSize,
+      conditionGrade: rest.conditionGrade,
+      oldPriceCents: rest.oldPriceCents ?? null,
+    });
     revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");
     return { ok: true };

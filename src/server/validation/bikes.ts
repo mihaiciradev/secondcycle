@@ -42,3 +42,22 @@ export const bikeSaleSchema = z
   .strict();
 
 export type BikeSaleInput = z.infer<typeof bikeSaleSchema>;
+
+/** Edit a bike's core specs (allowed in any status). */
+export const updateBikeDetailsSchema = z
+  .object({
+    bikeId: z.string().uuid(),
+    sku: z.string().trim().min(1).max(40),
+    frameNumber: z.string().trim().min(1).max(80),
+    brand: z.string().trim().min(1).max(80),
+    model: z.string().trim().min(1).max(120),
+    modelYear: z.number().int().min(1970).max(2100).nullable().optional(),
+    category: z.enum(bikeCategoryValues),
+    frameSize: z.string().trim().min(1).max(40),
+    wheelSize: z.string().trim().min(1).max(40),
+    conditionGrade: z.enum(gradeValues),
+    oldPriceCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
+  })
+  .strict();
+
+export type UpdateBikeDetailsInput = z.infer<typeof updateBikeDetailsSchema>;

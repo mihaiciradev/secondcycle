@@ -4,25 +4,39 @@ import { eq } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { getBikeById } from "@/server/services/bikes";
 import { getServiceRecords } from "@/server/services/service-records";
+import { listActiveWorkshops } from "@/server/services/workshops";
 import { users } from "@/server/db/schema";
 import { isStorageEnabled, publicUrl } from "@/server/storage/r2";
 import { PhotoUploader } from "@/components/admin/photo-uploader";
+import { BikeDetailsForm } from "@/components/admin/bike-details-form";
 import { BikeSaleForm } from "@/components/admin/bike-sale-form";
 import { BikeOwnerForm } from "@/components/admin/bike-owner-form";
+import { BikeRowActions } from "@/components/admin/bike-row-actions";
+import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
 import { formatLei } from "@/lib/money";
+import type { BikeStatus } from "@/server/constants/statuses";
 import type { ChecklistItem } from "@/server/db/schema";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const statusLabel: Record<string, string> = {
-  draft: "Ciornă",
-  available: "Publicată",
-  reserved: "Rezervată",
-  sold: "Vândută",
-  withdrawn: "Retrasă",
+const STATUS: Record<string, { label: string; cls: string }> = {
+  draft: { label: "Ciornă", cls: "bg-asphalt/10 text-steel" },
+  available: { label: "Publicată", cls: "bg-emerald-600/15 text-emerald-700 dark:text-emerald-400" },
+  reserved: { label: "Rezervată", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-400" },
+  sold: { label: "Vândută", cls: "bg-blue/15 text-blue" },
+  withdrawn: { label: "Retrasă", cls: "bg-asphalt/10 text-steel" },
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  city: "Oraș",
+  trekking: "Trekking",
+  mtb: "MTB",
+  road: "Cursieră",
+  kids: "Copii",
+  ebike: "Electrică",
 };
 
 function money(c: number | null | undefined) {
@@ -92,7 +106,11 @@ export default async function AdminBikeManagePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [bike, records] = await Promise.all([getBikeById(db, id), getServiceRecords(db, id)]);
+  const [bike, records, workshops] = await Promise.all([
+    getBikeById(db, id),
+    getServiceRecords(db, id),
+    listActiveWorkshops(db),
+  ]);
   if (!bike) notFound();
 
   const intake = records.find((r) => r.kind === "intake") ?? null;
@@ -110,9 +128,11 @@ export default async function AdminBikeManagePage({
 
   const storage = isStorageEnabled();
   const initial = storage ? bike.photos.map((key) => ({ key, url: publicUrl(key) })) : [];
+  const st = STATUS[bike.status] ?? { label: bike.status, cls: "bg-asphalt/10 text-steel" };
 
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div>
         <Link
           href="/admin/bikes"
@@ -120,71 +140,115 @@ export default async function AdminBikeManagePage({
         >
           ← Stoc
         </Link>
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-2xl font-bold tracking-tight">
             {bike.brand} {bike.model}
           </h2>
-          <div className="flex items-center gap-3 text-sm text-steel">
-            <span className="font-mono">{bike.sku}</span>
-            <span>·</span>
-            <span>{statusLabel[bike.status] ?? bike.status}</span>
-            <span>·</span>
-            <span className="font-mono">{formatLei(bike.priceCents)}</span>
-          </div>
+          <span className={`rounded-full px-3 py-1 font-mono text-xs font-semibold ${st.cls}`}>
+            {st.label}
+          </span>
         </div>
-        <Link
-          href={`/bikes/${bike.sku}`}
-          className="mt-2 inline-flex text-sm text-blue underline-offset-2 hover:underline"
-        >
-          Vezi pagina publică
-        </Link>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-steel">
+          <span className="font-mono">{bike.sku}</span>
+          <span>·</span>
+          <span>{CATEGORY_LABEL[bike.category] ?? bike.category}</span>
+          <span>·</span>
+          <span>Grad {bike.conditionGrade}</span>
+          <span>·</span>
+          <span className="font-mono text-foreground/80">{formatLei(bike.priceCents)}</span>
+          <span>·</span>
+          <Link href={`/bikes/${bike.sku}`} className="text-blue underline-offset-2 hover:underline">
+            Vezi pagina publică
+          </Link>
+        </div>
       </div>
 
-      <section>
-        <SectionTitle hint="atelier">Fișe de service</SectionTitle>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <PaperCard
-            title="Constatare (la intrare)"
-            record={intake}
-            valuations={[
-              { label: "Preț piață", value: intake?.marketValueCents ?? null },
-              { label: "Achiziție sugerată", value: intake?.suggestedPurchaseCents ?? null },
-              { label: "Reparații estimate", value: intake?.estimatedRepairCents ?? null },
-            ]}
-          />
-          <PaperCard
-            title="Fișă finală (după reparație)"
-            record={final}
-            valuations={[{ label: "Reparații reale", value: final?.actualRepairCents ?? null }]}
-          />
+      {/* Status + workshop bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-card p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="font-mono text-xs uppercase tracking-wider text-steel">Acțiuni</span>
+          <BikeRowActions id={bike.id} status={bike.status as BikeStatus} />
         </div>
-      </section>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-steel">Atelier</span>
+          <WorkshopAssign bikeId={bike.id} current={bike.workshopId} workshops={workshops} />
+        </div>
+      </div>
 
-      <section>
-        <SectionTitle hint="consignatar">Proprietar</SectionTitle>
-        <BikeOwnerForm bikeId={bike.id} currentEmail={ownerEmail} />
-      </section>
+      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+        {/* Left: everything editable */}
+        <div className="space-y-8">
+          <section>
+            <SectionTitle hint="marcă, model, specificații">Detalii bicicletă</SectionTitle>
+            <div className="rounded-lg border border-border bg-card p-5">
+              <BikeDetailsForm
+                bike={{
+                  id: bike.id,
+                  sku: bike.sku,
+                  frameNumber: bike.frameNumber,
+                  brand: bike.brand,
+                  model: bike.model,
+                  modelYear: bike.modelYear,
+                  category: bike.category,
+                  frameSize: bike.frameSize,
+                  wheelSize: bike.wheelSize,
+                  conditionGrade: bike.conditionGrade,
+                  oldPriceCents: bike.oldPriceCents,
+                }}
+              />
+            </div>
+          </section>
 
-      <section>
-        <SectionTitle hint="preț final + descriere">Publicare</SectionTitle>
-        <BikeSaleForm
-          bike={{
-            id: bike.id,
-            status: bike.status,
-            priceCents: bike.priceCents,
-            provisionalPriceCents: bike.provisionalPriceCents,
-            acquisitionCostCents: bike.acquisitionCostCents,
-            description: bike.description,
-            workDone: bike.workDone,
-          }}
-          hasIntake={Boolean(intake)}
-        />
-      </section>
+          <section>
+            <SectionTitle hint="preț, descriere, publicare">Vânzare</SectionTitle>
+            <BikeSaleForm
+              bike={{
+                id: bike.id,
+                status: bike.status,
+                priceCents: bike.priceCents,
+                provisionalPriceCents: bike.provisionalPriceCents,
+                acquisitionCostCents: bike.acquisitionCostCents,
+                description: bike.description,
+                workDone: bike.workDone,
+              }}
+              hasIntake={Boolean(intake)}
+            />
+          </section>
 
-      <section>
-        <SectionTitle hint="prima poză e coperta">Poze</SectionTitle>
-        <PhotoUploader bikeId={bike.id} initial={initial} storageEnabled={storage} />
-      </section>
+          <section>
+            <SectionTitle hint="prima poză e coperta">Poze</SectionTitle>
+            <PhotoUploader bikeId={bike.id} initial={initial} storageEnabled={storage} />
+          </section>
+        </div>
+
+        {/* Right: consignor + workshop papers (reference) */}
+        <div className="space-y-8">
+          <section>
+            <SectionTitle hint="consignatar">Proprietar</SectionTitle>
+            <BikeOwnerForm bikeId={bike.id} currentEmail={ownerEmail} />
+          </section>
+
+          <section>
+            <SectionTitle hint="atelier">Fișe de service</SectionTitle>
+            <div className="space-y-4">
+              <PaperCard
+                title="Constatare (la intrare)"
+                record={intake}
+                valuations={[
+                  { label: "Preț piață", value: intake?.marketValueCents ?? null },
+                  { label: "Achiziție sugerată", value: intake?.suggestedPurchaseCents ?? null },
+                  { label: "Reparații estimate", value: intake?.estimatedRepairCents ?? null },
+                ]}
+              />
+              <PaperCard
+                title="Fișă finală (după reparație)"
+                record={final}
+                valuations={[{ label: "Reparații reale", value: final?.actualRepairCents ?? null }]}
+              />
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }
