@@ -31,8 +31,6 @@ type FacturiResponse = { status: number; ok: boolean; body: unknown; raw: string
 
 async function postFacturi(payload: unknown): Promise<FacturiResponse> {
   const url = process.env.SP_API_URL as string;
-  // Log the outgoing document (no secrets: auth lives in headers, not logged).
-  console.log("[softpro] POST", url, "payload:", JSON.stringify(payload));
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -46,8 +44,6 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
     cache: "no-store",
   });
   const text = await res.text();
-  // The raw response is what we need to confirm the real shape on staging.
-  console.log(`[softpro] response ${res.status} ${res.ok ? "OK" : "ERR"}:`, text.slice(0, 2000));
   let body: unknown;
   try {
     body = JSON.parse(text);
