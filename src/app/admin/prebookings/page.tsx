@@ -3,6 +3,7 @@ import { db } from "@/server/db/client";
 import { listPrebookings } from "@/server/services/prebookings";
 import { getPrebookEnabled } from "@/server/services/settings";
 import { PrebookContactedButton } from "@/components/admin/prebook-contacted-button";
+import { CopyButton } from "@/components/admin/copy-button";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { company } from "@/lib/content/site";
 
@@ -14,6 +15,7 @@ const waNumber = company.contact.phone.replace(/\D/g, "");
 export default async function AdminPrebookingsPage() {
   const [rows, prebookOn] = await Promise.all([listPrebookings(db), getPrebookEnabled(db)]);
   const pending = rows.filter((r) => r.status === "pending");
+  const pendingEmails = [...new Set(pending.map((r) => r.email))].join("\n");
 
   return (
     <div className="space-y-6">
@@ -30,6 +32,19 @@ export default async function AdminPrebookingsPage() {
           </span>
         )}
       </p>
+
+      {pending.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4">
+          <CopyButton
+            text={pendingEmails}
+            label={`Copiază e-mailurile de contactat (${pending.length})`}
+            emptyLabel="Niciunul"
+          />
+          <span className="text-xs text-steel">
+            Contactează-i pe rând (butoanele de mai jos) sau în masă când redeschizi vânzarea.
+          </span>
+        </div>
+      ) : null}
 
       {rows.length === 0 ? (
         <p className="text-sm text-steel">Niciun prebook încă.</p>
@@ -50,10 +65,10 @@ export default async function AdminPrebookingsPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`rounded px-2 py-0.5 font-mono text-[0.65rem] ${
+                        className={`rounded px-2 py-0.5 font-mono text-[0.65rem] font-semibold ${
                           r.status === "pending"
-                            ? "bg-amber-500/20 text-amber-700 dark:text-amber-400"
-                            : "bg-emerald-600/15 text-emerald-700 dark:text-emerald-400"
+                            ? "bg-amber-500 text-asphalt"
+                            : "bg-emerald-600 text-white"
                         }`}
                       >
                         {r.status === "pending" ? "De contactat" : "Contactat"}

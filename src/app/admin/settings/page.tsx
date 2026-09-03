@@ -108,10 +108,10 @@ export default async function AdminSettingsPage() {
             className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
               provider
                 ? "bg-emerald-600 text-white"
-                : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                : "bg-amber-500 text-asphalt"
             }`}
           >
-            <span className={`size-1.5 rounded-full ${provider ? "bg-white" : "bg-amber-500"}`} />
+            <span className={`size-1.5 rounded-full ${provider ? "bg-white" : "bg-asphalt"}`} />
             {provider ? `Clienții plătesc acum prin ${providerLabel}` : "Plățile sunt oprite pentru clienți"}
           </span>
         </div>

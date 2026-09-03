@@ -58,32 +58,41 @@ export function BikeGallery({
   if (count === 0) {
     return (
       <div className="overflow-hidden rounded border border-border bg-manila/40">
-        <div className="flex aspect-[4/3] items-center justify-center font-mono text-lg text-asphalt/40">
+        <div className="flex aspect-[3/4] items-center justify-center font-mono text-lg text-asphalt/40">
           {sku}
         </div>
       </div>
     );
   }
 
+  // The cover (first photo) is shot 3:4; the rest are 1:1.
+  const mainAspect = active === 0 ? "aspect-[3/4]" : "aspect-square";
+
   return (
     <div>
-      {/* Main image */}
+      {/* Main image. object-contain so the whole bike shows, never cropped. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         aria-label="Mărește imaginea"
-        className="group block w-full cursor-zoom-in overflow-hidden rounded border border-border bg-manila/40"
+        className="group relative block w-full cursor-zoom-in overflow-hidden rounded border border-border bg-manila/40"
       >
-        <div className="aspect-[4/3]">
+        <div className={mainAspect}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={photos[active]}
             alt={alt}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.01]"
           />
         </div>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute bottom-3 right-3 inline-flex size-9 items-center justify-center rounded-full bg-asphalt/75 text-base text-paper backdrop-blur-sm"
+        >
+          ⤢
+        </span>
       </button>
 
       {/* Thumbnails */}
@@ -96,7 +105,7 @@ export function BikeGallery({
               onClick={() => setActive(i)}
               aria-label={`Imaginea ${i + 1}`}
               aria-current={i === active}
-              className={`h-16 w-20 shrink-0 overflow-hidden rounded border transition-colors ${
+              className={`size-16 shrink-0 overflow-hidden rounded border transition-colors ${
                 i === active ? "border-asphalt" : "border-border hover:border-asphalt/50"
               }`}
             >
@@ -153,7 +162,7 @@ export function BikeGallery({
           ) : null}
 
           <div
-            className="max-h-full max-w-6xl overflow-auto"
+            className="flex max-h-full max-w-full items-center justify-center overflow-auto"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
@@ -163,7 +172,7 @@ export function BikeGallery({
               src={photos[active]}
               alt={alt}
               onClick={() => setZoom((z) => !z)}
-              className={`mx-auto max-h-[86vh] w-auto select-none object-contain transition-transform duration-200 ${
+              className={`max-h-[85vh] max-w-full select-none object-contain transition-transform duration-200 ${
                 zoom ? "scale-[1.8] cursor-zoom-out" : "cursor-zoom-in"
               }`}
             />

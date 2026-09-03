@@ -418,36 +418,29 @@ export function HomeClient({
                 <div className="grid">
                   {shown.map((b) => (
                     <a className="tag" data-reveal key={b.sku} href={`/bikes/${b.sku}`}>
-                      <div className="tag__head">
-                        <span className="mono">{b.sku}</span>
-                        {b.reserved ? <span className="mono" style={{ color: "var(--steel)" }}>rezervată</span> : null}
-                      </div>
                       <div className="tag__img">
                         {b.photo ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={b.photo} alt={b.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={b.photo} alt={b.title} />
                         ) : (
                           <svg viewBox="0 0 240 140">
                             <use href={`#${b.symbol}`} width="240" height="140" />
                           </svg>
                         )}
+                        {b.reserved ? <span className="tag__badge mono">rezervată</span> : null}
                       </div>
-                      <h3>{b.title}</h3>
-                      <span className="tag__spec mono">
-                        {[b.year, `${t.bikes.specFrame} ${b.frame}`, `${b.wheel}"`]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                      {b.work.length > 0 ? (
-                        <ul className="tag__work">
-                          {b.work.slice(0, 3).map((w) => (
-                            <li key={w}>{w}</li>
-                          ))}
-                        </ul>
-                      ) : null}
-                      <div className="tag__foot">
-                        <div className="price">{price(b.price)}</div>
-                        <span className="btn btn--line btn--sm">{t.bikes.see}</span>
+                      <div className="tag__body">
+                        <span className="tag__sku mono">{b.sku}</span>
+                        <h3>{b.title}</h3>
+                        <span className="tag__spec mono">
+                          {[b.year, `${t.bikes.specFrame} ${b.frame}`, `${b.wheel}"`]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                        <div className="tag__foot">
+                          <div className="price">{price(b.price)}</div>
+                          <span className="btn btn--line btn--sm">{t.bikes.see}</span>
+                        </div>
                       </div>
                     </a>
                   ))}

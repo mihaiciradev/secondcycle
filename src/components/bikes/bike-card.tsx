@@ -27,7 +27,7 @@ export function BikeCard({ bike }: { bike: BikeCardData }) {
       href={`/bikes/${bike.sku}`}
       className="group flex flex-col overflow-hidden rounded border border-border bg-card transition-colors hover:border-asphalt/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <div className="relative aspect-[4/3] bg-manila/40">
+      <div className="relative aspect-[3/4] bg-manila/40">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photo} alt={`${bike.brand} ${bike.model}`} className="h-full w-full object-cover" />

@@ -118,7 +118,7 @@ export function BikeSaleForm({
         <textarea name="description" rows={3} defaultValue={bike.description} className={fieldClass} />
       </div>
       <div>
-        <label className={labelClass}>Ce am făcut (câte o linie)</label>
+        <label className={labelClass}>Ce am făcut în atelier (câte o linie)</label>
         <textarea name="workDone" rows={3} defaultValue={bike.workDone.join("\n")} className={fieldClass} />
         <p className="mt-1 text-xs text-steel">Se completează pe baza fișei finale, după reparație.</p>
       </div>

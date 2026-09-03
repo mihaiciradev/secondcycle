@@ -23,11 +23,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const STATUS: Record<string, { label: string; cls: string }> = {
-  draft: { label: "Ciornă", cls: "bg-asphalt/10 text-steel" },
-  available: { label: "Publicată", cls: "bg-emerald-600/15 text-emerald-700 dark:text-emerald-400" },
-  reserved: { label: "Rezervată", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-400" },
-  sold: { label: "Vândută", cls: "bg-blue/15 text-blue" },
-  withdrawn: { label: "Retrasă", cls: "bg-asphalt/10 text-steel" },
+  draft: { label: "Ciornă", cls: "bg-asphalt/15 text-foreground" },
+  available: { label: "Publicată", cls: "bg-emerald-600 text-white" },
+  reserved: { label: "Rezervată", cls: "bg-amber-500 text-asphalt" },
+  sold: { label: "Vândută", cls: "bg-blue text-white" },
+  withdrawn: { label: "Retrasă", cls: "bg-asphalt/15 text-foreground" },
 };
 
 const CATEGORY_LABEL: Record<string, string> = {

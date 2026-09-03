@@ -43,9 +43,8 @@ export function BikeActions({
 
   if (status === "available" && !paymentsLive) {
     return (
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
-        Comenzile online sunt momentan indisponibile din motive tehnice. Revino în curând sau
-        contactează-ne.
+      <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
+        Momentan nu se poate finaliza comanda online. Scrie-ne și te ajutăm imediat.
       </div>
     );
   }
@@ -111,11 +110,11 @@ function NotifyMe({ bikeId, defaultEmail }: { bikeId: string; defaultEmail?: str
         Rezervată momentan
       </div>
       {state === "done" ? (
-        <p className="rounded-md border border-blue/25 bg-blue/5 px-3.5 py-2.5 text-sm text-blue">
+        <p className="rounded-md border border-blue/40 bg-blue/5 px-3.5 py-2.5 text-sm text-foreground">
           Gata. Îți scriem pe <strong>{email}</strong> imediat ce se eliberează.
         </p>
       ) : state === "available" ? (
-        <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-emerald-700 dark:text-emerald-400">
+        <p className="rounded-md border border-emerald-500/50 bg-emerald-500/10 px-3.5 py-2.5 text-sm text-foreground">
           Vești bune: s-a eliberat între timp. Reîncarcă pagina ca s-o cumperi.
         </p>
       ) : (

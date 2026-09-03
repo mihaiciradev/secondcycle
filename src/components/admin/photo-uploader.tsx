@@ -26,7 +26,7 @@ export function PhotoUploader({
 
   if (!storageEnabled) {
     return (
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+      <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
         Stocarea foto (R2) nu e configurată în acest mediu. Completează variabilele R2_* ca să poți
         încărca poze.
       </div>

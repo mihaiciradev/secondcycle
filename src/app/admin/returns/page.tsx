@@ -40,10 +40,10 @@ export default async function AdminReturnsPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`rounded px-2 py-0.5 font-mono text-[0.65rem] ${
+                        className={`rounded px-2 py-0.5 font-mono text-[0.65rem] font-semibold ${
                           r.status === "pending"
-                            ? "bg-amber-500/20 text-amber-700 dark:text-amber-400"
-                            : "bg-emerald-600/15 text-emerald-700 dark:text-emerald-400"
+                            ? "bg-amber-500 text-asphalt"
+                            : "bg-emerald-600 text-white"
                         }`}
                       >
                         {r.status === "pending" ? "De tratat" : "Tratată"}

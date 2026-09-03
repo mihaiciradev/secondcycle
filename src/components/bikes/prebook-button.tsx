@@ -45,18 +45,18 @@ export function PrebookButton({
 
   if (state === "done") {
     return (
-      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
-        Gata! Ți-am înregistrat interesul pentru <strong>{bikeLabel}</strong>. Te contactăm în curând
-        pe <strong>{email}</strong>. Bicicleta rămâne disponibilă pentru toată lumea până atunci.
+      <div className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 text-sm text-foreground">
+        Gata! Ți-am înregistrat cererea pentru <strong>{bikeLabel}</strong>. Te contactăm în curând pe{" "}
+        <strong>{email}</strong>.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-blue/25 bg-blue/5 p-4">
-      <p className="text-sm text-foreground/80">
-        Momentan nu poți cumpăra online. Fă un <strong>prebook</strong>: îți notăm interesul,{" "}
-        <strong>nu blocăm bicicleta</strong>, te contactăm și o poți avea în aproximativ o săptămână.
+    <div className="rounded-lg border border-blue/40 bg-blue/5 p-4">
+      <p className="text-sm text-foreground">
+        Încă nu se poate cumpăra online. Lasă-ți datele și te contactăm noi ca să ți-o pregătim, de
+        obicei în aproximativ o săptămână.
       </p>
 
       {!open ? (

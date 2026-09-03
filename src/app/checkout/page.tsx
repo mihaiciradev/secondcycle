@@ -33,7 +33,7 @@ export default async function CheckoutPage() {
                 defaultEmail={session.user.email ?? undefined}
               />
             ) : (
-              <div className="max-w-xl rounded-lg border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-800 dark:text-amber-300">
+              <div className="max-w-xl rounded-lg border border-amber-500/50 bg-amber-500/10 px-5 py-4 text-sm text-foreground">
                 {PAYMENTS_OFF_MESSAGE} Bicicletele din coș rămân salvate.
               </div>
             )}

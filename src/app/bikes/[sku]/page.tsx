@@ -165,7 +165,9 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
               </div>
 
               {bike.description ? (
-                <p className="mt-5 leading-relaxed text-foreground/80">{bike.description}</p>
+                <p className="mt-5 whitespace-pre-line leading-relaxed text-foreground/80">
+                  {bike.description}
+                </p>
               ) : null}
 
               <div className="mt-7">
@@ -192,7 +194,7 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
 
           <div className="mt-14 grid gap-10 lg:grid-cols-2">
             <div>
-              <h2 className="font-heading text-lg font-semibold tracking-tight">Fișă tehnică</h2>
+              <h2 className="font-heading text-lg font-semibold tracking-tight">Specificații</h2>
               <dl className="mt-4 border-t border-border">
                 {specs.map(([k, v]) => (
                   <div key={k} className="flex items-baseline justify-between gap-4 border-b border-border py-2.5">
@@ -205,7 +207,9 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
 
             {bike.workDone.length > 0 ? (
               <div>
-                <h2 className="font-heading text-lg font-semibold tracking-tight">Ce am făcut</h2>
+                <h2 className="font-heading text-lg font-semibold tracking-tight">
+                  Ce am făcut în atelier
+                </h2>
                 <ul className="mt-4 space-y-2">
                   {bike.workDone.map((w) => (
                     <li key={w} className="flex gap-2.5 text-sm text-foreground/80">

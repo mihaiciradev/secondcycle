@@ -146,7 +146,7 @@ export default async function OrderDetailPage({
               <CancelOrderButton orderId={order.id} />
             </div>
           ) : paymentsOff ? (
-            <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-sm text-amber-800 dark:text-amber-300">
+            <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3.5 py-2.5 text-sm text-foreground">
               {PAYMENTS_OFF_MESSAGE}
             </p>
           ) : (

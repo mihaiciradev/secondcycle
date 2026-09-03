@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { BrandLogo } from "@/components/site/brand-logo";
 import { BasketLink } from "@/components/cart/basket-link";
+import { HeaderLogout } from "@/components/site/header-logout";
 import { displayName } from "@/lib/user-display";
 
 /** Interior-page header (catalogue, account, admin). Reflects auth state. */
@@ -53,14 +54,16 @@ export async function SiteHeader() {
                 {displayName(session!.user)}
               </span>
             </Link>
-          ) : (
+          ) : null}
+          {authed ? <HeaderLogout /> : null}
+          {!authed ? (
             <Link
               href="/login"
               className="inline-flex h-9 items-center rounded-full bg-blue px-4 text-sm font-semibold text-white transition-colors hover:bg-blue/90"
             >
               Autentificare
             </Link>
-          )}
+          ) : null}
         </nav>
       </div>
     </header>
