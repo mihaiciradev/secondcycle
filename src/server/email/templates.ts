@@ -1,4 +1,5 @@
 import { formatLei } from "@/lib/money";
+import { company } from "@/lib/content/site";
 
 /** Minimal branded transactional emails. Plain, documentation voice. */
 function shell(
@@ -62,7 +63,12 @@ export function orderConfirmedTemplate(input: {
     <p>Te contactăm în curând pentru livrare sau ridicare. Poți vedea comanda oricând în contul tău.</p>`;
   return {
     subject: `Comanda ${input.orderNumber} e confirmată | Second Cycle`,
-    html: shell("Comandă confirmată", body, { href: input.link, label: "Vezi comanda" }, "Ai întrebări? Răspunde la acest e-mail."),
+    html: shell(
+      "Comandă confirmată",
+      body,
+      { href: input.link, label: "Vezi comanda" },
+      `Ai întrebări? Scrie-ne la ${company.contact.inboxEmail}.`
+    ),
   };
 }
 
