@@ -8,7 +8,7 @@ import { getReturnsNotifyEmail } from "@/server/services/settings";
 import { returnRequestSchema } from "@/server/validation/returns";
 import { sendEmail } from "@/server/email/send";
 import { returnRequestTemplate } from "@/server/email/templates";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -53,6 +53,6 @@ export async function submitReturnRequestAction(input: unknown): Promise<Result>
     revalidatePath("/admin");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

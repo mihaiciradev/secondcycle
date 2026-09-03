@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
 import { SETTING, TEXT_SETTING, setFlag, setSetting } from "@/server/services/settings";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -15,7 +15,7 @@ export async function setPaymentsEnabledAction(enabled: boolean): Promise<Result
     revalidatePath("/admin/settings");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -26,7 +26,7 @@ export async function setRevolutEnabledAction(enabled: boolean): Promise<Result>
     revalidatePath("/admin/settings");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -37,7 +37,7 @@ export async function setPrebookEnabledAction(enabled: boolean): Promise<Result>
     revalidatePath("/admin/settings");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -52,6 +52,6 @@ export async function setReturnsNotifyEmailAction(email: string): Promise<Result
     revalidatePath("/admin/settings");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

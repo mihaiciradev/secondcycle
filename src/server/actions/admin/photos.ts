@@ -14,7 +14,7 @@ import {
   presignPhotoUpload,
   publicUrl,
 } from "@/server/storage/r2";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 const MAX_PHOTOS = 12;
 
@@ -57,7 +57,7 @@ export async function requestPhotoUploadsAction(
     }
     return { ok: true, uploads };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -79,7 +79,7 @@ export async function attachPhotosAction(
     revalidatePath(`/admin/bikes/${bikeId}`);
     return { ok: true, photos: next };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -99,7 +99,7 @@ export async function deletePhotoAction(
     revalidatePath(`/admin/bikes/${bikeId}`);
     return { ok: true, photos: next };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -119,6 +119,6 @@ export async function setCoverPhotoAction(
     revalidatePath(`/admin/bikes/${bikeId}`);
     return { ok: true, photos: next };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

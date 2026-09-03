@@ -10,7 +10,7 @@ import {
   setMarketingOptIn,
 } from "@/server/services/auth";
 import { deleteUserAccount } from "@/server/services/account";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 import { requireUser } from "@/server/auth/guards";
 import { forgotSchema, registerSchema, resetSchema } from "@/server/validation/auth";
 
@@ -69,6 +69,6 @@ export async function deleteAccountAction(): Promise<Result> {
     await deleteUserAccount(db, user.id);
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

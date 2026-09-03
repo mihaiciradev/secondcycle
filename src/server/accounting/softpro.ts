@@ -31,6 +31,9 @@ type FacturiResponse = { status: number; ok: boolean; body: unknown; raw: string
 
 async function postFacturi(payload: unknown): Promise<FacturiResponse> {
   const url = process.env.SP_API_URL as string;
+  // Debug logging: safe here (no SoftPro env in prod, and payments are off).
+  // Auth lives in headers, which we never log.
+  console.log("[softpro] POST", url, "payload:", JSON.stringify(payload));
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -44,6 +47,7 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
     cache: "no-store",
   });
   const text = await res.text();
+  console.log(`[softpro] response ${res.status} ${res.ok ? "OK" : "ERR"}:`, text.slice(0, 2000));
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -138,11 +142,23 @@ function buildDocument(
  * uniqueIdSursa, and we skip once status is 'ok'). Best-effort: stores the
  * outcome on the order and never throws, so it can't undo a payment.
  */
-export async function issueInvoiceForOrder(db: DB, orderId: string): Promise<void> {
-  if (!isSoftproConfigured()) return;
+export async function issueInvoiceForOrder(
+  db: DB,
+  orderId: string
+): Promise<{ ok: boolean; info: string }> {
+  if (!isSoftproConfigured()) {
+    return {
+      ok: false,
+      info: "SoftPro nu e configurat: lipsesc SP_API_URL / SP_AUTH_KEY / SP_CLIENT_CODE în acest mediu.",
+    };
+  }
   try {
     const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order || !order.paidAt || order.spInvoiceStatus === "ok") return;
+    if (!order) return { ok: false, info: "Comanda nu există." };
+    if (!order.paidAt) return { ok: false, info: "Comanda nu este plătită, nu se emite factură." };
+    if (order.spInvoiceStatus === "ok") {
+      return { ok: true, info: order.spInvoiceInfo ?? "Deja emisă." };
+    }
 
     const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
     const [buyer] = await db
@@ -172,15 +188,15 @@ export async function issueInvoiceForOrder(db: DB, orderId: string): Promise<voi
         spInvoicedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
+    return parsed;
   } catch (e) {
+    console.error("[softpro] issueInvoiceForOrder failed", e);
+    const info = (e instanceof Error ? e.message : String(e)).slice(0, 500);
     await db
       .update(orders)
-      .set({
-        spInvoiceStatus: "error",
-        spInvoiceInfo: (e instanceof Error ? e.message : String(e)).slice(0, 500),
-        spInvoicedAt: new Date(),
-      })
+      .set({ spInvoiceStatus: "error", spInvoiceInfo: info, spInvoicedAt: new Date() })
       .where(eq(orders.id, orderId))
       .catch(() => {});
+    return { ok: false, info };
   }
 }

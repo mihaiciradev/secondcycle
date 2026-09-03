@@ -4,17 +4,17 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
 import { issueInvoiceForOrder } from "@/server/accounting/softpro";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 export async function retryInvoiceAction(
   orderId: string
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: boolean; info: string }> {
   try {
     await requireAdmin();
-    await issueInvoiceForOrder(db, orderId);
+    const result = await issueInvoiceForOrder(db, orderId);
     revalidatePath("/admin/orders");
-    return { ok: true };
+    return result;
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, info: actionError(e, "admin/invoices:retry") };
   }
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
 import { adminTransitionOrderStatus } from "@/server/services/orders";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 import type { OrderStatus } from "@/server/constants/statuses";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -20,6 +20,6 @@ export async function transitionOrderStatusAction(
     revalidatePath("/admin/orders");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

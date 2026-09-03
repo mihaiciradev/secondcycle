@@ -12,7 +12,7 @@ import {
   PREBOOK_MESSAGE,
 } from "@/server/services/settings";
 import { createOrderSchema } from "@/server/validation/orders";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type CreateResult =
   | { ok: true; orderId: string; checkoutUrl?: string; unavailable: { bikeId: string; label?: string }[] }
@@ -24,13 +24,9 @@ function originFrom(h: Headers): string {
   return `${proto}://${host}`;
 }
 
-/** User-facing error. Logs everything; reveals the real message outside prod. */
+/** User-facing error. Logs everything and surfaces the real reason. */
 function errMsg(e: unknown): string {
-  if (e instanceof AppError) return e.message;
-  console.error("[checkout]", e);
-  return process.env.VERCEL_ENV === "production"
-    ? "A apărut o eroare"
-    : `Eroare: ${e instanceof Error ? e.message : String(e)}`;
+  return actionError(e, "checkout");
 }
 
 export async function createOrderAction(input: unknown): Promise<CreateResult> {

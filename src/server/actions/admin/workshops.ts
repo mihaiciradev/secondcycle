@@ -10,12 +10,12 @@ import {
 } from "@/server/services/workshops";
 import { assignBikeToWorkshop } from "@/server/services/bikes";
 import { createWorkshopSchema, promoteWorkshopSchema } from "@/server/validation/workshops";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
 function fail(e: unknown): Result {
-  return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+  return { ok: false, error: actionError(e) };
 }
 
 export async function createWorkshopAccountAction(input: unknown): Promise<Result> {

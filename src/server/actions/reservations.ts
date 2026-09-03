@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { rateLimit } from "@/server/services/rate-limit";
 import { watchBike } from "@/server/services/watchers";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type WatchResult =
   | { ok: true; status: "watching" | "available" }
@@ -39,6 +39,6 @@ export async function watchBikeAction(input: unknown): Promise<WatchResult> {
     });
     return { ok: true, status: res.status };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

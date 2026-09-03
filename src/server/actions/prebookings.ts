@@ -9,7 +9,7 @@ import { prebookSchema } from "@/server/validation/prebookings";
 import { sendEmail } from "@/server/email/send";
 import { prebookRequestTemplate } from "@/server/email/templates";
 import { company } from "@/lib/content/site";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -53,6 +53,6 @@ export async function submitPrebookAction(input: unknown): Promise<Result> {
     revalidatePath("/admin");
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }

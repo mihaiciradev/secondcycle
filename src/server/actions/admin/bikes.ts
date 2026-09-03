@@ -16,13 +16,13 @@ import {
   createBikeSchema,
   updateBikeDetailsSchema,
 } from "@/server/validation/bikes";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 import type { BikeStatus } from "@/server/constants/statuses";
 
 type Result = { ok: true } | { ok: false; error: string };
 
 function fail(e: unknown): Result {
-  return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+  return { ok: false, error: actionError(e) };
 }
 
 export async function createBikeAction(input: unknown): Promise<Result> {

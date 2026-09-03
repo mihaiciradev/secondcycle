@@ -6,7 +6,7 @@ import { requireWorkshop } from "@/server/auth/guards";
 import { getBikeForWorkshop } from "@/server/services/workshops";
 import { createServiceRecord, updateServiceRecord } from "@/server/services/service-records";
 import { serviceRecordSchema, updateServiceRecordSchema } from "@/server/validation/workshops";
-import { AppError } from "@/server/errors";
+import { actionError } from "@/server/errors";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -24,7 +24,7 @@ export async function createServiceRecordAction(input: unknown): Promise<Result>
     revalidatePath(`/workshop/bikes/${parsed.data.bikeId}`);
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
 
@@ -39,6 +39,6 @@ export async function updateServiceRecordAction(input: unknown): Promise<Result>
     revalidatePath(`/workshop/bikes/${parsed.data.bikeId}`);
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof AppError ? e.message : "A apărut o eroare" };
+    return { ok: false, error: actionError(e) };
   }
 }
