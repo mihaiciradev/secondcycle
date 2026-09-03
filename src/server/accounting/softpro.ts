@@ -27,10 +27,12 @@ export function isSoftproConfigured(): boolean {
 
 const lei = (cents: number): number => Math.round(cents) / 100;
 
-type FacturiResponse = { status: number; ok: boolean; body: unknown };
+type FacturiResponse = { status: number; ok: boolean; body: unknown; raw: string };
 
 async function postFacturi(payload: unknown): Promise<FacturiResponse> {
   const url = process.env.SP_API_URL as string;
+  // Log the outgoing document (no secrets: auth lives in headers, not logged).
+  console.log("[softpro] POST", url, "payload:", JSON.stringify(payload));
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -44,22 +46,24 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
     cache: "no-store",
   });
   const text = await res.text();
+  // The raw response is what we need to confirm the real shape on staging.
+  console.log(`[softpro] response ${res.status} ${res.ok ? "OK" : "ERR"}:`, text.slice(0, 2000));
   let body: unknown;
   try {
     body = JSON.parse(text);
   } catch {
     body = { raw: text.slice(0, 500) };
   }
-  return { status: res.status, ok: res.ok, body };
+  return { status: res.status, ok: res.ok, body, raw: text };
 }
 
 /** Interpret the response into a stored status + human-readable info. */
 function parseResult(res: FacturiResponse): { ok: boolean; info: string } {
   if (res.status === 409) return { ok: false, info: "409: alt import în curs, reîncearcă" };
-  if (!res.ok) return { ok: false, info: `HTTP ${res.status}: ${JSON.stringify(res.body).slice(0, 300)}` };
+  if (!res.ok) return { ok: false, info: `HTTP ${res.status}: ${res.raw.slice(0, 400)}` };
   const body = res.body as { documente?: Array<Record<string, unknown>> };
   const doc = body?.documente?.[0];
-  if (!doc) return { ok: false, info: `Răspuns neașteptat: ${JSON.stringify(res.body).slice(0, 300)}` };
+  if (!doc) return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 400)}` };
   if (doc.hasError) return { ok: false, info: String(doc.message ?? "Eroare document") };
   const ref = doc.numar_doc ?? doc.seria_doc ?? doc.message ?? "emisă";
   return { ok: true, info: String(ref) };
