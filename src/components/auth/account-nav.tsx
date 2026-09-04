@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const customerItems = [
   { href: "/account", label: "Detalii" },
   { href: "/account/orders", label: "Comenzi" },
+  { href: "/account/returns", label: "Retururile mele" },
   { href: "/account/preferences", label: "Preferințe" },
   { href: "/account/security", label: "Securitate" },
 ];

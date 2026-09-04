@@ -31,7 +31,7 @@ export function BikeDetailsForm({
     frameNumber: string;
     brand: string;
     model: string;
-    modelYear: number | null;
+    modelYear: string | null;
     category: string;
     frameSize: string;
     wheelSize: string;
@@ -53,14 +53,13 @@ export function BikeDetailsForm({
     setError(null);
     setSaved(false);
     const f = new FormData(form);
-    const yearRaw = String(f.get("modelYear") ?? "").trim();
     const res = await updateBikeDetailsAction({
       bikeId: bike.id,
       sku: String(f.get("sku") ?? "").trim(),
       frameNumber: String(f.get("frameNumber") ?? "").trim(),
       brand: String(f.get("brand") ?? "").trim(),
       model: String(f.get("model") ?? "").trim(),
-      modelYear: yearRaw ? Number(yearRaw) : null,
+      modelYear: String(f.get("modelYear") ?? "").trim() || null,
       category: String(f.get("category") ?? ""),
       frameSize: String(f.get("frameSize") ?? "").trim(),
       wheelSize: String(f.get("wheelSize") ?? "").trim(),
@@ -94,9 +93,7 @@ export function BikeDetailsForm({
           <label className={labelClass}>An</label>
           <input
             name="modelYear"
-            type="number"
-            min="1970"
-            max="2100"
+            placeholder="ex. 2019 sau 2018-2020"
             defaultValue={bike.modelYear ?? ""}
             className={fieldClass}
           />

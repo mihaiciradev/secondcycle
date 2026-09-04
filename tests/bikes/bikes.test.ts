@@ -28,7 +28,7 @@ function input(sku: string, over: Partial<CreateBikeInput> = {}): CreateBikeInpu
     frameNumber: `F-${sku}`,
     brand: "Pegas",
     model: "Clasic",
-    modelYear: 2020,
+    modelYear: "2020",
     category: "city",
     frameSize: "M",
     wheelSize: "28",

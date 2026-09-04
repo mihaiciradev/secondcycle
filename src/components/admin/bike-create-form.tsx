@@ -24,10 +24,6 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
     setLoading(true);
     setError(null);
     const f = new FormData(e.currentTarget);
-    const num = (k: string) => {
-      const v = f.get(k);
-      return v ? Number(v) : undefined;
-    };
     const provLei = Number(f.get("provisionalLei") ?? 0);
     const provCents = Math.round(provLei * 100);
 
@@ -38,7 +34,7 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
       frameNumber: String(f.get("frameNumber") ?? "").trim(),
       brand: String(f.get("brand") ?? "").trim(),
       model: String(f.get("model") ?? "").trim(),
-      modelYear: num("modelYear") ?? null,
+      modelYear: (String(f.get("modelYear") ?? "").trim() || null) as string | null,
       category: String(f.get("category") ?? "city"),
       frameSize: String(f.get("frameSize") ?? "").trim(),
       wheelSize: String(f.get("wheelSize") ?? "").trim(),
@@ -65,7 +61,7 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
       <input name="frameNumber" placeholder="Serie cadru" required className={fieldClass} />
       <input name="brand" placeholder="Marcă" required className={fieldClass} />
       <input name="model" placeholder="Model" required className={fieldClass} />
-      <input name="modelYear" type="number" placeholder="An" className={fieldClass} />
+      <input name="modelYear" placeholder="An (ex. 2019 sau 2018-2020)" className={fieldClass} />
       <select name="category" className={fieldClass} defaultValue="city">
         {categories.map(([v, l]) => (
           <option key={v} value={v}>

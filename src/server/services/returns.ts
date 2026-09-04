@@ -89,6 +89,18 @@ export async function createReturnRequest(
   return { request, items };
 }
 
+/** A user's own return requests, newest first (for their account page). */
+export async function getReturnsForUser(
+  db: DB,
+  userId: string
+): Promise<(typeof returnRequests.$inferSelect)[]> {
+  return db
+    .select()
+    .from(returnRequests)
+    .where(eq(returnRequests.userId, userId))
+    .orderBy(desc(returnRequests.createdAt));
+}
+
 export async function listReturnRequests(
   db: DB,
   status?: "pending" | "handled"

@@ -21,7 +21,7 @@ export interface HomeBike {
   title: string; // "Brand Model"
   symbol: "bike-city" | "bike-road" | "bike-mtb";
   category: "city" | "mountain" | "road";
-  year: number | null;
+  year: string | null;
   frame: string;
   wheel: string; // inches, without the quote mark
   price: number; // RON (lei)

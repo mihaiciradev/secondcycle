@@ -213,7 +213,8 @@ export const bikes = pgTable("bikes", {
   frameNumber: text("frame_number").notNull(),
   brand: text("brand").notNull(),
   model: text("model").notNull(),
-  modelYear: integer("model_year"),
+  // Free text: an exact year ("2019") or a range/estimate ("2018-2020", "~2015").
+  modelYear: text("model_year"),
   category: bikeCategoryEnum("category").notNull(),
   frameSize: text("frame_size").notNull(),
   wheelSize: text("wheel_size").notNull(),

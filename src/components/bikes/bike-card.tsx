@@ -5,7 +5,7 @@ type BikeCardData = {
   sku: string;
   brand: string;
   model: string;
-  modelYear: number | null;
+  modelYear: string | null;
   frameSize: string;
   wheelSize: string;
   conditionGrade: "A" | "B" | "C";

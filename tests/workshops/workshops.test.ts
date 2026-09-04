@@ -25,7 +25,7 @@ function bikeInput(sku: string): CreateBikeInput {
     frameNumber: `F-${sku}`,
     brand: "Pegas",
     model: "Clasic",
-    modelYear: 2020,
+    modelYear: "2020",
     category: "city",
     frameSize: "M",
     wheelSize: "28",

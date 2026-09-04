@@ -35,7 +35,7 @@ function bikeDescription(bike: {
   brand: string;
   model: string;
   category: string;
-  modelYear: number | null;
+  modelYear: string | null;
   frameSize: string;
   wheelSize: string;
   priceCents: number;

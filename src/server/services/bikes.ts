@@ -234,7 +234,7 @@ export async function updateBikeDetails(
     frameNumber: string;
     brand: string;
     model: string;
-    modelYear: number | null;
+    modelYear: string | null;
     category: (typeof bikes.$inferInsert)["category"];
     frameSize: string;
     wheelSize: string;
