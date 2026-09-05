@@ -92,6 +92,13 @@
       "when": 1789000000000,
       "tag": "0012_bike_year_text",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789100000000,
+      "tag": "0013_bike_optional_fields",
+      "breakpoints": true
     }
   ]
 }

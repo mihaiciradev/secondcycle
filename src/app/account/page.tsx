@@ -7,6 +7,7 @@ import { getListedBikesForOwner } from "@/server/services/bikes";
 import { Card, Row } from "@/components/auth/account-ui";
 import { company } from "@/lib/content/site";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,7 +88,7 @@ export default async function AccountDetailsPage() {
           </p>
           <ul className="mt-4 space-y-3">
             {listed.map((b) => {
-              const text = `Salut! Vreau să retrag din vânzare bicicleta ${b.brand} ${b.model} (${b.sku}).`;
+              const text = `Salut! Vreau să retrag din vânzare bicicleta ${bikeTitle(b)} (${b.sku}).`;
               const wa = `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
               const mailto = `mailto:${company.contact.email}?subject=${encodeURIComponent(
                 `Retragere bicicletă ${b.sku}`
@@ -98,9 +99,7 @@ export default async function AccountDetailsPage() {
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-3.5"
                 >
                   <div>
-                    <p className="font-medium">
-                      {b.brand} {b.model}
-                    </p>
+                    <p className="font-medium">{bikeTitle(b)}</p>
                     <p className="font-mono text-xs text-steel">
                       {b.sku} · {formatLei(b.priceCents)}
                     </p>

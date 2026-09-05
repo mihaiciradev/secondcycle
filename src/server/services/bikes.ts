@@ -196,13 +196,14 @@ export async function createBike(db: DB, input: CreateBikeInput) {
       .insert(bikes)
       .values({
         sku: input.sku,
-        frameNumber: input.frameNumber,
-        brand: input.brand,
-        model: input.model,
+        frameNumber: input.frameNumber ?? null,
+        brand: input.brand ?? null,
+        model: input.model ?? null,
+        name: input.name ?? null,
         modelYear: input.modelYear ?? null,
         category: input.category,
-        frameSize: input.frameSize,
-        wheelSize: input.wheelSize,
+        frameSize: input.frameSize ?? null,
+        wheelSize: input.wheelSize ?? null,
         conditionGrade: input.conditionGrade,
         priceCents: input.priceCents,
         oldPriceCents: input.oldPriceCents ?? null,
@@ -210,6 +211,7 @@ export async function createBike(db: DB, input: CreateBikeInput) {
         acquisitionCostCents: input.acquisitionCostCents ?? null,
         description: input.description ?? "",
         workDone: input.workDone ?? [],
+        adminNotes: input.adminNotes ?? null,
         status: input.status ?? "draft",
         workshopId: input.workshopId ?? null,
       })
@@ -231,15 +233,17 @@ export async function updateBikeDetails(
   id: string,
   input: {
     sku: string;
-    frameNumber: string;
-    brand: string;
-    model: string;
+    frameNumber: string | null;
+    brand: string | null;
+    model: string | null;
+    name: string | null;
     modelYear: string | null;
     category: (typeof bikes.$inferInsert)["category"];
-    frameSize: string;
-    wheelSize: string;
+    frameSize: string | null;
+    wheelSize: string | null;
     conditionGrade: (typeof bikes.$inferInsert)["conditionGrade"];
     oldPriceCents: number | null;
+    adminNotes: string | null;
   }
 ) {
   try {
@@ -250,12 +254,14 @@ export async function updateBikeDetails(
         frameNumber: input.frameNumber,
         brand: input.brand,
         model: input.model,
+        name: input.name,
         modelYear: input.modelYear,
         category: input.category,
         frameSize: input.frameSize,
         wheelSize: input.wheelSize,
         conditionGrade: input.conditionGrade,
         oldPriceCents: input.oldPriceCents,
+        adminNotes: input.adminNotes,
       })
       .where(eq(bikes.id, id))
       .returning();

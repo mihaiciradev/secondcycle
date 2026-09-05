@@ -1,5 +1,6 @@
 import { and, count, desc, eq, gte, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
+import { bikeTitle } from "@/lib/bike-name";
 import {
   bikeWatchers,
   bikes,
@@ -166,7 +167,7 @@ export async function getAdminStats(db: DB) {
     watchers: {
       waiting: num(watchWaiting[0]?.n),
       top: topWatched.map((w) => ({
-        label: `${w.brand} ${w.model}`,
+        label: bikeTitle({ brand: w.brand, model: w.model, sku: w.sku }),
         sku: w.sku,
         status: w.status,
         count: num(w.n),

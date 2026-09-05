@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { createPrebooking } from "@/server/services/prebookings";
 import { getBikeById } from "@/server/services/bikes";
+import { bikeTitle } from "@/lib/bike-name";
 import { prebookSchema } from "@/server/validation/prebookings";
 import { sendEmail } from "@/server/email/send";
 import { prebookRequestTemplate } from "@/server/email/templates";
@@ -37,7 +38,7 @@ export async function submitPrebookAction(input: unknown): Promise<Result> {
 
     // Notify the shop (best-effort; the DB row is the reliable record).
     const bike = await getBikeById(db, row.bikeId);
-    const label = bike ? `${bike.brand} ${bike.model}` : "Bicicletă";
+    const label = bike ? bikeTitle(bike) : "Bicicletă";
     const { subject, html } = prebookRequestTemplate({
       bikeLabel: label,
       bikeSku: bike?.sku ?? "",

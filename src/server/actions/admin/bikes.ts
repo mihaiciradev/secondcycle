@@ -71,18 +71,21 @@ export async function updateBikeDetailsAction(input: unknown): Promise<Result> {
     const { bikeId, ...rest } = parsed.data;
     await updateBikeDetails(db, bikeId, {
       sku: rest.sku,
-      frameNumber: rest.frameNumber,
-      brand: rest.brand,
-      model: rest.model,
+      frameNumber: rest.frameNumber ?? null,
+      brand: rest.brand ?? null,
+      model: rest.model ?? null,
+      name: rest.name ?? null,
       modelYear: rest.modelYear ?? null,
       category: rest.category,
-      frameSize: rest.frameSize,
-      wheelSize: rest.wheelSize,
+      frameSize: rest.frameSize ?? null,
+      wheelSize: rest.wheelSize ?? null,
       conditionGrade: rest.conditionGrade,
       oldPriceCents: rest.oldPriceCents ?? null,
+      adminNotes: rest.adminNotes ?? null,
     });
     revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");
+    if (rest.sku) revalidatePath(`/bikes/${rest.sku}`);
     return { ok: true };
   } catch (e) {
     return fail(e);

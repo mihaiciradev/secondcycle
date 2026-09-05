@@ -6,6 +6,7 @@ import { BikeCreateForm } from "@/components/admin/bike-create-form";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
 import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 import type { BikeStatus } from "@/server/constants/statuses";
 
 export const runtime = "nodejs";
@@ -93,7 +94,7 @@ export default async function AdminBikesPage({
                     </td>
                     <td className="py-3 pr-4">
                       <Link href={`/admin/bikes/${b.id}`} className="font-medium hover:underline">
-                        {b.brand} {b.model}
+                        {bikeTitle(b)}
                       </Link>
                       {b.photos.length > 0 ? (
                         <span className="ml-2 font-mono text-xs text-steel">📷 {b.photos.length}</span>

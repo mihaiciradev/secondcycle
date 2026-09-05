@@ -210,14 +210,19 @@ export const prebookings = pgTable("prebookings", {
 export const bikes = pgTable("bikes", {
   id: pk(),
   sku: text("sku").notNull().unique(),
-  frameNumber: text("frame_number").notNull(),
-  brand: text("brand").notNull(),
-  model: text("model").notNull(),
+  // Specs are optional: for very old bikes we may not know make/model/serial.
+  frameNumber: text("frame_number"),
+  brand: text("brand"),
+  model: text("model"),
+  // Fallback display name when brand/model are unknown.
+  name: text("name"),
   // Free text: an exact year ("2019") or a range/estimate ("2018-2020", "~2015").
   modelYear: text("model_year"),
   category: bikeCategoryEnum("category").notNull(),
-  frameSize: text("frame_size").notNull(),
-  wheelSize: text("wheel_size").notNull(),
+  frameSize: text("frame_size"),
+  wheelSize: text("wheel_size"),
+  // Internal admin notes (provenance, storage, target price...). Never public.
+  adminNotes: text("admin_notes"),
   conditionGrade: conditionGradeEnum("condition_grade").notNull(),
   // Current price: the provisional estimate at intake, replaced by the final
   // selling price when the bike is published.

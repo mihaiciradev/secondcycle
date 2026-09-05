@@ -35,7 +35,7 @@ export function BikeActions({
     return (
       <PrebookButton
         bikeId={bike.bikeId}
-        bikeLabel={`${bike.brand} ${bike.model}`}
+        bikeLabel={`${bike.brand} ${bike.model}`.trim()}
         defaultEmail={userEmail}
       />
     );

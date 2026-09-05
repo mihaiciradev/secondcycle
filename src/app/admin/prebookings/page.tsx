@@ -6,6 +6,7 @@ import { PrebookContactedButton } from "@/components/admin/prebook-contacted-but
 import { CopyButton } from "@/components/admin/copy-button";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { company } from "@/lib/content/site";
+import { bikeTitle } from "@/lib/bike-name";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -51,9 +52,8 @@ export default async function AdminPrebookingsPage() {
       ) : (
         <ul className="space-y-3">
           {rows.map((r) => {
-            const mailto = `mailto:${r.email}?subject=${encodeURIComponent(
-              `Prebook ${r.bikeBrand} ${r.bikeModel}`
-            )}`;
+            const title = bikeTitle({ brand: r.bikeBrand, model: r.bikeModel, name: r.bikeName, sku: r.bikeSku });
+            const mailto = `mailto:${r.email}?subject=${encodeURIComponent(`Prebook ${title}`)}`;
             return (
               <li
                 key={r.id}
@@ -77,7 +77,7 @@ export default async function AdminPrebookingsPage() {
                         href={`/admin/bikes/${r.bikeId}`}
                         className="font-medium hover:underline"
                       >
-                        {r.bikeBrand} {r.bikeModel}
+                        {title}
                       </Link>
                       <span className="font-mono text-xs text-steel">{r.bikeSku}</span>
                       <span className="font-mono text-xs text-steel">

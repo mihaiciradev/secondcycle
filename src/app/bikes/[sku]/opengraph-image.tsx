@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { db } from "@/server/db/client";
 import { getPublicBikeBySku } from "@/server/services/bikes";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 
 export const runtime = "nodejs"; // reads the DB (pg) + fetches the R2 photo
 export const alt = "Bicicleta second-hand la Second Cycle";
@@ -49,7 +50,11 @@ export default async function Image({ params }: { params: Promise<{ sku: string 
   }
 
   const photo = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
-  const specLine = [bike.frameSize, `${bike.wheelSize}"`, bike.modelYear ? String(bike.modelYear) : null]
+  const specLine = [
+    bike.frameSize,
+    bike.wheelSize ? `${bike.wheelSize}"` : null,
+    bike.modelYear ? String(bike.modelYear) : null,
+  ]
     .filter(Boolean)
     .join("  •  ");
 
@@ -87,7 +92,7 @@ export default async function Image({ params }: { params: Promise<{ sku: string 
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", fontSize: 54, fontWeight: 800, lineHeight: 1.05 }}>
-              {bike.brand} {bike.model}
+              {bikeTitle(bike)}
             </div>
             {specLine ? (
               <div style={{ display: "flex", fontSize: 28, marginTop: 16, color: "#C9CDC8" }}>{specLine}</div>

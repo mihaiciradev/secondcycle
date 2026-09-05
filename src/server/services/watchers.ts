@@ -3,6 +3,7 @@ import type { DB, DbOrTx } from "@/server/db/client";
 import { bikeWatchers, bikes } from "@/server/db/schema";
 import { sendEmail } from "@/server/email/send";
 import { bikeAvailableTemplate } from "@/server/email/templates";
+import { bikeTitle } from "@/lib/bike-name";
 import { Conflict, NotFound } from "@/server/errors";
 
 function baseUrl(): string {
@@ -49,7 +50,7 @@ export async function notifyBikeAvailable(db: DbOrTx, bikeId: string): Promise<v
   const [bike] = await db.select().from(bikes).where(eq(bikes.id, bikeId)).limit(1);
   if (!bike) return;
 
-  const label = `${bike.brand} ${bike.model}`;
+  const label = bikeTitle(bike);
   const link = `${baseUrl()}/bikes/${bike.sku}`;
   const { subject, html } = bikeAvailableTemplate({ bikeLabel: label, link });
 

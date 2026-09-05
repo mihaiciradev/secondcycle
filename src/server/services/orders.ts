@@ -6,6 +6,7 @@ import { canAdminTransitionOrder, type OrderStatus } from "@/server/constants/st
 import { normalizeCui } from "@/server/constants/cui";
 import { releaseOrderHolds } from "@/server/services/reservations";
 import { deliveryFeeCents } from "@/lib/delivery";
+import { bikeTitle } from "@/lib/bike-name";
 import { Conflict, NotFound } from "@/server/errors";
 import type { CreateOrderInput } from "@/server/validation/orders";
 
@@ -77,7 +78,7 @@ export async function createOrder(
         }
       }
       if (bike.status !== "available") {
-        unavailable.push({ bikeId, label: `${bike.brand} ${bike.model}` });
+        unavailable.push({ bikeId, label: bikeTitle(bike) });
         continue;
       }
       available.push(bike);
@@ -136,8 +137,10 @@ export async function createOrder(
       await tx.insert(orderItems).values({
         orderId: order.id,
         bikeId: bike.id,
-        brand: bike.brand,
-        model: bike.model,
+        // order_items.brand/model are notNull snapshots; fall back to the bike's
+        // display name / sku when make/model are unknown.
+        brand: bike.brand ?? bikeTitle(bike),
+        model: bike.model ?? "",
         sku: bike.sku,
         priceCents: bike.priceCents,
       });

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
 import { getBikeForWorkshop } from "@/server/services/workshops";
+import { bikeTitle } from "@/lib/bike-name";
 import { getServiceRecords } from "@/server/services/service-records";
 import { SiteHeader } from "@/components/site/site-header";
 import { ServicePaper } from "@/components/workshop/service-paper";
@@ -33,9 +34,7 @@ export default async function WorkshopBikePage({ params }: { params: Promise<{ i
           <Link href="/workshop" className="font-mono text-xs uppercase tracking-wider text-steel hover:text-foreground">
             ← Bicicletele mele
           </Link>
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">
-            {bike.brand} {bike.model}
-          </h1>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">{bikeTitle(bike)}</h1>
           <p className="mt-1 font-mono text-xs text-steel">
             {[bike.sku, bike.frameSize, `${bike.wheelSize}"`].join(" · ")}
           </p>

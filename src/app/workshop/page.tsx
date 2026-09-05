@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
 import { getWorkshop, getWorkshopStats, listBikesForWorkshop } from "@/server/services/workshops";
+import { bikeTitle } from "@/lib/bike-name";
 import { SiteHeader } from "@/components/site/site-header";
 import { MiniBars, SectionTitle, StatCard, lastSixMonths } from "@/components/admin/dashboard-ui";
 import { formatLei } from "@/lib/money";
@@ -109,9 +110,7 @@ export default async function WorkshopHomePage() {
                   >
                     <div>
                       <p className="font-mono text-xs text-steel">{bike.sku}</p>
-                      <p className="mt-1 font-medium">
-                        {bike.brand} {bike.model}
-                      </p>
+                      <p className="mt-1 font-medium">{bikeTitle(bike)}</p>
                     </div>
                     <span className="font-mono text-xs text-steel">{statusLabel[bike.status] ?? bike.status}</span>
                   </Link>

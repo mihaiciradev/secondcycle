@@ -433,7 +433,11 @@ export function HomeClient({
                         <span className="tag__sku mono">{b.sku}</span>
                         <h3>{b.title}</h3>
                         <span className="tag__spec mono">
-                          {[b.year, `${t.bikes.specFrame} ${b.frame}`, `${b.wheel}"`]
+                          {[
+                            b.year,
+                            b.frame ? `${t.bikes.specFrame} ${b.frame}` : null,
+                            b.wheel ? `${b.wheel}"` : null,
+                          ]
                             .filter(Boolean)
                             .join(" · ")}
                         </span>

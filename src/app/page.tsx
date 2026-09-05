@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { listPublicBikes } from "@/server/services/bikes";
+import { bikeTitle } from "@/lib/bike-name";
 import { getUserById } from "@/server/services/auth";
 import type { HomeBike } from "@/lib/content/home";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -29,12 +30,12 @@ export default async function HomePage() {
 
   const bikes: HomeBike[] = items.map((b) => ({
     sku: b.sku,
-    title: `${b.brand} ${b.model}`,
+    title: bikeTitle(b),
     symbol: SYMBOL[b.category] ?? "bike-city",
     category: CATEGORY[b.category] ?? "city",
     year: b.modelYear ?? null,
-    frame: b.frameSize,
-    wheel: b.wheelSize.replace(/"$/, ""),
+    frame: b.frameSize ?? "",
+    wheel: (b.wheelSize ?? "").replace(/"$/, ""),
     price: Math.round(b.priceCents / 100),
     work: b.workDone ?? [],
     photo: b.photos[0] ? assetUrl(b.photos[0]) : null,

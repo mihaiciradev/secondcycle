@@ -16,6 +16,7 @@ import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 import type { BikeStatus } from "@/server/constants/statuses";
 import type { ChecklistItem } from "@/server/db/schema";
 
@@ -141,9 +142,7 @@ export default async function AdminBikeManagePage({
           ← Stoc
         </Link>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-bold tracking-tight">
-            {bike.brand} {bike.model}
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight">{bikeTitle(bike)}</h2>
           <span className={`rounded-full px-3 py-1 font-mono text-xs font-semibold ${st.cls}`}>
             {st.label}
           </span>
@@ -188,12 +187,14 @@ export default async function AdminBikeManagePage({
                   frameNumber: bike.frameNumber,
                   brand: bike.brand,
                   model: bike.model,
+                  name: bike.name,
                   modelYear: bike.modelYear,
                   category: bike.category,
                   frameSize: bike.frameSize,
                   wheelSize: bike.wheelSize,
                   conditionGrade: bike.conditionGrade,
                   oldPriceCents: bike.oldPriceCents,
+                  adminNotes: bike.adminNotes,
                 }}
               />
             </div>

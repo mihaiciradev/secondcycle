@@ -44,8 +44,9 @@ export async function createPrebooking(
 }
 
 export type PrebookingWithBike = typeof prebookings.$inferSelect & {
-  bikeBrand: string;
-  bikeModel: string;
+  bikeBrand: string | null;
+  bikeModel: string | null;
+  bikeName: string | null;
   bikeSku: string;
   bikeStatus: string;
 };
@@ -60,6 +61,7 @@ export async function listPrebookings(
       p: prebookings,
       bikeBrand: bikes.brand,
       bikeModel: bikes.model,
+      bikeName: bikes.name,
       bikeSku: bikes.sku,
       bikeStatus: bikes.status,
     })
@@ -73,6 +75,7 @@ export async function listPrebookings(
       ...r.p,
       bikeBrand: r.bikeBrand,
       bikeModel: r.bikeModel,
+      bikeName: r.bikeName,
       bikeSku: r.bikeSku,
       bikeStatus: r.bikeStatus,
     }));

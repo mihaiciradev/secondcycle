@@ -11,6 +11,7 @@ import { BikeActions } from "@/components/bikes/bike-actions";
 import { BikeGallery } from "@/components/bikes/bike-gallery";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 import { SITE_URL, company } from "@/lib/content/site";
 
@@ -30,19 +31,24 @@ function assetUrl(key: string): string | null {
   return base ? `${base}/${key}` : null;
 }
 
-/** Factual, keyword-relevant description built from real specs. No fluff. */
+/** Factual, keyword-relevant description built from whatever specs we know. */
 function bikeDescription(bike: {
-  brand: string;
-  model: string;
+  brand: string | null;
+  model: string | null;
+  name: string | null;
+  sku: string;
   category: string;
   modelYear: string | null;
-  frameSize: string;
-  wheelSize: string;
+  frameSize: string | null;
+  wheelSize: string | null;
   priceCents: number;
 }): string {
   const cat = CATEGORY_LABEL[bike.category] ?? "";
+  const title = bikeTitle(bike);
   const year = bike.modelYear ? ` din ${bike.modelYear}` : "";
-  return `Bicicletă ${cat} second-hand ${bike.brand} ${bike.model}${year}, mărime cadru ${bike.frameSize}, roți ${bike.wheelSize}". Verificată piesă cu piesă și reparată, cu acte, garanție ${WARRANTY_MONTHS} luni și retur în 14 zile. Preț ${formatLei(bike.priceCents)}. Livrare în toată România.`;
+  const frame = bike.frameSize ? `, mărime cadru ${bike.frameSize}` : "";
+  const wheel = bike.wheelSize ? `, roți ${bike.wheelSize}"` : "";
+  return `Bicicletă ${cat} second-hand ${title}${year}${frame}${wheel}. Verificată piesă cu piesă și reparată, cu acte, garanție ${WARRANTY_MONTHS} luni și retur în 14 zile. Preț ${formatLei(bike.priceCents)}. Livrare în toată România.`;
 }
 
 export async function generateMetadata({
@@ -55,7 +61,7 @@ export async function generateMetadata({
   if (!bike) return { title: "Bicicletă negăsită", robots: { index: false, follow: false } };
 
   const cat = CATEGORY_LABEL[bike.category] ?? "";
-  const title = `${bike.brand} ${bike.model}, bicicletă ${cat} second-hand`;
+  const title = `${bikeTitle(bike)}, bicicletă ${cat} second-hand`;
   const description = bikeDescription(bike);
   const url = `${SITE_URL}/bikes/${bike.sku}`;
 
@@ -67,12 +73,12 @@ export async function generateMetadata({
     openGraph: {
       type: "website",
       url,
-      title: `${bike.brand} ${bike.model} | Second Cycle`,
+      title: `${bikeTitle(bike)} | Second Cycle`,
       description,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${bike.brand} ${bike.model} | Second Cycle`,
+      title: `${bikeTitle(bike)} | Second Cycle`,
       description,
     },
   };
@@ -99,14 +105,15 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
         ? "https://schema.org/LimitedAvailability"
         : "https://schema.org/SoldOut";
 
+  const title = bikeTitle(bike);
   const productLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${bike.brand} ${bike.model}`,
+    name: title,
     ...(photoUrls.length ? { image: photoUrls } : {}),
     description: bikeDescription(bike),
     sku: bike.sku,
-    brand: { "@type": "Brand", name: bike.brand },
+    ...(bike.brand ? { brand: { "@type": "Brand", name: bike.brand } } : {}),
     category: CATEGORY_LABEL[bike.category] ?? bike.category,
     itemCondition: "https://schema.org/UsedCondition",
     offers: {
@@ -126,18 +133,21 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Acasă", item: `${SITE_URL}/` },
       { "@type": "ListItem", position: 2, name: "Biciclete", item: `${SITE_URL}/bikes` },
-      { "@type": "ListItem", position: 3, name: `${bike.brand} ${bike.model}`, item: url },
+      { "@type": "ListItem", position: 3, name: title, item: url },
     ],
   };
 
-  const specs: [string, string][] = [
-    ["Serial", bike.sku],
-    ["Marcă", bike.brand],
-    ["Model", bike.model],
-    ...(bike.modelYear ? ([["An", String(bike.modelYear)]] as [string, string][]) : []),
-    ["Mărime cadru", bike.frameSize],
-    ["Roți", `${bike.wheelSize}"`],
-  ];
+  // Only show spec rows we actually have a value for.
+  const specs: [string, string][] = (
+    [
+      ["Serial", bike.sku],
+      ["Marcă", bike.brand],
+      ["Model", bike.model],
+      ["An", bike.modelYear],
+      ["Mărime cadru", bike.frameSize],
+      ["Roți", bike.wheelSize ? `${bike.wheelSize}"` : null],
+    ] as [string, string | null | undefined][]
+  ).filter((row): row is [string, string] => Boolean(row[1] && row[1].trim()));
 
   return (
     <>
@@ -151,12 +161,10 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
           </Link>
 
           <div className="mt-6 grid gap-10 lg:grid-cols-2">
-            <BikeGallery photos={photoUrls} alt={`${bike.brand} ${bike.model}`} sku={bike.sku} />
+            <BikeGallery photos={photoUrls} alt={title} sku={bike.sku} />
 
             <div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                {bike.brand} {bike.model}
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="font-heading text-2xl font-bold tracking-tight">{formatLei(bike.priceCents)}</span>
                 {bike.oldPriceCents ? (
@@ -175,8 +183,8 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
                   bike={{
                     bikeId: bike.id,
                     sku: bike.sku,
-                    brand: bike.brand,
-                    model: bike.model,
+                    brand: bike.brand ?? title,
+                    model: bike.model ?? "",
                     priceCents: bike.priceCents,
                     photo,
                   }}

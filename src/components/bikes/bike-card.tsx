@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { formatLei } from "@/lib/money";
+import { bikeTitle } from "@/lib/bike-name";
 
 type BikeCardData = {
   sku: string;
-  brand: string;
-  model: string;
+  brand: string | null;
+  model: string | null;
+  name: string | null;
   modelYear: string | null;
-  frameSize: string;
-  wheelSize: string;
+  frameSize: string | null;
+  wheelSize: string | null;
   conditionGrade: "A" | "B" | "C";
   priceCents: number;
   oldPriceCents: number | null;
@@ -22,6 +24,7 @@ function assetUrl(key: string): string | null {
 
 export function BikeCard({ bike }: { bike: BikeCardData }) {
   const photo = bike.photos[0] ? assetUrl(bike.photos[0]) : null;
+  const title = bikeTitle(bike);
   return (
     <Link
       href={`/bikes/${bike.sku}`}
@@ -30,7 +33,7 @@ export function BikeCard({ bike }: { bike: BikeCardData }) {
       <div className="relative aspect-[3/4] bg-manila/40">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt={`${bike.brand} ${bike.model}`} className="h-full w-full object-cover" />
+          <img src={photo} alt={title} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center font-mono text-sm text-asphalt/40">
             {bike.sku}
@@ -44,11 +47,11 @@ export function BikeCard({ bike }: { bike: BikeCardData }) {
       </div>
       <div className="flex flex-1 flex-col p-4">
         <span className="font-mono text-xs text-steel">{bike.sku}</span>
-        <h3 className="mt-2 font-heading text-base font-semibold tracking-tight">
-          {bike.brand} {bike.model}
-        </h3>
+        <h3 className="mt-2 font-heading text-base font-semibold tracking-tight">{title}</h3>
         <p className="mt-1 font-mono text-xs text-steel">
-          {[bike.modelYear, bike.frameSize, `${bike.wheelSize}"`].filter(Boolean).join(" · ")}
+          {[bike.modelYear, bike.frameSize, bike.wheelSize ? `${bike.wheelSize}"` : null]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
         <div className="mt-3 flex items-baseline gap-2">
           <span className="font-heading text-lg font-bold tracking-tight">{formatLei(bike.priceCents)}</span>
