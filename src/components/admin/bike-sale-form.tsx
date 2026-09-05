@@ -73,14 +73,16 @@ export function BikeSaleForm({
       className="space-y-4 rounded-lg border border-border bg-card p-5"
     >
       {isDraft && bike.provisionalPriceCents != null ? (
-        <p className="text-xs text-steel">Preț provizoriu la intake: {formatLei(bike.provisionalPriceCents)}</p>
+        <p className="text-xs text-steel">
+          Preț provizoriu la intake: {formatLei(bike.provisionalPriceCents)}
+        </p>
       ) : null}
 
       {locked ? (
         <p className="rounded-md bg-manila/40 px-3 py-2 text-xs text-foreground/80">
-          Bicicleta e {bike.status === "sold" ? "vândută" : "rezervată"}: prețul (
-          <strong>{formatLei(bike.priceCents)}</strong>) e blocat. Poți încă modifica descrierea și
-          lista de intervenții.
+          Bicicleta e {bike.status === "sold" ? "vândută" : "rezervată"}: prețul
+          (<strong>{formatLei(bike.priceCents)}</strong>) e blocat. Poți încă
+          modifica descrierea și lista de intervenții.
         </p>
       ) : null}
 
@@ -109,18 +111,34 @@ export function BikeSaleForm({
             defaultValue={centsToLei(bike.acquisitionCostCents)}
             className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-60`}
           />
-          <p className="mt-1 text-xs text-steel">Cât plătim proprietarului (pentru TVA la marjă).</p>
+          <p className="mt-1 text-xs text-steel">
+            Cât plătim proprietarului (pentru TVA la marjă).
+          </p>
         </div>
       </div>
 
       <div>
         <label className={labelClass}>Descriere (pe baza constatării)</label>
-        <textarea name="description" rows={3} defaultValue={bike.description} className={fieldClass} />
+        <textarea
+          name="description"
+          rows={8}
+          defaultValue={bike.description}
+          className={fieldClass}
+        />
       </div>
       <div>
-        <label className={labelClass}>Ce am făcut în atelier (câte o linie)</label>
-        <textarea name="workDone" rows={3} defaultValue={bike.workDone.join("\n")} className={fieldClass} />
-        <p className="mt-1 text-xs text-steel">Se completează pe baza fișei finale, după reparație.</p>
+        <label className={labelClass}>
+          Ce am făcut în atelier (câte o linie)
+        </label>
+        <textarea
+          name="workDone"
+          rows={8}
+          defaultValue={bike.workDone.join("\n")}
+          className={fieldClass}
+        />
+        <p className="mt-1 text-xs text-steel">
+          Se completează pe baza fișei finale, după reparație.
+        </p>
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -139,7 +157,11 @@ export function BikeSaleForm({
             type="button"
             onClick={() => submit(true)}
             disabled={loading !== null || !hasIntake}
-            title={hasIntake ? undefined : "Necesită fișa de constatare a atelierului"}
+            title={
+              hasIntake
+                ? undefined
+                : "Necesită fișa de constatare a atelierului"
+            }
             className="inline-flex h-11 cursor-pointer items-center rounded-full bg-blue px-6 text-sm font-semibold text-white transition-colors hover:bg-blue/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading === "publish" ? "Se publică…" : "Publică bicicleta"}

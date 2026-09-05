@@ -84,16 +84,26 @@ export function BikeDetailsForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Marcă</label>
-          <input name="brand" defaultValue={bike.brand ?? ""} className={fieldClass} />
+          <input
+            name="brand"
+            defaultValue={bike.brand ?? ""}
+            className={fieldClass}
+          />
         </div>
         <div>
           <label className={labelClass}>Model</label>
-          <input name="model" defaultValue={bike.model ?? ""} className={fieldClass} />
+          <input
+            name="model"
+            defaultValue={bike.model ?? ""}
+            className={fieldClass}
+          />
         </div>
       </div>
 
       <div>
-        <label className={labelClass}>Nume afișat (dacă nu știm marca/modelul)</label>
+        <label className={labelClass}>
+          Nume afișat (dacă nu știm marca/modelul)
+        </label>
         <input
           name="name"
           placeholder="ex. Bicicletă de oraș vintage"
@@ -117,7 +127,11 @@ export function BikeDetailsForm({
         </div>
         <div>
           <label className={labelClass}>Categorie</label>
-          <select name="category" defaultValue={bike.category} className={fieldClass}>
+          <select
+            name="category"
+            defaultValue={bike.category}
+            className={fieldClass}
+          >
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
@@ -127,7 +141,11 @@ export function BikeDetailsForm({
         </div>
         <div>
           <label className={labelClass}>Stare (grad)</label>
-          <select name="conditionGrade" defaultValue={bike.conditionGrade} className={fieldClass}>
+          <select
+            name="conditionGrade"
+            defaultValue={bike.conditionGrade}
+            className={fieldClass}
+          >
             {GRADES.map((g) => (
               <option key={g} value={g}>
                 {g}
@@ -140,23 +158,42 @@ export function BikeDetailsForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Mărime cadru</label>
-          <input name="frameSize" defaultValue={bike.frameSize ?? ""} className={fieldClass} />
+          <input
+            name="frameSize"
+            defaultValue={bike.frameSize ?? ""}
+            className={fieldClass}
+          />
         </div>
         <div>
           <label className={labelClass}>Mărime roți</label>
-          <input name="wheelSize" defaultValue={bike.wheelSize ?? ""} className={fieldClass} />
+          <input
+            name="wheelSize"
+            defaultValue={bike.wheelSize ?? ""}
+            className={fieldClass}
+          />
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className={labelClass}>SKU</label>
-          <input name="sku" required defaultValue={bike.sku} className={fieldClass} />
-          <p className="mt-1 text-xs text-steel">Schimbarea SKU schimbă și linkul public.</p>
+          <input
+            name="sku"
+            required
+            defaultValue={bike.sku}
+            className={fieldClass}
+          />
+          <p className="mt-1 text-xs text-steel">
+            Schimbarea SKU schimbă și linkul public.
+          </p>
         </div>
         <div>
           <label className={labelClass}>Serie cadru</label>
-          <input name="frameNumber" defaultValue={bike.frameNumber ?? ""} className={fieldClass} />
+          <input
+            name="frameNumber"
+            defaultValue={bike.frameNumber ?? ""}
+            className={fieldClass}
+          />
         </div>
         <div>
           <label className={labelClass}>Preț vechi (lei)</label>
@@ -168,12 +205,14 @@ export function BikeDetailsForm({
             defaultValue={centsToLei(bike.oldPriceCents)}
             className={fieldClass}
           />
-          <p className="mt-1 text-xs text-steel">Pentru afișarea reducerii (opțional).</p>
+          <p className="mt-1 text-xs text-steel">
+            Pentru afișarea reducerii (opțional).
+          </p>
         </div>
       </div>
 
       <div>
-        <label className={labelClass}>Notițe interne (doar pentru voi)</label>
+        <label className={labelClass}>Notițe interne</label>
         <textarea
           name="adminNotes"
           rows={3}
@@ -181,7 +220,6 @@ export function BikeDetailsForm({
           defaultValue={bike.adminNotes ?? ""}
           className={`${fieldClass} resize-y`}
         />
-        <p className="mt-1 text-xs text-steel">Nu apar niciodată public. Doar adminii le văd.</p>
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -194,7 +232,11 @@ export function BikeDetailsForm({
         >
           {loading ? "Se salvează…" : "Salvează detaliile"}
         </button>
-        {saved ? <span className="text-sm text-emerald-600 dark:text-emerald-400">Salvat ✓</span> : null}
+        {saved ? (
+          <span className="text-sm text-emerald-600 dark:text-emerald-400">
+            Salvat ✓
+          </span>
+        ) : null}
       </div>
     </form>
   );
