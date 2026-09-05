@@ -19,9 +19,52 @@ export default async function AccountDetailsPage() {
 
   const listed = await getListedBikesForOwner(db, user.id);
   const waNumber = company.contact.phone.replace(/\D/g, "");
+  const isStaff = user.role !== "customer";
 
   return (
     <div className="space-y-6">
+      {/* Welcome + primary actions (what a new user should do first) */}
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="font-heading text-xl font-semibold tracking-tight">Bine ai venit!</h2>
+        <p className="mt-1 text-sm text-steel">
+          {isStaff
+            ? "De aici îți gestionezi contul."
+            : "De aici îți urmărești comenzile și îți ții actele la un loc."}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/bikes"
+            className="inline-flex h-10 items-center rounded-full bg-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-blue/90"
+          >
+            Vezi bicicletele
+          </Link>
+          {!isStaff ? (
+            <Link
+              href="/account/orders"
+              className="inline-flex h-10 items-center rounded-full border border-asphalt/25 px-5 text-sm font-semibold text-foreground transition-colors hover:border-asphalt/50"
+            >
+              Comenzile mele
+            </Link>
+          ) : null}
+          {user.role === "admin" ? (
+            <Link
+              href="/admin"
+              className="inline-flex h-10 items-center rounded-full border border-asphalt/25 px-5 text-sm font-semibold text-foreground transition-colors hover:border-asphalt/50"
+            >
+              Panou admin
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Email verification nudge (only when it matters) */}
+      {!user.emailVerifiedAt ? (
+        <div className="rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 text-sm text-foreground">
+          Confirmă-ți e-mailul <strong>{user.email}</strong> ca să poți plasa comenzi. Ți-am trimis un
+          link de confirmare; caută-l în inbox (și în Spam).
+        </div>
+      ) : null}
+
       <Card title="Detalii cont">
         <dl>
           <Row label="E-mail">{user.email}</Row>
@@ -34,27 +77,6 @@ export default async function AccountDetailsPage() {
             )}
           </Row>
         </dl>
-        {user.role === "admin" ? (
-          <Link
-            href="/admin"
-            className="mt-5 inline-flex text-sm font-medium text-blue underline-offset-2 hover:underline"
-          >
-            Deschide panoul de administrare
-          </Link>
-        ) : null}
-      </Card>
-
-      <Card title="Retur (drept de retragere)">
-        <p className="text-sm leading-relaxed text-steel">
-          Ai 14 zile de la primirea bicicletei ca să te retragi din contract, fără să dai un motiv.
-          Deschide formularul de retur, alege bicicleta cumpărată și trimite cererea.
-        </p>
-        <Link
-          href="/retur"
-          className="mt-4 inline-flex h-10 items-center rounded-full bg-asphalt px-5 text-sm font-semibold text-paper transition-colors hover:bg-asphalt/90"
-        >
-          Deschide formularul de retur
-        </Link>
       </Card>
 
       {listed.length > 0 ? (

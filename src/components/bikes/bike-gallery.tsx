@@ -55,9 +55,14 @@ export function BikeGallery({
     setTouchX(null);
   }
 
+  // Portrait covers are tall; on phones a full-width 3:4 image eats the whole
+  // screen, so cap the gallery width there and center it. Full size from lg up
+  // (where it sits in a 2-column layout beside the details).
+  const galleryWidth = "mx-auto w-full max-w-[300px] sm:max-w-[360px] lg:max-w-none";
+
   if (count === 0) {
     return (
-      <div className="overflow-hidden rounded border border-border bg-manila/40">
+      <div className={`${galleryWidth} overflow-hidden rounded border border-border bg-manila/40`}>
         <div className="flex aspect-[3/4] items-center justify-center font-mono text-lg text-asphalt/40">
           {sku}
         </div>
@@ -69,7 +74,7 @@ export function BikeGallery({
   const mainAspect = active === 0 ? "aspect-[3/4]" : "aspect-square";
 
   return (
-    <div>
+    <div className={galleryWidth}>
       {/* Main image. object-contain so the whole bike shows, never cropped. */}
       <button
         type="button"
