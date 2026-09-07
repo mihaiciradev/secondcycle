@@ -105,7 +105,9 @@ function buildDocument(
       codpr: SERVICE_CODE,
       cantitate: 1,
       pret: lei(it.priceCents),
-      ...(cost != null ? { pret_cost: lei(cost) } : {}),
+      // Send pret_cost only when we actually paid something for the bike. A
+      // missing or 0 cost is simply omitted (no pret_cost key).
+      ...(cost != null && cost > 0 ? { pret_cost: lei(cost) } : {}),
       k_tva: K_TVA,
       denumire: `${it.brand} ${it.model} (${it.sku})`,
     };
