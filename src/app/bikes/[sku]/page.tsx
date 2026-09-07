@@ -65,10 +65,14 @@ export async function generateMetadata({
   const description = bikeDescription(bike);
   const url = `${SITE_URL}/bikes/${bike.sku}`;
 
+  // Sold bikes stay reachable by direct link but leave organic search.
+  const robots = bike.status === "sold" ? { index: false, follow: true } : undefined;
+
   // og:image / twitter:image come from the sibling opengraph-image.tsx.
   return {
     title,
     description,
+    robots,
     alternates: { canonical: `/bikes/${bike.sku}` },
     openGraph: {
       type: "website",
@@ -165,12 +169,16 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
 
             <div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-              <div className="mt-4 flex items-baseline gap-3">
-                <span className="font-heading text-2xl font-bold tracking-tight">{formatLei(bike.priceCents)}</span>
-                {bike.oldPriceCents ? (
-                  <span className="font-mono text-sm text-steel line-through">{formatLei(bike.oldPriceCents)}</span>
-                ) : null}
-              </div>
+              {/* No price once sold (incl. offline "pe negru" sales); the
+                  actions area shows the "Vândută" state. */}
+              {bike.status !== "sold" ? (
+                <div className="mt-4 flex items-baseline gap-3">
+                  <span className="font-heading text-2xl font-bold tracking-tight">{formatLei(bike.priceCents)}</span>
+                  {bike.oldPriceCents ? (
+                    <span className="font-mono text-sm text-steel line-through">{formatLei(bike.oldPriceCents)}</span>
+                  ) : null}
+                </div>
+              ) : null}
 
               {bike.description ? (
                 <p className="mt-5 whitespace-pre-line leading-relaxed text-foreground/80">

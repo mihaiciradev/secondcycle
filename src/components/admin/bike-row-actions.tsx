@@ -30,6 +30,13 @@ export function BikeRowActions({ id, status }: { id: string; status: BikeStatus 
       else setError(res.error);
     });
   }
+  function markSold() {
+    if (!confirm("Marchezi bicicleta ca vândută (offline)? Dispare din catalog, dar linkul rămâne activ."))
+      return;
+    transition("sold");
+  }
+
+  const canSellOffline = status === "draft" || status === "available" || status === "withdrawn";
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -56,6 +63,11 @@ export function BikeRowActions({ id, status }: { id: string; status: BikeStatus 
       {status === "reserved" && (
         <button className={btn} disabled={pending} onClick={() => transition("available")}>
           Eliberează
+        </button>
+      )}
+      {canSellOffline && (
+        <button className={btn} disabled={pending} onClick={markSold} title="Vânzare offline (pe negru)">
+          Marchează vândută
         </button>
       )}
       {error ? <span className="text-xs text-destructive">{error}</span> : null}

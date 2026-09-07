@@ -15,9 +15,11 @@ export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
  * reserved→available is a force-release that also cancels the active hold.
  */
 export const ADMIN_BIKE_TRANSITIONS: Record<BikeStatus, BikeStatus[]> = {
-  draft: ["available"],
-  available: ["withdrawn"],
-  withdrawn: ["available"],
+  // "sold" here is an offline ("pe negru") sale: the admin marks it sold without
+  // an order. It stays reachable by direct link but leaves the catalogue.
+  draft: ["available", "sold"],
+  available: ["withdrawn", "sold"],
+  withdrawn: ["available", "sold"],
   reserved: ["available"],
   sold: [],
 };
