@@ -8,13 +8,15 @@ import { countyCode } from "@/server/constants/counties";
  * paid: one `comanda` document (SoftPro auto-numbers from our configured series
  * and uses the server date), in the second-hand margin VAT regime.
  *
- * VALUES TO CONFIRM with SoftPro / the accountant (kept as named constants):
- *   - OP_TYPE_MARGIN: the tip_operatiune id for regimul de marjă (second-hand).
- *   - the auth scheme (how SP_AUTH_KEY is sent) and whether `sursa` = SP_CLIENT_CODE.
- *   - accounts (cont_par, cont_incasare) and the delivery line's VAT treatment.
+ * Confirmed against SoftPro staging (Postman): auth = headers `sp-auth`
+ * (SP_AUTH_KEY) + `selected-company` (SP_CLIENT_CODE, same as body `sursa`);
+ * tip_operatiune = 8 for SH. Still depends on the accounts existing in the
+ * company's chart of accounts: cont_par 4111.01 and cont_incasare 5125.PAY must
+ * be defined (staging returns "Error 1025: cont_par ... nu exista in plc" until
+ * they are). Delivery-line VAT treatment under the margin regime is still open.
  */
 
-const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand (de confirmat)
+const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand
 const K_TVA = 21;
 const MARGIN_MENTION = "Regim special TVA la marjă - bunuri second-hand";
 const CONT_PAR = "4111.01"; // clienți interni (4111.02 = externi)
@@ -39,9 +41,10 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      // AUTH: best guess. Confirm the exact scheme in SoftPro's swagger "Authorize".
-      Authorization: `Bearer ${process.env.SP_AUTH_KEY}`,
-      "X-Client-Code": process.env.SP_CLIENT_CODE as string,
+      // Auth per SoftPro: the token in `sp-auth`, the company code in
+      // `selected-company` (same value as `sursa` in the body).
+      "sp-auth": process.env.SP_AUTH_KEY as string,
+      "selected-company": process.env.SP_CLIENT_CODE as string,
     },
     body: JSON.stringify(payload),
     cache: "no-store",
@@ -129,6 +132,7 @@ function buildDocument(
     tip_document: "comanda",
     data,
     valuta: "RON",
+    genereaza_pdf: true,
     tip_operatiune: OP_TYPE_MARGIN,
     cont_par: CONT_PAR,
     mentiuni: MARGIN_MENTION,
