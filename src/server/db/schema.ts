@@ -11,6 +11,7 @@
  * snapshots that price as its total.
  */
 import { sql } from "drizzle-orm";
+import type { TechSheet } from "@/lib/tech-sheet";
 import {
   type AnyPgColumn,
   bigint,
@@ -223,6 +224,8 @@ export const bikes = pgTable("bikes", {
   wheelSize: text("wheel_size"),
   // Internal admin notes (provenance, storage, target price...). Never public.
   adminNotes: text("admin_notes"),
+  // Structured technical sheet (per-bike condition), shown on the product page.
+  techSheet: jsonb("tech_sheet").$type<TechSheet>().notNull().default({}),
   conditionGrade: conditionGradeEnum("condition_grade").notNull(),
   // Current price: the provisional estimate at intake, replaced by the final
   // selling price when the bike is published.
@@ -415,6 +418,13 @@ export const orderItems = pgTable(
     model: text("model").notNull(),
     sku: text("sku").notNull(),
     priceCents: integer("price_cents").notNull(),
+    // Immutable per-bike consent snapshot (Bifa 2), frozen at order time. Never
+    // a reference to the live bike/text - the proof must survive later edits.
+    consentText: text("consent_text"),
+    techSheetSnapshot: jsonb("tech_sheet_snapshot").$type<TechSheet | null>(),
+    warrantyMonths: integer("warranty_months"),
+    consentAcceptedAt: timestamp("consent_accepted_at", { withTimezone: true }),
+    consentIp: inet("consent_ip"),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("order_items_order_bike_uq").on(t.orderId, t.bikeId)]

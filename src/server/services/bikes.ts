@@ -2,6 +2,8 @@ import { and, desc, eq, gte, inArray, lt, lte, or } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, reservations, serviceRecords, users } from "@/server/db/schema";
 import { canAdminTransitionBike, type BikeStatus } from "@/server/constants/statuses";
+import { bikeTitle } from "@/lib/bike-name";
+import type { TechSheet } from "@/lib/tech-sheet";
 import { Conflict, NotFound } from "@/server/errors";
 import { expireOverdueReservations } from "@/server/services/reservations";
 import type { CreateBikeInput } from "@/server/validation/bikes";
@@ -271,6 +273,44 @@ export async function updateBikeDetails(
     if (isUniqueViolation(e)) throw Conflict("Există deja o bicicletă cu acest SKU");
     throw e;
   }
+}
+
+export type BikeConsentInfo = { bikeId: string; title: string; sku: string; techSheet: TechSheet };
+
+/** Title + sku + tech sheet for the cart bikes, to render the per-bike consent. */
+export async function getBikesConsentInfo(db: DB, bikeIds: string[]): Promise<BikeConsentInfo[]> {
+  if (bikeIds.length === 0) return [];
+  const rows = await db
+    .select({
+      id: bikes.id,
+      brand: bikes.brand,
+      model: bikes.model,
+      name: bikes.name,
+      sku: bikes.sku,
+      techSheet: bikes.techSheet,
+    })
+    .from(bikes)
+    .where(inArray(bikes.id, bikeIds));
+  return rows.map((r) => ({ bikeId: r.id, title: bikeTitle(r), sku: r.sku, techSheet: r.techSheet }));
+}
+
+/** Replace a bike's structured technical sheet (empty fields dropped). */
+export async function updateBikeTechSheet(
+  db: DB,
+  id: string,
+  techSheet: Record<string, string | undefined>
+) {
+  const clean: Record<string, string> = {};
+  for (const [k, v] of Object.entries(techSheet)) {
+    const t = (v ?? "").trim();
+    if (t) clean[k] = t;
+  }
+  const [row] = await db
+    .update(bikes)
+    .set({ techSheet: clean })
+    .where(eq(bikes.id, id))
+    .returning({ id: bikes.id });
+  if (!row) throw NotFound("Bicicleta nu există");
 }
 
 /** Assign (or clear) the workshop that handles a bike's service papers. */

@@ -7,6 +7,8 @@ import { normalizeCui } from "@/server/constants/cui";
 import { releaseOrderHolds } from "@/server/services/reservations";
 import { deliveryFeeCents } from "@/lib/delivery";
 import { bikeTitle } from "@/lib/bike-name";
+import { bikeConsentText } from "@/lib/tech-sheet";
+import { WARRANTY_MONTHS } from "@/server/constants/app";
 import { Conflict, NotFound } from "@/server/errors";
 import type { CreateOrderInput } from "@/server/validation/orders";
 
@@ -134,6 +136,10 @@ export async function createOrder(
 
     const expiresAt = new Date(Date.now() + RESERVATION_TTL_MINUTES * 60 * 1000);
     for (const bike of available) {
+      // Immutable per-bike consent proof (Bifa 2), frozen from the current bike.
+      const hasConsent = params.bikeConsents.some((c) => c.bikeId === bike.id && c.accepted === true);
+      if (!hasConsent) throw Conflict(`Lipsește confirmarea stării tehnice pentru ${bike.sku}`);
+
       await tx.insert(orderItems).values({
         orderId: order.id,
         bikeId: bike.id,
@@ -143,6 +149,15 @@ export async function createOrder(
         model: bike.model ?? "",
         sku: bike.sku,
         priceCents: bike.priceCents,
+        consentText: bikeConsentText({
+          title: bikeTitle(bike),
+          sku: bike.sku,
+          warrantyMonths: WARRANTY_MONTHS,
+        }),
+        techSheetSnapshot: bike.techSheet ?? {},
+        warrantyMonths: WARRANTY_MONTHS,
+        consentAcceptedAt: new Date(),
+        consentIp: params.termsIp,
       });
       await tx.insert(reservations).values({
         bikeId: bike.id,

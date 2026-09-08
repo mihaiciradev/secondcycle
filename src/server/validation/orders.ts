@@ -22,10 +22,28 @@ export const createOrderSchema = z
     deliveryCounty: z.string().optional(),
     deliveryPostalCode: z.string().trim().max(12).optional(),
     customerNote: z.string().max(1000).optional(),
+    // Bifa 1 (o dată pe comandă): Termeni + Confidențialitate.
     termsAccepted: z.literal(true),
+    // Bifa 2 (per bicicletă, obligatorie): acceptarea stării + garanția redusă.
+    bikeConsents: z
+      .array(z.object({ bikeId: z.string().uuid(), accepted: z.literal(true) }))
+      .max(20),
   })
   .strict()
   .superRefine((data, ctx) => {
+    // Every bike in the cart must have its own accepted consent (Bifa 2).
+    const consented = new Set(data.bikeConsents.map((c) => c.bikeId));
+    for (const id of data.bikeIds) {
+      if (!consented.has(id)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["bikeConsents"],
+          message: "Confirmă starea tehnică pentru fiecare bicicletă din coș.",
+        });
+        break;
+      }
+    }
+
     if (data.billingType === "company") {
       if (!data.companyName)
         ctx.addIssue({ code: "custom", path: ["companyName"], message: "Numele firmei este obligatoriu" });

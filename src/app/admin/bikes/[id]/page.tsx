@@ -9,6 +9,7 @@ import { users } from "@/server/db/schema";
 import { isStorageEnabled, publicUrl } from "@/server/storage/r2";
 import { PhotoUploader } from "@/components/admin/photo-uploader";
 import { BikeDetailsForm } from "@/components/admin/bike-details-form";
+import { TechSheetForm } from "@/components/admin/tech-sheet-form";
 import { BikeSaleForm } from "@/components/admin/bike-sale-form";
 import { BikeOwnerForm } from "@/components/admin/bike-owner-form";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
@@ -197,6 +198,17 @@ export default async function AdminBikeManagePage({
                   adminNotes: bike.adminNotes,
                 }}
               />
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle hint="stare individuală, publică">Fișă tehnică</SectionTitle>
+            <div className="rounded-lg border border-border bg-card p-5">
+              <p className="mb-4 text-sm text-steel">
+                Se afișează integral pe pagina publică și e snapshot-ată pe comandă la cumpărare
+                (dovada stării acceptate). Lasă gol câmpurile care nu se aplică.
+              </p>
+              <TechSheetForm bikeId={bike.id} techSheet={bike.techSheet} />
             </div>
           </section>
 

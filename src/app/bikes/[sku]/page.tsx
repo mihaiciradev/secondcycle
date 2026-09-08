@@ -12,6 +12,7 @@ import { BikeGallery } from "@/components/bikes/bike-gallery";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatLei } from "@/lib/money";
 import { bikeTitle } from "@/lib/bike-name";
+import { techSheetEntries } from "@/lib/tech-sheet";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 import { SITE_URL, company } from "@/lib/content/site";
 
@@ -207,6 +208,24 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
               </div>
             </div>
           </div>
+
+          {techSheetEntries(bike.techSheet).length > 0 ? (
+            <section className="mt-14">
+              <h2 className="font-heading text-xl font-semibold tracking-tight">Fișă tehnică</h2>
+              <p className="mt-1 text-sm text-steel">
+                Starea reală a acestei biciclete, verificată la noi în atelier. Fiind second-hand,
+                garanția legală de conformitate este de {WARRANTY_MONTHS} luni.
+              </p>
+              <dl className="mt-4 grid gap-x-10 gap-y-0 sm:grid-cols-2">
+                {techSheetEntries(bike.techSheet).map((e) => (
+                  <div key={e.key} className="border-b border-border py-3">
+                    <dt className="font-mono text-xs uppercase tracking-[0.1em] text-steel">{e.label}</dt>
+                    <dd className="mt-1 whitespace-pre-line text-sm text-foreground/90">{e.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ) : null}
 
           <div className="mt-14 grid gap-10 lg:grid-cols-2">
             <div>

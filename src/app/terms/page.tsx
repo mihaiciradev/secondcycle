@@ -124,6 +124,33 @@ export default function TermsPage() {
             retragerea.
           </P>
 
+          <H2>Starea produsului și garanția pentru biciclete second-hand</H2>
+          <P>
+            Toate bicicletele vândute pe Second Cycle sunt second-hand. Fiecare produs are o
+            secțiune „Fișă Tehnică" pe pagina sa, cu starea reală constatată de noi: nivelul de uzură
+            al anvelopelor, plăcuțelor, lanțului, eventuale zgârieturi sau piese înlocuite. Fișa
+            tehnică face parte din contractul de vânzare.
+          </P>
+          <P>
+            Legea prevede pentru produsele noi o garanție de conformitate de 24 de luni. Pentru
+            bunuri second-hand, legea permite reducerea acestui termen la minimum 12 luni, cu acordul
+            tău expres. La finalizarea comenzii, vei confirma separat că ai citit fișa tehnică a
+            bicicletei alese și că ești de acord cu garanția de 12 luni pentru acel produs. Fără
+            această confirmare separată, nu poți finaliza comanda.
+          </P>
+          <P>
+            Garanția acoperă defectele reale, existente la livrare, care nu ți-au fost semnalate în
+            fișa tehnică. Nu acoperă piesele de uzură (plăcuțe de frână, anvelope, camere, lanț,
+            pinioane, cabluri, manșoane) sau deteriorările cauzate de utilizare necorespunzătoare ori
+            lipsă de întreținere după livrare. Detaliile complete sunt în Certificatul de Garanție
+            primit pe e-mail odată cu factura.
+          </P>
+          <P>
+            Această garanție redusă nu afectează dreptul tău de retragere din contract în 14 zile de
+            la livrare, fără justificare, și nu limitează niciun alt drept prevăzut de legislația
+            privind protecția consumatorilor.
+          </P>
+
           <H2>Garanția</H2>
           <P>
             Beneficiezi de garanția legală de conformitate pentru bunurile vândute,

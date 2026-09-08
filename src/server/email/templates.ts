@@ -1,5 +1,15 @@
 import { formatLei } from "@/lib/money";
 import { company } from "@/lib/content/site";
+import { techSheetEntries, type TechSheet } from "@/lib/tech-sheet";
+
+/** Escape user/DB text before putting it into email HTML. */
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 /** Minimal branded transactional emails. Plain, documentation voice. */
 function shell(
@@ -44,23 +54,60 @@ export function passwordResetTemplate(link: string) {
 
 export function orderConfirmedTemplate(input: {
   orderNumber: string;
-  items: { brand: string; model: string; sku: string; priceCents: number }[];
+  items: {
+    title: string;
+    sku: string;
+    priceCents: number;
+    warrantyMonths: number | null;
+    techSheet: TechSheet | null;
+  }[];
   totalCents: number;
   link: string;
+  withdrawalLink: string;
 }) {
   const rows = input.items
     .map(
       (it) =>
-        `<tr><td style="padding:7px 0;color:#2b3033">${it.brand} ${it.model} <span style="color:#727a75;font-size:13px">${it.sku}</span></td><td style="padding:7px 0;text-align:right;white-space:nowrap;color:#2b3033">${formatLei(it.priceCents)}</td></tr>`
+        `<tr><td style="padding:7px 0;color:#2b3033">${esc(it.title)} <span style="color:#727a75;font-size:13px">${esc(it.sku)}</span></td><td style="padding:7px 0;text-align:right;white-space:nowrap;color:#2b3033">${formatLei(it.priceCents)}</td></tr>`
     )
     .join("");
+
+  // Certificat de garanție: perioada + fișa tehnică (snapshot din comandă).
+  const certs = input.items
+    .map((it) => {
+      const entries = techSheetEntries(it.techSheet)
+        .map(
+          (e) =>
+            `<tr><td style="padding:3px 10px 3px 0;color:#727a75;font-size:12px;vertical-align:top;white-space:nowrap">${esc(e.label)}</td><td style="padding:3px 0;color:#2b3033;font-size:13px">${esc(e.value)}</td></tr>`
+        )
+        .join("");
+      return `<div style="border:1px solid #d9dcd6;border-radius:8px;padding:14px 16px;margin:10px 0">
+        <p style="margin:0;font-weight:700">${esc(it.title)} <span style="color:#727a75;font-weight:400;font-size:13px">${esc(it.sku)}</span></p>
+        <p style="margin:4px 0 0;font-size:13px;color:#2b3033">Garanție legală de conformitate: <strong>${it.warrantyMonths ?? 12} luni</strong> (produs second-hand).</p>
+        ${entries ? `<table style="width:100%;border-collapse:collapse;margin-top:8px">${entries}</table>` : ""}
+      </div>`;
+    })
+    .join("");
+
   const body = `
-    <p>Îți mulțumim! Plata pentru comanda <strong>${input.orderNumber}</strong> a fost confirmată.</p>
+    <p>Îți mulțumim! Plata pentru comanda <strong>${esc(input.orderNumber)}</strong> a fost confirmată.</p>
     <table style="width:100%;border-collapse:collapse;margin:18px 0">
       ${rows}
       <tr><td style="padding-top:10px;border-top:1px solid #d9dcd6;font-weight:700">Total</td><td style="padding-top:10px;border-top:1px solid #d9dcd6;text-align:right;font-weight:700">${formatLei(input.totalCents)}</td></tr>
     </table>
-    <p>Te contactăm în curând pentru livrare sau ridicare. Poți vedea comanda oricând în contul tău.</p>`;
+    <p>Te contactăm în curând pentru livrare sau ridicare. Poți vedea comanda oricând în contul tău.</p>
+
+    <h2 style="font-size:17px;margin:26px 0 6px">Certificat de garanție</h2>
+    ${certs}
+
+    <h2 style="font-size:17px;margin:26px 0 6px">Drept de retragere (14 zile)</h2>
+    <p style="font-size:14px;line-height:1.6;color:#2b3033;margin:0 0 8px">
+      Fiind o achiziție la distanță, te poți retrage din contract în 14 zile de la primirea
+      bicicletei, fără să dai un motiv. Formularul de retragere pentru comanda ta:
+    </p>
+    <p style="margin:0 0 4px">
+      <a href="${input.withdrawalLink}" style="color:#0c4da2">Deschide formularul de retragere</a>
+    </p>`;
   return {
     subject: `Comanda ${input.orderNumber} e confirmată | Second Cycle`,
     html: shell(

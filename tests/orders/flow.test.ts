@@ -53,6 +53,7 @@ function orderInput(bikeIds: string[], over: Partial<CreateOrderInput> = {}): Cr
     billingPostalCode: "300000",
     deliveryMethod: "pickup",
     termsAccepted: true,
+    bikeConsents: bikeIds.map((id) => ({ bikeId: id, accepted: true as const })),
     ...over,
   } as CreateOrderInput;
 }

@@ -212,13 +212,15 @@ async function completeOrder(
   const { subject, html } = orderConfirmedTemplate({
     orderNumber: processed.order.orderNumber,
     items: processed.items.map((it) => ({
-      brand: it.brand,
-      model: it.model,
+      title: `${it.brand} ${it.model}`.trim() || it.sku,
       sku: it.sku,
       priceCents: it.priceCents,
+      warrantyMonths: it.warrantyMonths,
+      techSheet: it.techSheetSnapshot,
     })),
     totalCents: processed.order.totalCents,
     link: `${baseUrl()}/account/orders/${processed.order.id}`,
+    withdrawalLink: `${baseUrl()}/retur`,
   });
   await sendEmail(db, { to: processed.order.billingEmail, subject, html, template: "order_confirmed" });
 

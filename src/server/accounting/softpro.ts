@@ -8,28 +8,35 @@ import { countyCode } from "@/server/constants/counties";
  * paid: one `comanda` document (SoftPro auto-numbers from our configured series
  * and uses the server date), in the second-hand margin VAT regime.
  *
- * Confirmed against SoftPro staging (Postman): auth = headers `sp-auth`
- * (SP_AUTH_KEY) + `selected-company` (SP_CLIENT_CODE, same as body `sursa`);
- * tip_operatiune = 8 for SH. Still depends on the accounts existing in the
- * company's chart of accounts: cont_par 4111.01 and cont_incasare 5125.PAY must
- * be defined (staging returns "Error 1025: cont_par ... nu exista in plc" until
- * they are). Delivery-line VAT treatment under the margin regime is still open.
+ * VALUES TO CONFIRM with SoftPro / the accountant (kept as named constants):
+ *   - OP_TYPE_MARGIN: the tip_operatiune id for regimul de marjă (second-hand).
+ *   - the auth scheme (how SP_AUTH_KEY is sent) and whether `sursa` = SP_CLIENT_CODE.
+ *   - accounts (cont_par, cont_incasare) and the delivery line's VAT treatment.
  */
 
-const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand
+const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand (de confirmat)
 const K_TVA = 21;
 const MARGIN_MENTION = "Regim special TVA la marjă - bunuri second-hand";
-const CONT_PAR = "4111.01"; // clienți interni (4111.02 = externi)
+const CONT_PAR = "4111.01"; // clienți interni (4111.02 = externi) | FOR STAGING: 4111.L
 const CONT_INCASARE_CARD = "5125.PAY";
 const SERVICE_CODE = "~~~SERV~~~"; // linie fără scădere de stoc
 
 export function isSoftproConfigured(): boolean {
-  return Boolean(process.env.SP_API_URL && process.env.SP_AUTH_KEY && process.env.SP_CLIENT_CODE);
+  return Boolean(
+    process.env.SP_API_URL &&
+    process.env.SP_AUTH_KEY &&
+    process.env.SP_CLIENT_CODE,
+  );
 }
 
 const lei = (cents: number): number => Math.round(cents) / 100;
 
-type FacturiResponse = { status: number; ok: boolean; body: unknown; raw: string };
+type FacturiResponse = {
+  status: number;
+  ok: boolean;
+  body: unknown;
+  raw: string;
+};
 
 async function postFacturi(payload: unknown): Promise<FacturiResponse> {
   const url = process.env.SP_API_URL as string;
@@ -50,7 +57,10 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
     cache: "no-store",
   });
   const text = await res.text();
-  console.log(`[softpro] response ${res.status} ${res.ok ? "OK" : "ERR"}:`, text.slice(0, 2000));
+  console.log(
+    `[softpro] response ${res.status} ${res.ok ? "OK" : "ERR"}:`,
+    text.slice(0, 2000),
+  );
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -62,12 +72,16 @@ async function postFacturi(payload: unknown): Promise<FacturiResponse> {
 
 /** Interpret the response into a stored status + human-readable info. */
 function parseResult(res: FacturiResponse): { ok: boolean; info: string } {
-  if (res.status === 409) return { ok: false, info: "409: alt import în curs, reîncearcă" };
-  if (!res.ok) return { ok: false, info: `HTTP ${res.status}: ${res.raw.slice(0, 400)}` };
+  if (res.status === 409)
+    return { ok: false, info: "409: alt import în curs, reîncearcă" };
+  if (!res.ok)
+    return { ok: false, info: `HTTP ${res.status}: ${res.raw.slice(0, 400)}` };
   const body = res.body as { documente?: Array<Record<string, unknown>> };
   const doc = body?.documente?.[0];
-  if (!doc) return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 400)}` };
-  if (doc.hasError) return { ok: false, info: String(doc.message ?? "Eroare document") };
+  if (!doc)
+    return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 400)}` };
+  if (doc.hasError)
+    return { ok: false, info: String(doc.message ?? "Eroare document") };
   const ref = doc.numar_doc ?? doc.seria_doc ?? doc.message ?? "emisă";
   return { ok: true, info: String(ref) };
 }
@@ -79,7 +93,7 @@ function buildDocument(
   order: OrderRow,
   items: ItemRow[],
   buyerPartnerNo: number,
-  costByBike: Map<string, number | null>
+  costByBike: Map<string, number | null>,
 ) {
   const adresa = {
     tara: "RO",
@@ -139,7 +153,13 @@ function buildDocument(
     pret_cu_tva: true,
     cumparator,
     liniiFactura,
-    incasari: [{ tip_incasare: "card", suma: lei(order.totalCents), cont_incasare: CONT_INCASARE_CARD }],
+    incasari: [
+      {
+        tip_incasare: "card",
+        suma: lei(order.totalCents),
+        cont_incasare: CONT_INCASARE_CARD,
+      },
+    ],
   };
 }
 
@@ -150,7 +170,7 @@ function buildDocument(
  */
 export async function issueInvoiceForOrder(
   db: DB,
-  orderId: string
+  orderId: string,
 ): Promise<{ ok: boolean; info: string }> {
   if (!isSoftproConfigured()) {
     return {
@@ -159,14 +179,25 @@ export async function issueInvoiceForOrder(
     };
   }
   try {
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
     if (!order) return { ok: false, info: "Comanda nu există." };
-    if (!order.paidAt) return { ok: false, info: "Comanda nu este plătită, nu se emite factură." };
+    if (!order.paidAt)
+      return {
+        ok: false,
+        info: "Comanda nu este plătită, nu se emite factură.",
+      };
     if (order.spInvoiceStatus === "ok") {
       return { ok: true, info: order.spInvoiceInfo ?? "Deja emisă." };
     }
 
-    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+    const items = await db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
     const [buyer] = await db
       .select({ partnerNo: users.partnerNo })
       .from(users)
@@ -183,7 +214,10 @@ export async function issueInvoiceForOrder(
     const costByBike = new Map(costRows.map((r) => [r.id, r.acq]));
 
     const doc = buildDocument(order, items, buyer?.partnerNo ?? 0, costByBike);
-    const res = await postFacturi({ sursa: process.env.SP_CLIENT_CODE, documente: [doc] });
+    const res = await postFacturi({
+      sursa: process.env.SP_CLIENT_CODE,
+      documente: [doc],
+    });
     const parsed = parseResult(res);
 
     await db
@@ -200,7 +234,11 @@ export async function issueInvoiceForOrder(
     const info = (e instanceof Error ? e.message : String(e)).slice(0, 500);
     await db
       .update(orders)
-      .set({ spInvoiceStatus: "error", spInvoiceInfo: info, spInvoicedAt: new Date() })
+      .set({
+        spInvoiceStatus: "error",
+        spInvoiceInfo: info,
+        spInvoicedAt: new Date(),
+      })
       .where(eq(orders.id, orderId))
       .catch(() => {});
     return { ok: false, info };

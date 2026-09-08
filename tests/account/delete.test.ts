@@ -50,6 +50,7 @@ function orderInput(bikeIds: string[]): CreateOrderInput {
     billingPostalCode: "300000",
     deliveryMethod: "pickup",
     termsAccepted: true,
+    bikeConsents: bikeIds.map((id) => ({ bikeId: id, accepted: true as const })),
   } as CreateOrderInput;
 }
 

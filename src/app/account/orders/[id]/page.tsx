@@ -10,6 +10,7 @@ import { PayButton } from "@/components/orders/pay-button";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { HoldCountdown } from "@/components/orders/hold-countdown";
 import { formatLei } from "@/lib/money";
+import { techSheetEntries } from "@/lib/tech-sheet";
 import { ORDER_STATUS_BADGE, ORDER_STATUS_LABEL } from "@/lib/order-status";
 
 export const runtime = "nodejs";
@@ -155,6 +156,66 @@ export default async function OrderDetailPage({
             </p>
           )}
         </Card>
+
+        {order.paidAt ? (
+          <>
+            <Card title="Certificat de garanție">
+              <div className="space-y-4">
+                {items.map((it) => {
+                  const entries = techSheetEntries(it.techSheetSnapshot);
+                  return (
+                    <div key={it.id} className="rounded-lg border border-border p-4">
+                      <p className="font-medium">
+                        {it.brand} {it.model}{" "}
+                        <span className="font-mono text-xs text-steel">{it.sku}</span>
+                      </p>
+                      <p className="mt-1 text-sm text-foreground/80">
+                        Garanție legală de conformitate:{" "}
+                        <strong>{it.warrantyMonths ?? 12} luni</strong> (produs second-hand).
+                      </p>
+                      {entries.length > 0 ? (
+                        <details className="mt-2 text-sm">
+                          <summary className="cursor-pointer text-blue underline-offset-2 hover:underline">
+                            Fișa tehnică (la momentul cumpărării)
+                          </summary>
+                          <dl className="mt-2 space-y-1.5 border-l-2 border-border pl-3">
+                            {entries.map((e) => (
+                              <div key={e.key}>
+                                <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">
+                                  {e.label}
+                                </dt>
+                                <dd className="whitespace-pre-line text-foreground/85">{e.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </details>
+                      ) : null}
+                      {it.consentAcceptedAt ? (
+                        <p className="mt-2 text-xs text-steel">
+                          Stare acceptată la{" "}
+                          {new Date(it.consentAcceptedAt).toLocaleString("ro-RO")}.
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            <Card title="Drept de retragere (14 zile)">
+              <p className="text-sm leading-relaxed text-foreground/80">
+                Te poți retrage din contract în 14 zile de la primirea bicicletei, fără să dai un
+                motiv. Deschide formularul de retragere pentru comanda ta.
+              </p>
+              <Link
+                href="/retur"
+                className="mt-4 inline-flex h-10 items-center rounded-full bg-asphalt px-5 text-sm font-semibold text-paper transition-colors hover:bg-asphalt/90"
+              >
+                Formular de retragere
+              </Link>
+            </Card>
+          </>
+        ) : null}
       </div>
     </div>
   );

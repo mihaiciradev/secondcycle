@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { db } from "@/server/db/client";
 import { requireUser } from "@/server/auth/guards";
 import { cancelPendingOrder, createOrder } from "@/server/services/orders";
+import { getBikesConsentInfo, type BikeConsentInfo } from "@/server/services/bikes";
 import { startCheckout } from "@/server/services/payments";
 import {
   getPaymentProvider,
@@ -27,6 +28,13 @@ function originFrom(h: Headers): string {
 /** User-facing error. Logs everything and surfaces the real reason. */
 function errMsg(e: unknown): string {
   return actionError(e, "checkout");
+}
+
+/** Consent info (title, sku, tech sheet) for the cart bikes, for the checkout. */
+export async function getBikeConsentInfoAction(bikeIds: string[]): Promise<BikeConsentInfo[]> {
+  await requireUser();
+  const ids = (Array.isArray(bikeIds) ? bikeIds : []).filter((s) => typeof s === "string").slice(0, 20);
+  return getBikesConsentInfo(db, ids);
 }
 
 export async function createOrderAction(input: unknown): Promise<CreateResult> {

@@ -65,3 +65,28 @@ export const updateBikeDetailsSchema = z
   .strict();
 
 export type UpdateBikeDetailsInput = z.infer<typeof updateBikeDetailsSchema>;
+
+/** Structured technical sheet: every field free text, all optional. */
+const techField = z.string().trim().max(2000).optional();
+export const techSheetSchema = z
+  .object({
+    stareGenerala: techField,
+    anvelope: techField,
+    placuteFrana: techField,
+    lantTransmisie: techField,
+    cadru: techField,
+    roti: techField,
+    frane: techField,
+    schimbator: techField,
+    electrice: techField,
+    pieseInlocuite: techField,
+    problemeCunoscute: techField,
+    accesorii: techField,
+  })
+  .strict();
+
+export const updateTechSheetSchema = z
+  .object({ bikeId: z.string().uuid(), techSheet: techSheetSchema })
+  .strict();
+
+export type UpdateTechSheetInput = z.infer<typeof updateTechSheetSchema>;

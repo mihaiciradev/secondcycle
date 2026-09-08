@@ -10,11 +10,13 @@ import {
   deleteDraftBike,
   saveBikeSaleDetails,
   updateBikeDetails,
+  updateBikeTechSheet,
 } from "@/server/services/bikes";
 import {
   bikeSaleSchema,
   createBikeSchema,
   updateBikeDetailsSchema,
+  updateTechSheetSchema,
 } from "@/server/validation/bikes";
 import { actionError } from "@/server/errors";
 import type { BikeStatus } from "@/server/constants/statuses";
@@ -86,6 +88,19 @@ export async function updateBikeDetailsAction(input: unknown): Promise<Result> {
     revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");
     if (rest.sku) revalidatePath(`/bikes/${rest.sku}`);
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function updateBikeTechSheetAction(input: unknown): Promise<Result> {
+  try {
+    await requireAdmin();
+    const parsed = updateTechSheetSchema.safeParse(input);
+    if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Date invalide" };
+    await updateBikeTechSheet(db, parsed.data.bikeId, parsed.data.techSheet);
+    revalidatePath(`/admin/bikes/${parsed.data.bikeId}`);
     return { ok: true };
   } catch (e) {
     return fail(e);

@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createOrderAction } from "@/server/actions/orders";
+import { createOrderAction, getBikeConsentInfoAction } from "@/server/actions/orders";
+import type { BikeConsentInfo } from "@/server/services/bikes";
 import { useCart } from "@/components/cart/use-cart";
 import { COUNTIES } from "@/server/constants/counties";
 import { fieldClass, labelClass, primaryBtn } from "@/components/auth/auth-shell";
 import { formatLei } from "@/lib/money";
 import { deliveryFeeCents } from "@/lib/delivery";
+import { bikeConsentText, techSheetEntries } from "@/lib/tech-sheet";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 
 type BillingType = "individual" | "company";
@@ -49,6 +51,26 @@ export function CheckoutForm({
   const [deliveryCounty, setDeliveryCounty] = useState("");
   const [deliveryCity, setDeliveryCity] = useState("");
   const [terms, setTerms] = useState(false);
+  // Per-bike consent (Bifa 2). Fetched fresh so the shown text + tech sheet
+  // match what the server will snapshot on the order.
+  const [consentInfo, setConsentInfo] = useState<BikeConsentInfo[]>([]);
+  const [accepted, setAccepted] = useState<Record<string, boolean>>({});
+  const cartKey = items.map((it) => it.bikeId).sort().join(",");
+  useEffect(() => {
+    const ids = cartKey ? cartKey.split(",") : [];
+    if (ids.length === 0) {
+      setConsentInfo([]);
+      return;
+    }
+    let alive = true;
+    getBikeConsentInfoAction(ids).then((info) => {
+      if (alive) setConsentInfo(info);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [cartKey]);
+  const allAccepted = items.length > 0 && items.every((it) => accepted[it.bikeId]);
 
   const feeKnown = delivery === "pickup" || (Boolean(deliveryCounty) && Boolean(deliveryCity));
   const fee = feeKnown ? deliveryFeeCents(delivery, deliveryCounty, deliveryCity) : 0;
@@ -73,6 +95,10 @@ export function CheckoutForm({
     e.preventDefault();
     if (!terms) {
       setError("Trebuie să accepți termenii și condițiile.");
+      return;
+    }
+    if (!allAccepted) {
+      setError("Confirmă starea tehnică pentru fiecare bicicletă din coș.");
       return;
     }
     setLoading(true);
@@ -102,6 +128,7 @@ export function CheckoutForm({
       deliveryPostalCode: delivery === "courier" ? s("deliveryPostalCode") : undefined,
       customerNote: s("customerNote"),
       termsAccepted: true as const,
+      bikeConsents: items.map((it) => ({ bikeId: it.bikeId, accepted: true as const })),
     };
     const res = await createOrderAction(input);
     if (!res.ok) {
@@ -241,12 +268,71 @@ export function CheckoutForm({
           <textarea name="customerNote" placeholder="Observații (opțional)" rows={2} className={fieldClass} />
         </section>
 
+        {/* Bifa 2: confirmare per bicicletă (stare tehnică + garanție redusă). */}
+        <section className="space-y-3">
+          <h2 className="font-heading text-lg font-semibold tracking-tight">
+            Confirmă starea fiecărei biciclete
+          </h2>
+          <p className="text-sm text-steel">
+            Fiecare bicicletă e second-hand, cu o stare tehnică individuală. Confirmă separat pentru
+            fiecare că ai citit fișa tehnică și accepți garanția legală redusă la {WARRANTY_MONTHS} luni.
+          </p>
+          {items.map((it) => {
+            const info = consentInfo.find((c) => c.bikeId === it.bikeId);
+            const title = info?.title ?? `${it.brand} ${it.model}`.trim() ?? it.sku;
+            const entries = techSheetEntries(info?.techSheet);
+            const text = bikeConsentText({ title, sku: it.sku, warrantyMonths: WARRANTY_MONTHS });
+            return (
+              <div key={it.bikeId} className="rounded-lg border border-border bg-card p-4">
+                <p className="font-medium">
+                  {title} <span className="font-mono text-xs text-steel">{it.sku}</span>
+                </p>
+                {entries.length > 0 ? (
+                  <details className="mt-2 text-sm">
+                    <summary className="cursor-pointer text-blue underline-offset-2 hover:underline">
+                      Vezi fișa tehnică
+                    </summary>
+                    <dl className="mt-2 space-y-1.5 border-l-2 border-border pl-3">
+                      {entries.map((e) => (
+                        <div key={e.key}>
+                          <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">
+                            {e.label}
+                          </dt>
+                          <dd className="whitespace-pre-line text-foreground/85">{e.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
+                ) : (
+                  <p className="mt-1 text-xs text-steel">
+                    Fișa tehnică e disponibilă pe{" "}
+                    <a href={`/bikes/${it.sku}`} target="_blank" className="text-blue underline underline-offset-2">
+                      pagina bicicletei
+                    </a>
+                    .
+                  </p>
+                )}
+                <label className="mt-3 flex items-start gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={accepted[it.bikeId] ?? false}
+                    onChange={(e) => setAccepted((a) => ({ ...a, [it.bikeId]: e.target.checked }))}
+                    className="mt-0.5 size-4 shrink-0 accent-[color:var(--color-blue)]"
+                  />
+                  <span className="text-foreground/80">{text}</span>
+                </label>
+              </div>
+            );
+          })}
+        </section>
+
+        {/* Bifa 1: Termeni + Confidențialitate (o singură dată pe comandă). */}
         <label className="flex items-start gap-3 text-sm">
           <input
             type="checkbox"
             checked={terms}
             onChange={(e) => setTerms(e.target.checked)}
-            className="mt-0.5 size-4 accent-[color:var(--color-blue)]"
+            className="mt-0.5 size-4 shrink-0 accent-[color:var(--color-blue)]"
           />
           <span className="text-foreground/80">
             Am citit și accept{" "}
@@ -262,7 +348,7 @@ export function CheckoutForm({
         </label>
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <button type="submit" className={primaryBtn} disabled={loading}>
+        <button type="submit" className={primaryBtn} disabled={loading || !terms || !allAccepted}>
           {loading ? "Se pregătește plata…" : "Mergi la plată"}
         </button>
       </form>
