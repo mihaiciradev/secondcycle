@@ -50,6 +50,10 @@ interface Dict {
     cards: { title: string; items: string[] }[];
     papers: { title: string; p: string };
   };
+  protect: {
+    h2: string;
+    items: { t: string; p: string }[];
+  };
   bikes: {
     h2: string;
     p: string;
@@ -130,6 +134,23 @@ export const messages: Record<Locale, Dict> = {
         title: "Acte",
         p: "Seria cadrului e fotografiată și verificată în registrul național al bicicletelor furate. Primești transferul de proprietate semnat, factura și garanția în cont, ca bicicleta să poată fi asigurată și revândută mai târziu.",
       },
+    },
+    protect: {
+      h2: "Cumperi fără surprize",
+      items: [
+        {
+          t: "Vezi exact ce cumperi",
+          p: "Fiecare bicicletă are o fișă tehnică cu starea reală: anvelope, frâne, lanț, piese înlocuite și orice problemă cunoscută. O citești înainte să plătești.",
+        },
+        {
+          t: "Garanție 12 luni",
+          p: "Garanție legală de conformitate pe fiecare bicicletă, cu certificat trimis pe e-mail odată cu factura.",
+        },
+        {
+          t: "Retur în 14 zile",
+          p: "Te-ai răzgândit? Ai 14 zile de la livrare să te retragi din contract, fără să dai un motiv.",
+        },
+      ],
     },
     bikes: {
       h2: "În stoc acum",
@@ -249,6 +270,23 @@ export const messages: Record<Locale, Dict> = {
         title: "Papers",
         p: "The frame number is photographed and run against the national stolen-bike registry. You get a signed transfer of ownership, the invoice and the warranty in your account, so the bike can be insured and resold later.",
       },
+    },
+    protect: {
+      h2: "Buy without surprises",
+      items: [
+        {
+          t: "See exactly what you buy",
+          p: "Every bike has a tech sheet with its real condition: tyres, brakes, chain, replaced parts and any known issue. You read it before you pay.",
+        },
+        {
+          t: "12-month warranty",
+          p: "Legal warranty of conformity on every bike, with a certificate emailed to you alongside the invoice.",
+        },
+        {
+          t: "14-day returns",
+          p: "Changed your mind? You have 14 days from delivery to withdraw from the contract, no reason needed.",
+        },
+      ],
     },
     bikes: {
       h2: "In stock now",

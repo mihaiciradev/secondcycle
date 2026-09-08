@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { BikeActions } from "@/components/bikes/bike-actions";
 import { BikeGallery } from "@/components/bikes/bike-gallery";
+import { ShareButton } from "@/components/bikes/share-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatLei } from "@/lib/money";
 import { bikeTitle } from "@/lib/bike-name";
@@ -205,6 +206,9 @@ export default async function BikeDetailPage({ params }: { params: Promise<{ sku
                 <p className="mt-3 text-sm text-steel">
                   Cu acte, verificare tehnică și garanție legală de conformitate ({WARRANTY_MONTHS} luni).
                 </p>
+                <div className="mt-5">
+                  <ShareButton />
+                </div>
               </div>
             </div>
           </div>

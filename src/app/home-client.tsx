@@ -374,6 +374,24 @@ export function HomeClient({
           </div>
         </section>
 
+        {/* Buyer protection */}
+        <section className="sec protect" id="protect" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <h2 className="protect__h2" data-reveal>
+              {t.protect.h2}
+            </h2>
+            <div className="protect__grid">
+              {t.protect.items.map((it, i) => (
+                <div className="protect__card" data-reveal key={it.t}>
+                  <span className="protect__num mono">{String(i + 1).padStart(2, "0")}</span>
+                  <h3>{it.t}</h3>
+                  <p>{it.p}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Bikes */}
         <section className="sec" id="bikes" style={{ paddingTop: 0 }}>
           <div className="wrap">
