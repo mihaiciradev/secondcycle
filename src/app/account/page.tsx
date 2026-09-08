@@ -90,7 +90,7 @@ export default async function AccountDetailsPage() {
             {listed.map((b) => {
               const text = `Salut! Vreau să retrag din vânzare bicicleta ${bikeTitle(b)} (${b.sku}).`;
               const wa = `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
-              const mailto = `mailto:${company.contact.email}?subject=${encodeURIComponent(
+              const mailto = `mailto:${company.contact.inboxEmail}?subject=${encodeURIComponent(
                 `Retragere bicicletă ${b.sku}`
               )}&body=${encodeURIComponent(text)}`;
               return (

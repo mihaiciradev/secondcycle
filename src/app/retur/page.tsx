@@ -92,7 +92,7 @@ export default async function ReturPage() {
                   }))}
                   defaults={defaults}
                   waNumber={waNumber}
-                  supportEmail={company.contact.email}
+                  supportEmail={company.contact.inboxEmail}
                 />
               </div>
             </section>
@@ -123,7 +123,7 @@ export default async function ReturPage() {
                   WhatsApp
                 </a>
                 <a
-                  href={`mailto:${company.contact.email}?subject=${encodeURIComponent("Cerere de retur")}`}
+                  href={`mailto:${company.contact.inboxEmail}?subject=${encodeURIComponent("Cerere de retur")}`}
                   className="inline-flex h-9 items-center rounded-full border border-asphalt/25 px-4 text-sm font-semibold text-foreground transition-colors hover:border-asphalt/50"
                 >
                   E-mail
@@ -145,7 +145,7 @@ export default async function ReturPage() {
               <div className="mt-2 font-mono text-sm leading-relaxed text-foreground/90">
                 <p>{company.legal.entityName}</p>
                 <p>{company.legal.address}</p>
-                <p>{company.contact.email}</p>
+                <p>{company.contact.inboxEmail}</p>
               </div>
 
               <hr className="my-6 border-border" />

@@ -44,11 +44,11 @@ export function SiteFooter() {
             ))}
           </nav>
 
+          {/* Entity identity (WEBBINGHUB S.R.L., CUI, Reg. Com.) lives on the
+              legal pages; the footer links there via "Date legale" above. */}
           <div className="font-mono text-sm leading-relaxed text-paper/85">
-            <p>{company.legal.entityName}</p>
-            <p>{company.legal.cui}</p>
-            <p>{company.legal.tradeRegister}</p>
-            <p className="mt-3">{company.contact.email}</p>
+            <p className="font-semibold">{company.name}</p>
+            <p className="mt-3">{company.contact.inboxEmail}</p>
             <p>{company.contact.phone}</p>
           </div>
         </div>

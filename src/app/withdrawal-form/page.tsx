@@ -62,7 +62,7 @@ export default function WithdrawalFormPage() {
             <div className="mt-2 font-mono text-sm leading-relaxed text-foreground/90">
               <p>{company.legal.entityName}</p>
               <p>{company.legal.address}</p>
-              <p>{company.contact.email}</p>
+              <p>{company.contact.inboxEmail}</p>
             </div>
 
             <hr className="my-6 border-border" />

@@ -65,7 +65,7 @@ export default async function HomePage() {
     description:
       "Biciclete second-hand verificate piesă cu piesă, reparate și vândute cu acte, garanție 12 luni și retur în 14 zile. Livrare în toată România.",
     telephone: company.contact.phone,
-    email: company.contact.email,
+    email: company.contact.inboxEmail,
     address: {
       "@type": "PostalAddress",
       streetAddress: "Str. Gheorghe Lazăr, nr. 34",

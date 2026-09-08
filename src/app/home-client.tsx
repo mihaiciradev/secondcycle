@@ -541,9 +541,9 @@ export function HomeClient({
             </a>
           </div>
           <div className="foot__bot">
+            {/* Entity identity is on /legal-data (linked under "Date legale"). */}
             <span className="mono">
-              {company.legal.entityName} · {company.legal.cui} · {company.legal.tradeRegister} ·{" "}
-              {company.contact.email} · {company.contact.phone}
+              {company.contact.inboxEmail} · {company.contact.phone}
             </span>
             <span>
               © {new Date().getFullYear()} {company.name} · {t.footer.rightsLine}

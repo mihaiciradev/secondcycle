@@ -38,7 +38,7 @@ function WhatsAppIcon() {
 }
 
 export default function SellPage() {
-  const mailto = `mailto:${company.contact.email}?subject=${encodeURIComponent("Vreau să vând o bicicletă")}`;
+  const mailto = `mailto:${company.contact.inboxEmail}?subject=${encodeURIComponent("Vreau să vând o bicicletă")}`;
   const waNumber = company.contact.phone.replace(/\D/g, "");
   const whatsapp = `https://wa.me/${waNumber}?text=${encodeURIComponent(
     "Salut! Vreau să vând o bicicletă prin Second Cycle."
@@ -92,7 +92,7 @@ export default function SellPage() {
               </a>{" "}
               ·{" "}
               <a href={mailto} className="text-blue underline-offset-2 hover:underline">
-                {company.contact.email}
+                {company.contact.inboxEmail}
               </a>
               . Un formular online pentru vânzare vine în curând.
             </p>

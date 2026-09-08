@@ -43,8 +43,8 @@ export default async function AccountSecurityPage() {
           <p className="text-sm leading-relaxed text-foreground/70">
             Contul de {user.role === "workshop" ? "atelier" : "administrator"} nu poate fi
             șters din aplicație. Scrie-ne la{" "}
-            <a href={`mailto:${company.contact.email}`} className="text-blue underline-offset-2 hover:underline">
-              {company.contact.email}
+            <a href={`mailto:${company.contact.inboxEmail}`} className="text-blue underline-offset-2 hover:underline">
+              {company.contact.inboxEmail}
             </a>{" "}
             și ne ocupăm noi.
           </p>
