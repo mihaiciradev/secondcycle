@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { retryInvoiceAction } from "@/server/actions/admin/invoices";
 
@@ -16,6 +16,7 @@ export function InvoiceStatus({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   async function retry() {
     setLoading(true);
@@ -23,7 +24,9 @@ export function InvoiceStatus({
     const res = await retryInvoiceAction(orderId);
     setLoading(false);
     setMessage(res.info);
-    router.refresh();
+    // Refresh the badge in a transition so the admin table doesn't blank out to
+    // the page loading state; the row updates in place.
+    startTransition(() => router.refresh());
   }
 
   const badge =
@@ -46,10 +49,10 @@ export function InvoiceStatus({
           <button
             type="button"
             onClick={retry}
-            disabled={loading}
+            disabled={loading || pending}
             className="cursor-pointer font-mono text-[0.65rem] text-blue underline-offset-2 hover:underline disabled:opacity-60"
           >
-            {loading ? "…" : "reemite"}
+            {loading ? "se emite…" : "reemite"}
           </button>
         ) : null}
       </div>

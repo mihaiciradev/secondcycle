@@ -15,7 +15,7 @@ import { appEnv } from "@/lib/app-env";
  *   - accounts (cont_par, cont_incasare) and the delivery line's VAT treatment.
  */
 
-const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand (de confirmat)
+const OP_TYPE_MARGIN = 8.1; // tip_operatiune pentru second-hand (confirmat pe staging)
 const K_TVA = 21;
 const MARGIN_MENTION = "Regim special TVA la marjă - bunuri second-hand";
 // cont_par diferă pe medii: prod folosește contul stabilit, iar preprod/local
@@ -91,8 +91,9 @@ function parseResult(res: FacturiResponse): { ok: boolean; info: string } {
     return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 400)}` };
   if (doc.hasError)
     return { ok: false, info: String(doc.message ?? "Eroare document") };
-  const ref = doc.numar_doc ?? doc.seria_doc ?? doc.message ?? "emisă";
-  return { ok: true, info: String(ref) };
+  // Success: SoftPro returns the invoice ref in `factura` (e.g. "FacG 17/2026-09-08").
+  const ref = doc.factura ?? doc.numar_doc ?? doc.seria_doc ?? "emisă";
+  return { ok: true, info: String(ref).replace(/\s+/g, " ").trim() };
 }
 
 type OrderRow = typeof orders.$inferSelect;
