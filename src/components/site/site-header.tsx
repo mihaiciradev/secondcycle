@@ -4,6 +4,7 @@ import { BrandLogo } from "@/components/site/brand-logo";
 import { BasketLink } from "@/components/cart/basket-link";
 import { HeaderLogout } from "@/components/site/header-logout";
 import { displayName } from "@/lib/user-display";
+import { appEnv } from "@/lib/app-env";
 
 /** Interior-page header (catalogue, account, admin). Reflects auth state. */
 export async function SiteHeader() {
@@ -13,17 +14,29 @@ export async function SiteHeader() {
   const isWorkshop = session?.user?.role === "workshop";
 
   const link = "rounded-sm text-sm text-foreground/75 transition-colors hover:text-foreground";
+  const env = appEnv();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-paper/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link
-          href="/"
-          aria-label="Second Cycle"
-          className="inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >
-          <BrandLogo tone="light" height={56} priority />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            aria-label="Second Cycle"
+            className="inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <BrandLogo tone="light" height={56} priority />
+          </Link>
+          {env !== "prod" ? (
+            <span
+              className={`rounded-md px-2 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-wider text-white ${
+                env === "preprod" ? "bg-amber-500 text-asphalt" : "bg-blue"
+              }`}
+            >
+              {env === "preprod" ? "Preprod" : "Local"}
+            </span>
+          ) : null}
+        </div>
         <nav className="flex items-center gap-4 sm:gap-6">
           <Link href="/bikes" className={link}>
             Biciclete

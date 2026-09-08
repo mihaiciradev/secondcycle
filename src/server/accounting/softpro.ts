@@ -2,6 +2,7 @@ import { eq, inArray } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { bikes, orderItems, orders, users } from "@/server/db/schema";
 import { countyCode } from "@/server/constants/counties";
+import { appEnv } from "@/lib/app-env";
 
 /**
  * SoftPro invoicing (facturi-clienti / post-facturi). Fires after an order is
@@ -17,9 +18,17 @@ import { countyCode } from "@/server/constants/counties";
 const OP_TYPE_MARGIN = 8; // tip_operatiune pentru second-hand (de confirmat)
 const K_TVA = 21;
 const MARGIN_MENTION = "Regim special TVA la marjă - bunuri second-hand";
-const CONT_PAR = "4111.01"; // clienți interni (4111.02 = externi) | FOR STAGING: 4111.L
+// cont_par diferă pe medii: prod folosește contul stabilit, iar preprod/local
+// folosesc contul de test din staging SoftPro.
+const CONT_PAR_PROD = "4111.01"; // clienți interni (4111.02 = externi)
+const CONT_PAR_TEST = "4111.L"; // staging / preprod
 const CONT_INCASARE_CARD = "5125.PAY";
 const SERVICE_CODE = "~~~SERV~~~"; // linie fără scădere de stoc
+
+/** cont_par for the current environment. */
+function contPar(): string {
+  return appEnv() === "prod" ? CONT_PAR_PROD : CONT_PAR_TEST;
+}
 
 export function isSoftproConfigured(): boolean {
   return Boolean(
@@ -148,7 +157,7 @@ function buildDocument(
     valuta: "RON",
     genereaza_pdf: true,
     tip_operatiune: OP_TYPE_MARGIN,
-    cont_par: CONT_PAR,
+    cont_par: contPar(),
     mentiuni: MARGIN_MENTION,
     pret_cu_tva: true,
     cumparator,
