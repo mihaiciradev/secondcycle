@@ -27,7 +27,7 @@ export const company = {
     // Monitored inbox we point customers to in automated emails (we send from a
     // no-reply address, so "reply to this email" would go nowhere).
     inboxEmail: "secondcycleromania@proton.me",
-    phone: "+40 736 394 784",
+    phone: "+40 776 394 784",
   },
   legalPageHref: "/legal-data",
 } as const;
