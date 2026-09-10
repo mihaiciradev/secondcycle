@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/server/db/client";
 import { getBikeById } from "@/server/services/bikes";
 import { getServiceRecords } from "@/server/services/service-records";
+import { listValuationsForBike } from "@/server/services/valuations";
 import { listActiveWorkshops } from "@/server/services/workshops";
 import { users } from "@/server/db/schema";
 import { isStorageEnabled, publicUrl } from "@/server/storage/r2";
@@ -14,6 +15,7 @@ import { BikeSaleForm } from "@/components/admin/bike-sale-form";
 import { BikeOwnerForm } from "@/components/admin/bike-owner-form";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
 import { WorkshopAssign } from "@/components/admin/workshop-assign";
+import { ValuationLink } from "@/components/admin/valuation-link";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
 import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
 import { formatLei } from "@/lib/money";
@@ -108,10 +110,11 @@ export default async function AdminBikeManagePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [bike, records, workshops] = await Promise.all([
+  const [bike, records, workshops, valuations] = await Promise.all([
     getBikeById(db, id),
     getServiceRecords(db, id),
     listActiveWorkshops(db),
+    listValuationsForBike(db, id),
   ]);
   if (!bike) notFound();
 
@@ -260,8 +263,88 @@ export default async function AdminBikeManagePage({
               />
             </div>
           </section>
+
+          <section>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="font-heading text-lg font-semibold tracking-tight">Păreri de preț</h2>
+              <ValuationLink bikeId={bike.id} />
+            </div>
+            {valuations.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-border p-5 text-sm text-steel">
+                Nicio părere cerută încă. Generează un link privat și trimite-l unui mecanic.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {valuations.map((v) => (
+                  <ValuationCard key={v.id} v={v} />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ValuationCard({
+  v,
+}: {
+  v: {
+    respondentName: string | null;
+    suggestedName: string | null;
+    marketValueCents: number | null;
+    suggestedSpendCents: number | null;
+    notWorth: boolean;
+    notes: string | null;
+    submittedAt: Date | null;
+  };
+}) {
+  const who = v.respondentName ?? v.suggestedName;
+
+  if (!v.submittedAt) {
+    return (
+      <div className="rounded-lg border border-dashed border-border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm text-foreground/80">{who ?? "Mecanic (nespecificat)"}</span>
+          <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            În așteptare
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-steel">Link trimis, încă necompletat.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <span className="font-medium">{who ?? "Mecanic"}</span>
+        <span className="font-mono text-xs text-steel">
+          {new Date(v.submittedAt).toLocaleDateString("ro-RO")}
+        </span>
+      </div>
+
+      {v.notWorth ? (
+        <p className="mt-2 rounded bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+          Prea proastă să merite reparația/vânzarea.
+        </p>
+      ) : (
+        <dl className="mt-3 grid grid-cols-2 gap-2">
+          <div className="rounded bg-manila/40 px-3 py-2">
+            <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Preț piață</dt>
+            <dd className="mt-0.5 font-mono text-sm">{money(v.marketValueCents)}</dd>
+          </div>
+          <div className="rounded bg-manila/40 px-3 py-2">
+            <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Ar da pe ea</dt>
+            <dd className="mt-0.5 font-mono text-sm">{money(v.suggestedSpendCents)}</dd>
+          </div>
+        </dl>
+      )}
+
+      {v.notes ? (
+        <p className="mt-3 whitespace-pre-line text-sm text-foreground/75">{v.notes}</p>
+      ) : null}
     </div>
   );
 }

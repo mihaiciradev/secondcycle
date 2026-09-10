@@ -18,6 +18,7 @@ import {
   boolean,
   customType,
   date,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -286,6 +287,38 @@ export const serviceRecords = pgTable(
   },
   // At most one intake and one final per bike.
   (t) => [uniqueIndex("service_records_bike_kind_uq").on(t.bikeId, t.kind)]
+);
+
+// ---------------------------------------------------------------------------
+// Bike valuations (external price opinions via a private capability link)
+// ---------------------------------------------------------------------------
+// A shareable, non-indexable link sent to a mechanic (with or without an
+// account) to get a fair market price and a suggested spend for one bike.
+// Each generated link is one opinion slot; the answer shows on the bike's
+// admin page next to who filled it.
+export const bikeValuations = pgTable(
+  "bike_valuations",
+  {
+    id: pk(),
+    bikeId: uuid("bike_id")
+      .notNull()
+      .references(() => bikes.id, { onDelete: "cascade" }),
+    // The unguessable link token (stored in plaintext; it IS the capability).
+    token: text("token").notNull().unique(),
+    // Name the admin pre-filled when creating the link (may be null/unknown).
+    suggestedName: text("suggested_name"),
+    // Name the responder actually confirmed/typed when submitting.
+    respondentName: text("respondent_name"),
+    marketValueCents: integer("market_value_cents"),
+    suggestedSpendCents: integer("suggested_spend_cents"),
+    // "Bicicleta e prea proastă să merite reparația/vânzarea."
+    notWorth: boolean("not_worth").notNull().default(false),
+    notes: text("notes"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("bike_valuations_bike_idx").on(t.bikeId)]
 );
 
 // ---------------------------------------------------------------------------
