@@ -16,7 +16,9 @@ import { BikeOwnerForm } from "@/components/admin/bike-owner-form";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
 import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { ValuationLink } from "@/components/admin/valuation-link";
+import { ValuationActions } from "@/components/admin/valuation-actions";
 import { SectionTitle } from "@/components/admin/dashboard-ui";
+import { SITE_URL } from "@/lib/content/site";
 import { SERVICE_CHECK_STATUS_LABEL } from "@/server/constants/app";
 import { formatLei } from "@/lib/money";
 import { bikeTitle } from "@/lib/bike-name";
@@ -292,6 +294,8 @@ function ValuationCard({
   v,
 }: {
   v: {
+    id: string;
+    token: string;
     respondentName: string | null;
     suggestedName: string | null;
     marketValueCents: number | null;
@@ -302,15 +306,21 @@ function ValuationCard({
   };
 }) {
   const who = v.respondentName ?? v.suggestedName;
+  const url = v.suggestedName
+    ? `${SITE_URL}/evaluare/${v.token}?nume=${encodeURIComponent(v.suggestedName)}`
+    : `${SITE_URL}/evaluare/${v.token}`;
 
   if (!v.submittedAt) {
     return (
       <div className="rounded-lg border border-dashed border-border p-4">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-foreground/80">{who ?? "Mecanic (nespecificat)"}</span>
-          <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400">
-            În așteptare
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-foreground/80">{who ?? "Mecanic (nespecificat)"}</span>
+            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400">
+              În așteptare
+            </span>
+          </div>
+          <ValuationActions id={v.id} url={url} who={who} />
         </div>
         <p className="mt-1 text-xs text-steel">Link trimis, încă necompletat.</p>
       </div>
@@ -319,11 +329,14 @@ function ValuationCard({
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-medium">{who ?? "Mecanic"}</span>
-        <span className="font-mono text-xs text-steel">
-          {new Date(v.submittedAt).toLocaleDateString("ro-RO")}
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-baseline gap-2">
+          <span className="font-medium">{who ?? "Mecanic"}</span>
+          <span className="font-mono text-xs text-steel">
+            {new Date(v.submittedAt).toLocaleDateString("ro-RO")}
+          </span>
+        </div>
+        <ValuationActions id={v.id} url={url} who={who} />
       </div>
 
       {v.notWorth ? (

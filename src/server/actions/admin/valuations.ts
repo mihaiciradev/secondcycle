@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/server/db/client";
 import { requireAdmin } from "@/server/auth/guards";
-import { createValuationRequest } from "@/server/services/valuations";
+import { createValuationRequest, deleteValuation } from "@/server/services/valuations";
 import { createValuationLinkSchema } from "@/server/validation/valuations";
 import { SITE_URL } from "@/lib/content/site";
 import { actionError } from "@/server/errors";
@@ -31,6 +31,21 @@ export async function createValuationLinkAction(input: unknown): Promise<Result>
 
     revalidatePath(`/admin/bikes/${parsed.data.bikeId}`);
     return { ok: true, token, url };
+  } catch (e) {
+    return { ok: false, error: actionError(e) };
+  }
+}
+
+type SimpleResult = { ok: true } | { ok: false; error: string };
+
+/** Admin: delete a valuation slot (a sent link or a submitted opinion). */
+export async function deleteValuationAction(id: string): Promise<SimpleResult> {
+  try {
+    await requireAdmin();
+    if (typeof id !== "string" || !id) return { ok: false, error: "Id invalid" };
+    const bikeId = await deleteValuation(db, id);
+    if (bikeId) revalidatePath(`/admin/bikes/${bikeId}`);
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: actionError(e) };
   }

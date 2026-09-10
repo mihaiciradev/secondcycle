@@ -21,6 +21,15 @@ export async function createValuationRequest(
   return { token };
 }
 
+/** Delete a valuation slot. Returns its bikeId (for cache revalidation). */
+export async function deleteValuation(db: DB, id: string): Promise<string | null> {
+  const [row] = await db
+    .delete(bikeValuations)
+    .where(eq(bikeValuations.id, id))
+    .returning({ bikeId: bikeValuations.bikeId });
+  return row?.bikeId ?? null;
+}
+
 /** All valuation slots for a bike, newest first (for the admin page). */
 export async function listValuationsForBike(db: DB, bikeId: string): Promise<ValuationRow[]> {
   return db
