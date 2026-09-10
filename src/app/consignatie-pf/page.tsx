@@ -9,10 +9,10 @@ export const metadata: Metadata = {
   title: "Consignație pentru persoane fizice: cum vinzi bicicleta pas cu pas",
   description:
     "Pașii consignației pentru persoane fizice: trimiți poze, primești un preț provizoriu de la un atelier partener, semnăm contractul, stabilim prețul real, o vindem și primești banii.",
-  alternates: { canonical: "/consignare-pf" },
+  alternates: { canonical: "/consignatie-pf" },
   openGraph: {
     type: "website",
-    url: "/consignare-pf",
+    url: "/consignatie-pf",
     title: "Consignație pentru persoane fizice | Second Cycle",
     description:
       "De la primele poze până la banii în cont: cum funcționează consignația bicicletei tale, pas cu pas.",
