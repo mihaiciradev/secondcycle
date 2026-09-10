@@ -81,7 +81,7 @@ interface Dict {
     ctaTitle: string;
     ctaBtn: string;
   };
-  sellBanner: { title: string; text: string; cta: string };
+  sellBanner: { title: string; text: string; cta: string; stepsLink: string };
   footer: {
     blurb: string;
     cols: { title: string; links: { label: string; href: string }[] }[];
@@ -193,6 +193,7 @@ export const messages: Record<Locale, Dict> = {
       title: "Ai o bicicletă de vândut?",
       text: "O luăm în consignație și o vindem pentru tine. Fără anunțuri, fără necunoscuți la ușă.",
       cta: "Vinde-ți bicicleta",
+      stepsLink: "Care sunt pașii?",
     },
     footer: {
       blurb: "Biciclete second-hand, cumpărate, reparate și vândute în România. Curând e-bike și trotinete.",
@@ -208,8 +209,8 @@ export const messages: Record<Locale, Dict> = {
         {
           title: "Vinzi",
           links: [
-            { label: "Cere o evaluare", href: "#sell" },
-            { label: "Cum funcționează", href: "#sell" },
+            { label: "Cere o evaluare", href: "/sell" },
+            { label: "Cum funcționează", href: "/consignatie-pf" },
           ],
         },
         {
@@ -329,6 +330,7 @@ export const messages: Record<Locale, Dict> = {
       title: "Got a bike to sell?",
       text: "We take it on consignment and sell it for you. No listings, no strangers at your door.",
       cta: "Sell your bike",
+      stepsLink: "What are the steps?",
     },
     footer: {
       blurb: "Second-hand bikes, bought, repaired and sold across Romania. E-bikes and scooters soon.",
@@ -344,8 +346,8 @@ export const messages: Record<Locale, Dict> = {
         {
           title: "Sell",
           links: [
-            { label: "Get a valuation", href: "#sell" },
-            { label: "How it works", href: "#sell" },
+            { label: "Get a valuation", href: "/sell" },
+            { label: "How it works", href: "/consignatie-pf" },
           ],
         },
         {

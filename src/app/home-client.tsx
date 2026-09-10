@@ -491,6 +491,19 @@ export function HomeClient({
                 <p style={{ marginTop: 8, color: "rgba(237,239,234,.72)", maxWidth: "46ch" }}>
                   {t.sellBanner.text}
                 </p>
+                <Link
+                  href="/consignatie-pf"
+                  style={{
+                    display: "inline-block",
+                    marginTop: 10,
+                    fontSize: 14,
+                    color: "var(--hivis)",
+                    textDecoration: "underline",
+                    textUnderlineOffset: 3,
+                  }}
+                >
+                  {t.sellBanner.stepsLink} →
+                </Link>
               </div>
               <a className="btn btn--hivis" href="/sell">
                 {t.sellBanner.cta}

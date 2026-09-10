@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { company } from "@/lib/content/site";
@@ -110,6 +111,20 @@ export default function SellPage() {
               </li>
             ))}
           </ol>
+
+          <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link
+              href="/consignatie-pf"
+              className="inline-flex items-center gap-1.5 font-medium text-blue underline-offset-2 hover:underline"
+            >
+              Vezi pașii în detaliu
+              <span aria-hidden>→</span>
+            </Link>
+            <span className="text-sm text-steel">
+              Toți cei 5 pași ai consignației, explicați pas cu pas.
+            </span>
+          </div>
+
           <p className="mt-8 max-w-2xl border-l-2 border-lime pl-4 text-lg text-foreground/80">
             Fără obligații: dacă nu se vinde în perioada stabilită, îți dăm bicicleta înapoi.
           </p>
