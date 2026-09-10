@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createWorkshopAccountAction } from "@/server/actions/admin/workshops";
 import { fieldClass, primaryBtn } from "@/components/auth/auth-shell";
 
-export function WorkshopCreateForm() {
+export function WorkshopCreateForm({ onDone }: { onDone?: () => void }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ export function WorkshopCreateForm() {
     if (res.ok) {
       form.reset();
       router.refresh();
+      onDone?.();
     } else {
       setError(res.error);
     }

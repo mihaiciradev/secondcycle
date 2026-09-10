@@ -1,6 +1,6 @@
 import { db } from "@/server/db/client";
 import { listWorkshops } from "@/server/services/workshops";
-import { WorkshopCreateForm } from "@/components/admin/workshop-create-form";
+import { WorkshopCreateDialog } from "@/components/admin/workshop-create-dialog";
 import { DemoteWorkshopButton } from "@/components/admin/demote-workshop-button";
 
 export const runtime = "nodejs";
@@ -11,19 +11,15 @@ export default async function AdminWorkshopsPage() {
 
   return (
     <div>
-      <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
-        <h2 className="font-heading text-lg font-semibold tracking-tight">Adaugă un atelier</h2>
-        <p className="mt-1 text-sm text-steel">
-          Creează un cont de atelier nou. Ca să transformi un client existent în atelier, folosește
-          butonul „Fă atelier” din pagina Utilizatori.
-        </p>
-        <div className="mt-4">
-          <WorkshopCreateForm />
-        </div>
-      </section>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 className="font-heading text-lg font-semibold tracking-tight">
+          Ateliere
+          <span className="ml-2 font-mono text-sm font-normal text-steel">({rows.length})</span>
+        </h2>
+        <WorkshopCreateDialog />
+      </div>
 
-      <section className="mt-10">
-        <h2 className="font-heading text-lg font-semibold tracking-tight">Ateliere ({rows.length})</h2>
+      <section className="mt-6">
         {rows.length === 0 ? (
           <p className="mt-4 text-sm text-steel">Niciun atelier încă.</p>
         ) : (

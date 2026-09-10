@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/server/db/client";
 import { adminListBikes } from "@/server/services/bikes";
 import { listActiveWorkshops } from "@/server/services/workshops";
-import { BikeCreateForm } from "@/components/admin/bike-create-form";
+import { BikeCreateDialog } from "@/components/admin/bike-create-dialog";
 import { BikeRowActions } from "@/components/admin/bike-row-actions";
 import { WorkshopAssign } from "@/components/admin/workshop-assign";
 import { formatLei } from "@/lib/money";
@@ -42,31 +42,29 @@ export default async function AdminBikesPage({
 
   return (
     <div>
-      <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
-        <h2 className="font-heading text-lg font-semibold tracking-tight">Adaugă o bicicletă</h2>
-        <div className="mt-4">
-          <BikeCreateForm workshops={workshops} />
-        </div>
-      </section>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 className="font-heading text-lg font-semibold tracking-tight">
+          Stoc
+          <span className="ml-2 font-mono text-sm font-normal text-steel">({bikes.length})</span>
+        </h2>
+        <BikeCreateDialog workshops={workshops} />
+      </div>
 
-      <section className="mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="font-heading text-lg font-semibold tracking-tight">Stoc</h2>
-          <div className="flex flex-wrap gap-2">
-            {FILTERS.map((f) => (
-              <Link
-                key={f.key}
-                href={f.key ? `/admin/bikes?status=${f.key}` : "/admin/bikes"}
-                className={`rounded-full border px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors ${
-                  (status ?? "") === f.key
-                    ? "border-asphalt bg-asphalt text-paper"
-                    : "border-border text-foreground/70 hover:border-asphalt/50"
-                }`}
-              >
-                {f.label}
-              </Link>
-            ))}
-          </div>
+      <section className="mt-6">
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => (
+            <Link
+              key={f.key}
+              href={f.key ? `/admin/bikes?status=${f.key}` : "/admin/bikes"}
+              className={`rounded-full border px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors ${
+                (status ?? "") === f.key
+                  ? "border-asphalt bg-asphalt text-paper"
+                  : "border-border text-foreground/70 hover:border-asphalt/50"
+              }`}
+            >
+              {f.label}
+            </Link>
+          ))}
         </div>
 
         {bikes.length === 0 ? (

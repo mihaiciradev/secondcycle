@@ -14,7 +14,13 @@ const categories = [
   ["ebike", "E-bike"],
 ] as const;
 
-export function BikeCreateForm({ workshops }: { workshops: { id: string; name: string }[] }) {
+export function BikeCreateForm({
+  workshops,
+  onDone,
+}: {
+  workshops: { id: string; name: string }[];
+  onDone?: () => void;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,6 +61,7 @@ export function BikeCreateForm({ workshops }: { workshops: { id: string; name: s
     if (res.ok) {
       (e.target as HTMLFormElement).reset();
       router.refresh();
+      onDone?.();
     } else {
       setError(res.error);
     }
