@@ -39,6 +39,7 @@ export function BikeDetailsForm({
     conditionGrade: string;
     oldPriceCents: number | null;
     adminNotes: string | null;
+    workshopNotes: string | null;
   };
 }) {
   const router = useRouter();
@@ -69,6 +70,7 @@ export function BikeDetailsForm({
       conditionGrade: String(f.get("conditionGrade") ?? ""),
       oldPriceCents: leiToCents(f.get("oldPriceLei")),
       adminNotes: String(f.get("adminNotes") ?? "").trim() || null,
+      workshopNotes: String(f.get("workshopNotes") ?? "").trim() || null,
     });
     setLoading(false);
     if (res.ok) {
@@ -220,6 +222,21 @@ export function BikeDetailsForm({
           defaultValue={bike.adminNotes ?? ""}
           className={`${fieldClass} resize-y`}
         />
+        <p className="mt-1 text-xs text-steel">Doar pentru voi. Nu se văd nicăieri în afară.</p>
+      </div>
+
+      <div>
+        <label className={labelClass}>Notițe pentru atelier</label>
+        <textarea
+          name="workshopNotes"
+          rows={3}
+          placeholder="Ce e util pentru cine inspectează/evaluează bicicleta: probleme știute, istoric, la ce să se uite..."
+          defaultValue={bike.workshopNotes ?? ""}
+          className={`${fieldClass} resize-y`}
+        />
+        <p className="mt-1 text-xs text-steel">
+          Se văd de ateliere (în pagina lor) și pe pagina de evaluare a mecanicului. Nu sunt publice.
+        </p>
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

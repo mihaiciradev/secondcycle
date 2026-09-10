@@ -48,12 +48,15 @@ export default async function ValuationPage({
   const photos = isStorageEnabled() ? bike.photos.map((key) => publicUrl(key)) : [];
   const specs = techSheetEntries(bike.techSheet);
 
-  const meta: string[] = [
-    CATEGORY_LABEL[bike.category] ?? bike.category,
-    bike.modelYear ? `An ${bike.modelYear}` : "",
-    bike.frameSize ? `Cadru ${bike.frameSize}` : "",
-    bike.wheelSize ? `Roți ${bike.wheelSize}` : "",
-  ].filter(Boolean);
+  // Unknown values show "Nu știm" rather than vanishing, so the mechanic knows
+  // we don't have that detail (vs. us simply not listing it).
+  const UNKNOWN = "Nu știm";
+  const meta: { label: string; value: string }[] = [
+    { label: "Tip", value: CATEGORY_LABEL[bike.category] ?? bike.category },
+    { label: "An", value: bike.modelYear?.trim() || UNKNOWN },
+    { label: "Cadru", value: bike.frameSize?.trim() || UNKNOWN },
+    { label: "Roți", value: bike.wheelSize?.trim() || UNKNOWN },
+  ];
 
   const submitted = Boolean(valuation.submittedAt);
 
@@ -101,15 +104,24 @@ export default async function ValuationPage({
 
             <div className="p-5 sm:p-6">
               <h2 className="font-heading text-xl font-semibold tracking-tight">{bikeTitle(bike)}</h2>
-              {meta.length > 0 ? (
-                <p className="mt-1.5 flex flex-wrap gap-x-2 gap-y-1 text-sm text-steel">
-                  {meta.map((m, i) => (
-                    <span key={m}>
-                      {i > 0 ? <span className="mr-2 text-steel/50">·</span> : null}
-                      {m}
-                    </span>
-                  ))}
-                </p>
+              <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                {meta.map((m) => (
+                  <span key={m.label}>
+                    <span className="text-steel">{m.label}:</span>{" "}
+                    <span className="font-medium text-foreground/90">{m.value}</span>
+                  </span>
+                ))}
+              </div>
+
+              {bike.workshopNotes ? (
+                <div className="mt-4 rounded-lg border border-blue/30 bg-blue/[0.04] p-4">
+                  <p className="font-mono text-xs uppercase tracking-wider text-blue">
+                    De la Second Cycle
+                  </p>
+                  <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-foreground/85">
+                    {bike.workshopNotes}
+                  </p>
+                </div>
               ) : null}
 
               {bike.description ? (

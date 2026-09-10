@@ -84,6 +84,7 @@ export async function updateBikeDetailsAction(input: unknown): Promise<Result> {
       conditionGrade: rest.conditionGrade,
       oldPriceCents: rest.oldPriceCents ?? null,
       adminNotes: rest.adminNotes ?? null,
+      workshopNotes: rest.workshopNotes ?? null,
     });
     revalidatePath(`/admin/bikes/${bikeId}`);
     revalidatePath("/admin/bikes");

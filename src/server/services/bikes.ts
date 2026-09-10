@@ -214,6 +214,7 @@ export async function createBike(db: DB, input: CreateBikeInput) {
         description: input.description ?? "",
         workDone: input.workDone ?? [],
         adminNotes: input.adminNotes ?? null,
+        workshopNotes: input.workshopNotes ?? null,
         status: input.status ?? "draft",
         workshopId: input.workshopId ?? null,
       })
@@ -246,6 +247,7 @@ export async function updateBikeDetails(
     conditionGrade: (typeof bikes.$inferInsert)["conditionGrade"];
     oldPriceCents: number | null;
     adminNotes: string | null;
+    workshopNotes: string | null;
   }
 ) {
   try {
@@ -264,6 +266,7 @@ export async function updateBikeDetails(
         conditionGrade: input.conditionGrade,
         oldPriceCents: input.oldPriceCents,
         adminNotes: input.adminNotes,
+        workshopNotes: input.workshopNotes,
       })
       .where(eq(bikes.id, id))
       .returning();

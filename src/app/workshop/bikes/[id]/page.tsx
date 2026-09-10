@@ -39,6 +39,17 @@ export default async function WorkshopBikePage({ params }: { params: Promise<{ i
             {[bike.sku, bike.frameSize, `${bike.wheelSize}"`].join(" · ")}
           </p>
 
+          {bike.workshopNotes ? (
+            <div className="mt-6 rounded-lg border border-blue/30 bg-blue/[0.04] p-4">
+              <p className="font-mono text-xs uppercase tracking-wider text-blue">
+                Notițe de la Second Cycle
+              </p>
+              <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-foreground/85">
+                {bike.workshopNotes}
+              </p>
+            </div>
+          ) : null}
+
           <ol className="mt-10 space-y-12">
             <li>
               <div className="flex items-center gap-3">

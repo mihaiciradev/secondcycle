@@ -24,6 +24,7 @@ export const createBikeSchema = z
     description: z.string().max(20000).optional().default(""),
     workDone: z.array(z.string().max(2000)).max(100).optional().default([]),
     adminNotes: z.string().max(8000).nullable().optional(),
+    workshopNotes: z.string().max(8000).nullable().optional(),
     status: z.enum(["draft", "available"]).optional().default("draft"),
     workshopId: z.string().uuid().nullable().optional(),
   })
@@ -61,6 +62,7 @@ export const updateBikeDetailsSchema = z
     conditionGrade: z.enum(gradeValues),
     oldPriceCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
     adminNotes: z.string().max(8000).nullable().optional(),
+    workshopNotes: z.string().max(8000).nullable().optional(),
   })
   .strict();
 

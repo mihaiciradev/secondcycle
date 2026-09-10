@@ -225,6 +225,9 @@ export const bikes = pgTable("bikes", {
   wheelSize: text("wheel_size"),
   // Internal admin notes (provenance, storage, target price...). Never public.
   adminNotes: text("admin_notes"),
+  // Notes for workshops/mechanics: shown on the workshop bike page and on the
+  // private valuation page. Not public. Helps whoever inspects/evaluates it.
+  workshopNotes: text("workshop_notes"),
   // Structured technical sheet (per-bike condition), shown on the product page.
   techSheet: jsonb("tech_sheet").$type<TechSheet>().notNull().default({}),
   conditionGrade: conditionGradeEnum("condition_grade").notNull(),

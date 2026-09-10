@@ -199,6 +199,7 @@ export default async function AdminBikeManagePage({
                   conditionGrade: bike.conditionGrade,
                   oldPriceCents: bike.oldPriceCents,
                   adminNotes: bike.adminNotes,
+                  workshopNotes: bike.workshopNotes,
                 }}
               />
             </div>
