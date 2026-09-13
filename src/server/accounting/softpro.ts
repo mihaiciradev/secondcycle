@@ -84,11 +84,11 @@ function parseResult(res: FacturiResponse): { ok: boolean; info: string } {
   if (res.status === 409)
     return { ok: false, info: "409: alt import în curs, reîncearcă" };
   if (!res.ok)
-    return { ok: false, info: `HTTP ${res.status}: ${res.raw.slice(0, 400)}` };
+    return { ok: false, info: `HTTP ${res.status}: ${res.raw.slice(0, 1500)}` };
   const body = res.body as { documente?: Array<Record<string, unknown>> };
   const doc = body?.documente?.[0];
   if (!doc)
-    return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 400)}` };
+    return { ok: false, info: `Răspuns neașteptat: ${res.raw.slice(0, 1500)}` };
   if (doc.hasError)
     return { ok: false, info: String(doc.message ?? "Eroare document") };
   // Success: SoftPro returns the invoice ref in `factura` (e.g. "FacG 17/2026-09-08").
@@ -234,14 +234,16 @@ export async function issueInvoiceForOrder(
       .update(orders)
       .set({
         spInvoiceStatus: parsed.ok ? "ok" : "error",
-        spInvoiceInfo: parsed.info.slice(0, 500),
+        // Keep enough of the message that the admin can read/forward it (the
+        // column is text; the UI shows the full value in a dialog).
+        spInvoiceInfo: parsed.info.slice(0, 2000),
         spInvoicedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
     return parsed;
   } catch (e) {
     console.error("[softpro] issueInvoiceForOrder failed", e);
-    const info = (e instanceof Error ? e.message : String(e)).slice(0, 500);
+    const info = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
     await db
       .update(orders)
       .set({
