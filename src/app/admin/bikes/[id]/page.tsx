@@ -298,6 +298,7 @@ function ValuationCard({
     token: string;
     respondentName: string | null;
     suggestedName: string | null;
+    marketValueText: string | null;
     marketValueCents: number | null;
     suggestedSpendCents: number | null;
     notWorth: boolean;
@@ -347,7 +348,9 @@ function ValuationCard({
         <dl className="mt-3 grid grid-cols-2 gap-2">
           <div className="rounded bg-manila/40 px-3 py-2">
             <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Preț piață</dt>
-            <dd className="mt-0.5 font-mono text-sm">{money(v.marketValueCents)}</dd>
+            <dd className="mt-0.5 font-mono text-sm">
+              {v.marketValueText ? `${v.marketValueText} lei` : money(v.marketValueCents)}
+            </dd>
           </div>
           <div className="rounded bg-manila/40 px-3 py-2">
             <dt className="font-mono text-[0.65rem] uppercase tracking-wider text-steel">Ar da pe ea</dt>

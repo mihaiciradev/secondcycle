@@ -312,6 +312,9 @@ export const bikeValuations = pgTable(
     suggestedName: text("suggested_name"),
     // Name the responder actually confirmed/typed when submitting.
     respondentName: text("respondent_name"),
+    // Free text so a mechanic can give a single price or a range ("1400-1600").
+    marketValueText: text("market_value_text"),
+    // Legacy numeric market value (older opinions); kept as a display fallback.
     marketValueCents: integer("market_value_cents"),
     suggestedSpendCents: integer("suggested_spend_cents"),
     // "Bicicleta e prea proastă să merite reparația/vânzarea."

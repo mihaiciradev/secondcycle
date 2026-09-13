@@ -6,7 +6,7 @@ import { fieldClass, primaryBtn } from "@/components/auth/auth-shell";
 
 type Defaults = {
   name: string;
-  marketLei: string;
+  marketText: string;
   suggestedLei: string;
   notWorth: boolean;
   notes: string;
@@ -28,7 +28,7 @@ export function ValuationForm({
   alreadySubmitted: boolean;
 }) {
   const [name, setName] = useState(defaults.name);
-  const [market, setMarket] = useState(defaults.marketLei);
+  const [market, setMarket] = useState(defaults.marketText);
   const [suggested, setSuggested] = useState(defaults.suggestedLei);
   const [notWorth, setNotWorth] = useState(defaults.notWorth);
   const [notes, setNotes] = useState(defaults.notes);
@@ -44,7 +44,7 @@ export function ValuationForm({
     const res = await submitValuationAction({
       token,
       respondentName: name.trim(),
-      marketValueCents: notWorth ? null : leiToCents(market),
+      marketValueText: notWorth ? null : market.trim() || null,
       suggestedSpendCents: notWorth ? null : leiToCents(suggested),
       notWorth,
       notes: notes.trim() || null,
@@ -112,17 +112,17 @@ export function ValuationForm({
             <label htmlFor="vf-market" className="block text-sm font-medium text-foreground">
               Cât face pe piață? <span className="text-destructive">*</span>
             </label>
-            <p className="mt-0.5 text-xs text-steel">Prețul realist de vânzare, în lei.</p>
+            <p className="mt-0.5 text-xs text-steel">
+              Prețul realist de vânzare, în lei. Poți pune și un interval (ex. 1400-1600).
+            </p>
             <div className="relative mt-1.5">
               <input
                 id="vf-market"
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="1"
+                type="text"
+                inputMode="text"
                 value={market}
                 onChange={(e) => setMarket(e.target.value)}
-                placeholder="ex. 1500"
+                placeholder="ex. 1500 sau 1400-1600"
                 className={`${fieldClass} w-full pr-10`}
               />
               <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-steel">
@@ -133,9 +133,10 @@ export function ValuationForm({
 
           <div>
             <label htmlFor="vf-suggested" className="block text-sm font-medium text-foreground">
-              Cât ai da tu pe ea?
+              Cât ai da tu pe ea?{" "}
+              <span className="font-normal text-steel">(opțional)</span>
             </label>
-            <p className="mt-0.5 text-xs text-steel">Cât ai sugera să investim, în lei (opțional).</p>
+            <p className="mt-0.5 text-xs text-steel">Cât ai sugera să investim, în lei.</p>
             <div className="relative mt-1.5">
               <input
                 id="vf-suggested"

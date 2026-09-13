@@ -61,7 +61,7 @@ export async function submitValuation(
   token: string,
   input: {
     respondentName: string;
-    marketValueCents: number | null;
+    marketValueText: string | null;
     suggestedSpendCents: number | null;
     notWorth: boolean;
     notes: string | null;
@@ -71,7 +71,9 @@ export async function submitValuation(
     .update(bikeValuations)
     .set({
       respondentName: input.respondentName,
-      marketValueCents: input.notWorth ? null : input.marketValueCents,
+      marketValueText: input.notWorth ? null : input.marketValueText,
+      // New submissions store the price as text; clear the legacy numeric field.
+      marketValueCents: null,
       suggestedSpendCents: input.notWorth ? null : input.suggestedSpendCents,
       notWorth: input.notWorth,
       notes: input.notes,

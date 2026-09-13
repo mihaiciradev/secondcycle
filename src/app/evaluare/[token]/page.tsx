@@ -157,7 +157,7 @@ export default async function ValuationPage({
                 alreadySubmitted={submitted}
                 defaults={{
                   name: valuation.respondentName ?? nume ?? valuation.suggestedName ?? "",
-                  marketLei: toLei(valuation.marketValueCents),
+                  marketText: valuation.marketValueText ?? toLei(valuation.marketValueCents),
                   suggestedLei: toLei(valuation.suggestedSpendCents),
                   notWorth: valuation.notWorth,
                   notes: valuation.notes ?? "",

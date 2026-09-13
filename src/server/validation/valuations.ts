@@ -17,13 +17,14 @@ export const submitValuationSchema = z
   .object({
     token: z.string().trim().min(10).max(200),
     respondentName: z.string().trim().min(2, "Spune-ne cine ești.").max(120),
-    marketValueCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
+    // A single price or a range, as free text ("1500", "1400-1600").
+    marketValueText: z.string().trim().max(60).nullable().optional(),
     suggestedSpendCents: z.number().int().min(0).max(MAX_PRICE_CENTS).nullable().optional(),
     notWorth: z.boolean().optional().default(false),
     notes: z.string().trim().max(4000).nullable().optional(),
   })
   .strict()
-  .refine((v) => v.notWorth || v.marketValueCents != null, {
+  .refine((v) => v.notWorth || (v.marketValueText != null && v.marketValueText.length > 0), {
     message: "Adaugă un preț de piață sau bifează că nu merită.",
-    path: ["marketValueCents"],
+    path: ["marketValueText"],
   });

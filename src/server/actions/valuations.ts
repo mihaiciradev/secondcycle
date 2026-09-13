@@ -18,7 +18,7 @@ export async function submitValuationAction(input: unknown): Promise<Result> {
     const v = parsed.data;
     await submitValuation(db, v.token, {
       respondentName: v.respondentName,
-      marketValueCents: v.marketValueCents ?? null,
+      marketValueText: v.marketValueText?.trim() || null,
       suggestedSpendCents: v.suggestedSpendCents ?? null,
       notWorth: v.notWorth ?? false,
       notes: v.notes?.trim() || null,
