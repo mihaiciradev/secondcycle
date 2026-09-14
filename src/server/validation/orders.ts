@@ -24,6 +24,8 @@ export const createOrderSchema = z
     customerNote: z.string().max(1000).optional(),
     // Bifa 1 (o dată pe comandă): Termeni + Confidențialitate.
     termsAccepted: z.literal(true),
+    // Bifa 3 (o dată pe comandă): confirmarea generală "bun second-hand".
+    secondHandAck: z.literal(true),
     // Bifa 2 (per bicicletă, obligatorie): acceptarea stării + garanția redusă.
     bikeConsents: z
       .array(z.object({ bikeId: z.string().uuid(), accepted: z.literal(true) }))

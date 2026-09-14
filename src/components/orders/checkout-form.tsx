@@ -10,7 +10,7 @@ import { COUNTIES } from "@/server/constants/counties";
 import { fieldClass, labelClass, primaryBtn } from "@/components/auth/auth-shell";
 import { formatLei } from "@/lib/money";
 import { deliveryFeeCents } from "@/lib/delivery";
-import { bikeConsentText, techSheetEntries } from "@/lib/tech-sheet";
+import { bikeConsentText, secondHandAckText, techSheetEntries } from "@/lib/tech-sheet";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 
 type BillingType = "individual" | "company";
@@ -51,6 +51,8 @@ export function CheckoutForm({
   const [deliveryCounty, setDeliveryCounty] = useState("");
   const [deliveryCity, setDeliveryCity] = useState("");
   const [terms, setTerms] = useState(false);
+  // Bifa 3 (o dată pe comandă): confirmarea generală "bun second-hand".
+  const [shAck, setShAck] = useState(false);
   // Per-bike consent (Bifa 2). Fetched fresh so the shown text + tech sheet
   // match what the server will snapshot on the order.
   const [consentInfo, setConsentInfo] = useState<BikeConsentInfo[]>([]);
@@ -101,6 +103,10 @@ export function CheckoutForm({
       setError("Confirmă starea tehnică pentru fiecare bicicletă din coș.");
       return;
     }
+    if (!shAck) {
+      setError("Confirmă că ai înțeles că bicicletele sunt bunuri second-hand.");
+      return;
+    }
     setLoading(true);
     setError(null);
     const f = new FormData(e.currentTarget);
@@ -128,6 +134,7 @@ export function CheckoutForm({
       deliveryPostalCode: delivery === "courier" ? s("deliveryPostalCode") : undefined,
       customerNote: s("customerNote"),
       termsAccepted: true as const,
+      secondHandAck: true as const,
       bikeConsents: items.map((it) => ({ bikeId: it.bikeId, accepted: true as const })),
     };
     const res = await createOrderAction(input);
@@ -326,6 +333,17 @@ export function CheckoutForm({
           })}
         </section>
 
+        {/* Bifa 3: confirmarea generală "bun second-hand" (o dată pe comandă). */}
+        <label className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 text-sm">
+          <input
+            type="checkbox"
+            checked={shAck}
+            onChange={(e) => setShAck(e.target.checked)}
+            className="mt-0.5 size-4 shrink-0 accent-[color:var(--color-blue)]"
+          />
+          <span className="text-foreground/80">{secondHandAckText()}</span>
+        </label>
+
         {/* Bifa 1: Termeni + Confidențialitate (o singură dată pe comandă). */}
         <label className="flex items-start gap-3 text-sm">
           <input
@@ -348,7 +366,7 @@ export function CheckoutForm({
         </label>
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <button type="submit" className={primaryBtn} disabled={loading || !terms || !allAccepted}>
+        <button type="submit" className={primaryBtn} disabled={loading || !terms || !allAccepted || !shAck}>
           {loading ? "Se pregătește plata…" : "Mergi la plată"}
         </button>
       </form>

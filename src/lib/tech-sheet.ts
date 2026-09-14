@@ -69,3 +69,23 @@ export function bikeConsentText(input: {
     `24 de luni, conform art. 9 din OUG nr. 140/2021.`
   );
 }
+
+/** Versiunea textului confirmării generale (Bifa 3). Bump la orice schimbare. */
+export const SH_ACK_VERSION = "sh-ack-2026-09";
+
+/**
+ * Bifa 3 (o dată pe comandă): confirmarea generală că bicicletele sunt bunuri
+ * second-hand și că garanția e legată de bicicleta respectivă și de starea ei
+ * tehnică acceptată. Salvată imutabil pe comandă la acceptare, ca proba
+ * consimțământului (ca și Bifa 2). Modificarea NU afectează comenzile deja
+ * plasate (fiecare păstrează varianta ei).
+ */
+export function secondHandAckText(): string {
+  return (
+    "Înțeleg și accept că bicicletele sunt bunuri second-hand (folosite): pot prezenta urme " +
+    "normale de uzură și nu sunt identice cu un produs nou. Garanția acoperă buna funcționare " +
+    "conform stării tehnice acceptate pentru fiecare bicicletă și este legată de bicicleta " +
+    "respectivă; uzura normală și abaterile descrise în fișa tehnică a fiecărei biciclete nu " +
+    "constituie defecte."
+  );
+}

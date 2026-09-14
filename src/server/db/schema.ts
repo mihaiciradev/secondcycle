@@ -433,6 +433,10 @@ export const orders = pgTable("orders", {
   termsVersion: text("terms_version").notNull(),
   termsAcceptedAt: timestamp("terms_accepted_at", { withTimezone: true }).notNull(),
   termsAcceptedIp: inet("terms_accepted_ip").notNull(),
+  // Bifa 3 (o dată pe comandă): confirmarea generală "bun second-hand". Textul
+  // exact, imutabil, snapshot la acceptare; IP-ul e cel din terms_accepted_ip.
+  secondHandAckText: text("second_hand_ack_text"),
+  secondHandAckAcceptedAt: timestamp("second_hand_ack_accepted_at", { withTimezone: true }),
   customerNote: text("customer_note"),
   adminNote: text("admin_note"),
   // Stripe payment tracking (null until checkout starts / completes).

@@ -141,6 +141,13 @@
       "when": 1789700000000,
       "tag": "0019_invoice_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1789800000000,
+      "tag": "0020_second_hand_ack",
+      "breakpoints": true
     }
   ]
 }

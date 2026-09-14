@@ -7,7 +7,7 @@ import { normalizeCui } from "@/server/constants/cui";
 import { releaseOrderHolds } from "@/server/services/reservations";
 import { deliveryFeeCents } from "@/lib/delivery";
 import { bikeTitle } from "@/lib/bike-name";
-import { bikeConsentText } from "@/lib/tech-sheet";
+import { bikeConsentText, secondHandAckText } from "@/lib/tech-sheet";
 import { WARRANTY_MONTHS } from "@/server/constants/app";
 import { Conflict, NotFound } from "@/server/errors";
 import type { CreateOrderInput } from "@/server/validation/orders";
@@ -130,6 +130,10 @@ export async function createOrder(
         termsVersion: TERMS_VERSION,
         termsAcceptedAt: new Date(),
         termsAcceptedIp: params.termsIp,
+        // Bifa 3: generated server-side (never trusted from the client) and
+        // frozen as proof; the IP is the same request as termsAcceptedIp.
+        secondHandAckText: secondHandAckText(),
+        secondHandAckAcceptedAt: new Date(),
         customerNote: params.customerNote ?? null,
       })
       .returning();
