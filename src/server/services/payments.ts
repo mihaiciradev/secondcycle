@@ -226,5 +226,5 @@ async function completeOrder(
 
   // Issue the fiscal invoice via SoftPro (best-effort, self-logs its outcome on
   // the order; never throws, so it can't undo a completed payment).
-  await issueInvoiceForOrder(db, processed.order.id);
+  await issueInvoiceForOrder(db, processed.order.id, "auto");
 }

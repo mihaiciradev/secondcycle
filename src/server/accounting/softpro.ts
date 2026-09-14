@@ -1,6 +1,6 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
-import { bikes, orderItems, orders, users } from "@/server/db/schema";
+import { bikes, orderItems, orders, users, type InvoiceAttempt } from "@/server/db/schema";
 import { countyCode } from "@/server/constants/counties";
 import { appEnv } from "@/lib/app-env";
 
@@ -181,6 +181,7 @@ function buildDocument(
 export async function issueInvoiceForOrder(
   db: DB,
   orderId: string,
+  source: "auto" | "manual" = "auto",
 ): Promise<{ ok: boolean; info: string }> {
   if (!isSoftproConfigured()) {
     return {
@@ -188,6 +189,8 @@ export async function issueInvoiceForOrder(
       info: "SoftPro nu e configurat: lipsesc SP_API_URL / SP_AUTH_KEY / SP_CLIENT_CODE în acest mediu.",
     };
   }
+  // Kept accessible in catch so a network failure still logs what we sent.
+  let capturedRequest = "";
   try {
     const [order] = await db
       .select()
@@ -226,18 +229,30 @@ export async function issueInvoiceForOrder(
     const doc = buildDocument(order, items, buyer?.partnerNo ?? 0, costByBike);
     const payload = { sursa: process.env.SP_CLIENT_CODE, documente: [doc] };
     const requestJson = JSON.stringify(payload, null, 2).slice(0, 12000);
+    capturedRequest = requestJson;
     const res = await postFacturi(payload);
     const parsed = parseResult(res);
 
+    const info = parsed.info.slice(0, 2000);
+    const response = res.raw.slice(0, 12000);
+    const attempt: InvoiceAttempt = {
+      at: new Date().toISOString(),
+      source,
+      ok: parsed.ok,
+      info,
+      request: requestJson,
+      response,
+    };
     await db
       .update(orders)
       .set({
         spInvoiceStatus: parsed.ok ? "ok" : "error",
-        // Keep enough of the message that the admin can read/forward it (the
-        // column is text; the UI shows the full value in a dialog).
-        spInvoiceInfo: parsed.info.slice(0, 2000),
+        // Latest exchange for quick access; full log appended below.
+        spInvoiceInfo: info,
         spInvoiceRequest: requestJson,
-        spInvoiceResponse: res.raw.slice(0, 12000),
+        spInvoiceResponse: response,
+        // Append (never overwrite) so the first automatic try is preserved.
+        spInvoiceAttempts: sql`${orders.spInvoiceAttempts} || ${JSON.stringify([attempt])}::jsonb`,
         spInvoicedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
@@ -245,11 +260,20 @@ export async function issueInvoiceForOrder(
   } catch (e) {
     console.error("[softpro] issueInvoiceForOrder failed", e);
     const info = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+    const attempt: InvoiceAttempt = {
+      at: new Date().toISOString(),
+      source,
+      ok: false,
+      info,
+      request: capturedRequest,
+      response: "",
+    };
     await db
       .update(orders)
       .set({
         spInvoiceStatus: "error",
         spInvoiceInfo: info,
+        spInvoiceAttempts: sql`${orders.spInvoiceAttempts} || ${JSON.stringify([attempt])}::jsonb`,
         spInvoicedAt: new Date(),
       })
       .where(eq(orders.id, orderId))

@@ -12,18 +12,25 @@ import {
 } from "@/components/ui/dialog";
 import { retryInvoiceAction } from "@/server/actions/admin/invoices";
 
+type Attempt = {
+  at: string;
+  source: "auto" | "manual";
+  ok: boolean;
+  info: string;
+  request: string;
+  response: string;
+};
+
 export function InvoiceStatus({
   orderId,
   status,
   info,
-  request,
-  response,
+  attempts,
 }: {
   orderId: string;
   status: string | null;
   info: string | null;
-  request?: string | null;
-  response?: string | null;
+  attempts?: Attempt[] | null;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -72,7 +79,8 @@ export function InvoiceStatus({
   const detailIsError = message ? lastOk === false : status === "error";
   // Long errors get a "Vezi tot" button + a copyable dialog so nothing is lost.
   const isLong = Boolean(detail && detail.length > 90);
-  const hasData = Boolean(request || response);
+  const log = attempts ?? [];
+  const hasData = log.length > 0;
 
   async function copyText(text: string | null | undefined) {
     if (!text) return;
@@ -103,7 +111,7 @@ export function InvoiceStatus({
             onClick={() => setDataOpen(true)}
             className="cursor-pointer font-mono text-[0.65rem] text-steel underline-offset-2 hover:text-foreground hover:underline"
           >
-            date SoftPro
+            date SoftPro ({log.length})
           </button>
         ) : null}
       </div>
@@ -161,13 +169,37 @@ export function InvoiceStatus({
           <DialogHeader>
             <DialogTitle>Date SoftPro</DialogTitle>
             <DialogDescription>
-              Exact ce am trimis către SoftPro și ce am primit înapoi pentru această factură.
+              Toate încercările de facturare, în ordine: prima automată (după plată) și orice reemite.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <PayloadBlock label="Trimis (payload)" text={request} onCopy={() => copyText(request)} />
-            <PayloadBlock label="Primit (răspuns)" text={response} onCopy={() => copyText(response)} />
+          <div className="max-h-[60vh] space-y-5 overflow-auto">
+            {log.map((a, i) => (
+              <div key={`${a.at}-${i}`} className="rounded-lg border border-border p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs text-foreground/80">
+                    #{i + 1} · {a.source === "auto" ? "Automat" : "Reemis"} ·{" "}
+                    {new Date(a.at).toLocaleString("ro-RO")}
+                  </span>
+                  <span
+                    className={`rounded px-2 py-0.5 font-mono text-[0.65rem] ${
+                      a.ok
+                        ? "bg-lime text-asphalt"
+                        : "bg-red-500/15 text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    {a.ok ? "OK" : "Eroare"}
+                  </span>
+                </div>
+                {a.info ? (
+                  <p className="mb-2 break-words text-xs text-foreground/75">{a.info}</p>
+                ) : null}
+                <div className="space-y-3">
+                  <PayloadBlock label="Trimis" text={a.request} onCopy={() => copyText(a.request)} />
+                  <PayloadBlock label="Primit" text={a.response} onCopy={() => copyText(a.response)} />
+                </div>
+              </div>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

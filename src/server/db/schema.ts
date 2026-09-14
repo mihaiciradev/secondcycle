@@ -385,6 +385,17 @@ export const bikeWatchers = pgTable(
 // ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------
+/** One SoftPro invoicing attempt, logged for auditing. "auto" is the automatic
+ *  attempt right after payment; "manual" is a reemite from the admin. */
+export type InvoiceAttempt = {
+  at: string; // ISO timestamp
+  source: "auto" | "manual";
+  ok: boolean;
+  info: string;
+  request: string;
+  response: string;
+};
+
 export const orders = pgTable("orders", {
   id: pk(),
   orderNumber: text("order_number")
@@ -433,10 +444,12 @@ export const orders = pgTable("orders", {
   // SoftPro invoicing outcome (ok / error / null=not attempted).
   spInvoiceStatus: text("sp_invoice_status"),
   spInvoiceInfo: text("sp_invoice_info"),
-  // Exact JSON we POST to SoftPro and the raw response, for auditing/debugging
-  // what was sent and returned (internal admin only, never public).
+  // The latest SoftPro exchange (quick access); full history in spInvoiceAttempts.
   spInvoiceRequest: text("sp_invoice_request"),
   spInvoiceResponse: text("sp_invoice_response"),
+  // Every attempt, in order (first automatic try, then any reemite), so nothing
+  // is overwritten. Internal admin only, never public.
+  spInvoiceAttempts: jsonb("sp_invoice_attempts").$type<InvoiceAttempt[]>().notNull().default([]),
   spInvoicedAt: timestamp("sp_invoiced_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),

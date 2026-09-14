@@ -11,7 +11,7 @@ export async function retryInvoiceAction(
 ): Promise<{ ok: boolean; info: string }> {
   try {
     await requireAdmin();
-    const result = await issueInvoiceForOrder(db, orderId);
+    const result = await issueInvoiceForOrder(db, orderId, "manual");
     revalidatePath("/admin/orders");
     return result;
   } catch (e) {
