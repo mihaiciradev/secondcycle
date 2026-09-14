@@ -81,6 +81,8 @@ export default async function AdminOrdersPage({
                         orderId={order.id}
                         status={order.spInvoiceStatus}
                         info={order.spInvoiceInfo}
+                        request={order.spInvoiceRequest}
+                        response={order.spInvoiceResponse}
                       />
                     ) : (
                       <span className="font-mono text-[0.65rem] text-steel">-</span>

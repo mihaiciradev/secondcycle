@@ -433,6 +433,10 @@ export const orders = pgTable("orders", {
   // SoftPro invoicing outcome (ok / error / null=not attempted).
   spInvoiceStatus: text("sp_invoice_status"),
   spInvoiceInfo: text("sp_invoice_info"),
+  // Exact JSON we POST to SoftPro and the raw response, for auditing/debugging
+  // what was sent and returned (internal admin only, never public).
+  spInvoiceRequest: text("sp_invoice_request"),
+  spInvoiceResponse: text("sp_invoice_response"),
   spInvoicedAt: timestamp("sp_invoiced_at", { withTimezone: true }),
   createdAt: createdAt(),
   updatedAt: updatedAt(),

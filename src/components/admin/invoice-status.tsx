@@ -16,16 +16,21 @@ export function InvoiceStatus({
   orderId,
   status,
   info,
+  request,
+  response,
 }: {
   orderId: string;
   status: string | null;
   info: string | null;
+  request?: string | null;
+  response?: string | null;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [lastOk, setLastOk] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -67,6 +72,16 @@ export function InvoiceStatus({
   const detailIsError = message ? lastOk === false : status === "error";
   // Long errors get a "Vezi tot" button + a copyable dialog so nothing is lost.
   const isLong = Boolean(detail && detail.length > 90);
+  const hasData = Boolean(request || response);
+
+  async function copyText(text: string | null | undefined) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* clipboard blocked; the text is selectable */
+    }
+  }
 
   return (
     <div className="flex flex-col gap-1">
@@ -80,6 +95,15 @@ export function InvoiceStatus({
             className="cursor-pointer font-mono text-[0.65rem] text-blue underline-offset-2 hover:underline disabled:opacity-60"
           >
             {loading ? "se emite…" : "reemite"}
+          </button>
+        ) : null}
+        {hasData ? (
+          <button
+            type="button"
+            onClick={() => setDataOpen(true)}
+            className="cursor-pointer font-mono text-[0.65rem] text-steel underline-offset-2 hover:text-foreground hover:underline"
+          >
+            date SoftPro
           </button>
         ) : null}
       </div>
@@ -131,6 +155,58 @@ export function InvoiceStatus({
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={dataOpen} onOpenChange={setDataOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Date SoftPro</DialogTitle>
+            <DialogDescription>
+              Exact ce am trimis către SoftPro și ce am primit înapoi pentru această factură.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <PayloadBlock label="Trimis (payload)" text={request} onCopy={() => copyText(request)} />
+            <PayloadBlock label="Primit (răspuns)" text={response} onCopy={() => copyText(response)} />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function PayloadBlock({
+  label,
+  text,
+  onCopy,
+}: {
+  label: string;
+  text: string | null | undefined;
+  onCopy: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="font-mono text-xs uppercase tracking-wider text-steel">{label}</span>
+        {text ? (
+          <button
+            type="button"
+            onClick={() => {
+              onCopy();
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1600);
+            }}
+            className="inline-flex items-center gap-1 font-mono text-[0.65rem] text-blue underline-offset-2 hover:underline"
+          >
+            {copied ? <CheckIcon className="size-3" /> : <CopyIcon className="size-3" />}
+            {copied ? "Copiat" : "Copiază"}
+          </button>
+        ) : null}
+      </div>
+      <pre className="max-h-[32vh] overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-muted/40 p-3 font-mono text-[0.7rem] leading-relaxed text-foreground/90">
+        {text || "(gol)"}
+      </pre>
     </div>
   );
 }

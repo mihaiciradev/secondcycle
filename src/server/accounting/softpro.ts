@@ -224,10 +224,9 @@ export async function issueInvoiceForOrder(
     const costByBike = new Map(costRows.map((r) => [r.id, r.acq]));
 
     const doc = buildDocument(order, items, buyer?.partnerNo ?? 0, costByBike);
-    const res = await postFacturi({
-      sursa: process.env.SP_CLIENT_CODE,
-      documente: [doc],
-    });
+    const payload = { sursa: process.env.SP_CLIENT_CODE, documente: [doc] };
+    const requestJson = JSON.stringify(payload, null, 2).slice(0, 12000);
+    const res = await postFacturi(payload);
     const parsed = parseResult(res);
 
     await db
@@ -237,6 +236,8 @@ export async function issueInvoiceForOrder(
         // Keep enough of the message that the admin can read/forward it (the
         // column is text; the UI shows the full value in a dialog).
         spInvoiceInfo: parsed.info.slice(0, 2000),
+        spInvoiceRequest: requestJson,
+        spInvoiceResponse: res.raw.slice(0, 12000),
         spInvoicedAt: new Date(),
       })
       .where(eq(orders.id, orderId));
