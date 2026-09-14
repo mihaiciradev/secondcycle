@@ -103,10 +103,10 @@ export function orderConfirmedTemplate(input: {
     <h2 style="font-size:17px;margin:26px 0 6px">Drept de retragere (14 zile)</h2>
     <p style="font-size:14px;line-height:1.6;color:#2b3033;margin:0 0 8px">
       Fiind o achiziție la distanță, te poți retrage din contract în 14 zile de la primirea
-      bicicletei, fără să dai un motiv. Formularul de retragere pentru comanda ta:
+      bicicletei, fără să dai un motiv. Formularul de retur pentru comanda ta:
     </p>
     <p style="margin:0 0 4px">
-      <a href="${input.withdrawalLink}" style="color:#0c4da2">Deschide formularul de retragere</a>
+      <a href="${input.withdrawalLink}" style="color:#0c4da2">Deschide formularul de retur</a>
     </p>`;
   return {
     subject: `Comanda ${input.orderNumber} e confirmată | Second Cycle`,

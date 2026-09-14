@@ -5,12 +5,7 @@ import { sendEmail } from "@/server/email/send";
 import { bikeAvailableTemplate } from "@/server/email/templates";
 import { bikeTitle } from "@/lib/bike-name";
 import { Conflict, NotFound } from "@/server/errors";
-
-function baseUrl(): string {
-  if (process.env.AUTH_URL) return process.env.AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3082";
-}
+import { appBaseUrl } from "@/lib/app-env";
 
 /**
  * Subscribe an email to be notified when a currently-reserved bike frees up.
@@ -51,7 +46,7 @@ export async function notifyBikeAvailable(db: DbOrTx, bikeId: string): Promise<v
   if (!bike) return;
 
   const label = bikeTitle(bike);
-  const link = `${baseUrl()}/bikes/${bike.sku}`;
+  const link = `${appBaseUrl()}/bikes/${bike.sku}`;
   const { subject, html } = bikeAvailableTemplate({ bikeLabel: label, link });
 
   for (const w of watchers) {

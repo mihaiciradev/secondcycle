@@ -9,12 +9,7 @@ import { orderConfirmedTemplate } from "@/server/email/templates";
 import { issueInvoiceForOrder } from "@/server/accounting/softpro";
 import { Conflict, NotFound } from "@/server/errors";
 import type { PaymentProvider } from "@/server/services/settings";
-
-function baseUrl(): string {
-  if (process.env.AUTH_URL) return process.env.AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3082";
-}
+import { appBaseUrl } from "@/lib/app-env";
 
 /**
  * Best-effort live Stripe balance for the admin dashboard. Returns null if
@@ -219,8 +214,8 @@ async function completeOrder(
       techSheet: it.techSheetSnapshot,
     })),
     totalCents: processed.order.totalCents,
-    link: `${baseUrl()}/account/orders/${processed.order.id}`,
-    withdrawalLink: `${baseUrl()}/retur`,
+    link: `${appBaseUrl()}/account/orders/${processed.order.id}`,
+    withdrawalLink: `${appBaseUrl()}/retur`,
   });
   await sendEmail(db, { to: processed.order.billingEmail, subject, html, template: "order_confirmed" });
 

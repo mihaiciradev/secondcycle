@@ -9,14 +9,9 @@ import { returnRequestSchema } from "@/server/validation/returns";
 import { sendEmail } from "@/server/email/send";
 import { returnRequestTemplate } from "@/server/email/templates";
 import { actionError } from "@/server/errors";
+import { appBaseUrl } from "@/lib/app-env";
 
 type Result = { ok: true } | { ok: false; error: string };
-
-function baseUrl(): string {
-  if (process.env.AUTH_URL) return process.env.AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3082";
-}
 
 /** A logged-in customer submits a return request for bike(s) they bought. */
 export async function submitReturnRequestAction(input: unknown): Promise<Result> {
@@ -45,7 +40,7 @@ export async function submitReturnRequestAction(input: unknown): Promise<Result>
       contactName: request.contactName,
       contactEmail: request.contactEmail,
       contactPhone: request.contactPhone,
-      link: `${baseUrl()}/admin/returns`,
+      link: `${appBaseUrl()}/admin/returns`,
     });
     await sendEmail(db, { to, subject, html, template: "return_request" });
 

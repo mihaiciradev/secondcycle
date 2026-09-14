@@ -6,6 +6,7 @@ import { createToken, consumeToken } from "@/server/services/tokens";
 import { sendEmail } from "@/server/email/send";
 import { passwordResetTemplate, verifyEmailTemplate } from "@/server/email/templates";
 import { TOKEN_TTL } from "@/server/constants/app";
+import { appBaseUrl } from "@/lib/app-env";
 
 export type SessionUser = {
   id: string;
@@ -13,14 +14,6 @@ export type SessionUser = {
   role: "customer" | "admin" | "workshop";
   sessionVersion: number;
 };
-
-function baseUrl(): string {
-  // Prod/local set AUTH_URL explicitly; on Vercel previews without it, fall back
-  // to the deployment's own URL so email links always resolve.
-  if (process.env.AUTH_URL) return process.env.AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3082";
-}
 
 /** In dev (no verified email domain) print the link so flows are testable. */
 function devLog(kind: string, link: string) {
@@ -92,7 +85,7 @@ async function issueVerifyEmail(db: DB, userId: string, email: string) {
     kind: "verify_email",
     ttlMs: TOKEN_TTL.verify_email,
   });
-  const link = `${baseUrl()}/api/auth/verify?token=${token}`;
+  const link = `${appBaseUrl()}/api/auth/verify?token=${token}`;
   devLog("verify", link);
   const { subject, html } = verifyEmailTemplate(link);
   await sendEmail(db, { to: email, subject, html, template: "verify_email" });
@@ -146,7 +139,7 @@ export async function requestPasswordReset(db: DB, emailInput: string) {
     kind: "password_reset",
     ttlMs: TOKEN_TTL.password_reset,
   });
-  const link = `${baseUrl()}/reset-password?token=${token}`;
+  const link = `${appBaseUrl()}/reset-password?token=${token}`;
   devLog("reset", link);
   const { subject, html } = passwordResetTemplate(link);
   await sendEmail(db, { to: email, subject, html, template: "password_reset" });

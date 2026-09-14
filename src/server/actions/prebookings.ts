@@ -11,14 +11,9 @@ import { sendEmail } from "@/server/email/send";
 import { prebookRequestTemplate } from "@/server/email/templates";
 import { company } from "@/lib/content/site";
 import { actionError } from "@/server/errors";
+import { appBaseUrl } from "@/lib/app-env";
 
 type Result = { ok: true } | { ok: false; error: string };
-
-function baseUrl(): string {
-  if (process.env.AUTH_URL) return process.env.AUTH_URL;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3082";
-}
 
 /** A visitor (guest or logged-in) prebooks a bike. No auth required. */
 export async function submitPrebookAction(input: unknown): Promise<Result> {
@@ -46,7 +41,7 @@ export async function submitPrebookAction(input: unknown): Promise<Result> {
       email: row.email,
       phone: row.phone,
       note: row.note,
-      link: `${baseUrl()}/admin/prebookings`,
+      link: `${appBaseUrl()}/admin/prebookings`,
     });
     await sendEmail(db, { to: company.contact.inboxEmail, subject, html, template: "prebook" });
 
