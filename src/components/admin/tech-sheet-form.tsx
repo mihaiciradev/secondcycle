@@ -12,6 +12,26 @@ export function TechSheetForm({ bikeId, techSheet }: { bikeId: string; techSheet
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  /** Concatenate all filled fields (Label: value) and copy to clipboard. */
+  async function copyAll() {
+    const form = formRef.current;
+    if (!form) return;
+    const f = new FormData(form);
+    const lines: string[] = [];
+    for (const field of TECH_SHEET_FIELDS) {
+      const v = String(f.get(field.key) ?? "").trim();
+      if (v) lines.push(`${field.label}: ${v}`);
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked */
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,13 +71,20 @@ export function TechSheetForm({ bikeId, techSheet }: { bikeId: string; techSheet
         ))}
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
           disabled={loading}
           className="inline-flex h-11 cursor-pointer items-center rounded-full border border-asphalt/25 px-6 text-sm font-semibold text-foreground transition-colors hover:border-asphalt/50 disabled:opacity-60"
         >
           {loading ? "Se salvează…" : "Salvează fișa tehnică"}
+        </button>
+        <button
+          type="button"
+          onClick={copyAll}
+          className="inline-flex h-11 cursor-pointer items-center rounded-full border border-border px-5 text-sm font-medium text-foreground/80 transition-colors hover:border-asphalt/50"
+        >
+          {copied ? "Copiat ✓" : "Copiază fișa"}
         </button>
         {saved ? <span className="text-sm text-emerald-600 dark:text-emerald-400">Salvat ✓</span> : null}
       </div>

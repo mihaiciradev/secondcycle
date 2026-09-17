@@ -89,14 +89,18 @@ function PaperCard({
         </dl>
       ) : null}
       {record.checklist.length > 0 ? (
-        <ul className="mt-3 space-y-1.5 text-sm">
+        <ul className="mt-3 space-y-2 text-sm">
           {record.checklist.map((c) => (
-            <li key={c.item} className="flex items-baseline justify-between gap-3 border-b border-border/60 pb-1.5">
-              <span className="text-foreground/80">{c.item}</span>
-              <span className="shrink-0 font-mono text-xs text-steel">
-                {SERVICE_CHECK_STATUS_LABEL[c.status] ?? c.status}
-                {c.note ? `: ${c.note}` : ""}
-              </span>
+            <li key={c.item} className="border-b border-border/60 pb-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-foreground/80">{c.item}</span>
+                <span className="shrink-0 font-mono text-xs text-steel">
+                  {SERVICE_CHECK_STATUS_LABEL[c.status] ?? c.status}
+                </span>
+              </div>
+              {c.note ? (
+                <p className="mt-1 whitespace-pre-line break-words leading-relaxed text-steel">{c.note}</p>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -236,7 +240,7 @@ export default async function AdminBikeManagePage({
 
           <section>
             <SectionTitle hint="prima poză e coperta">Poze</SectionTitle>
-            <PhotoUploader bikeId={bike.id} initial={initial} storageEnabled={storage} />
+            <PhotoUploader bikeId={bike.id} sku={bike.sku} initial={initial} storageEnabled={storage} />
           </section>
         </div>
 

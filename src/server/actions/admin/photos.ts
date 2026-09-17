@@ -103,6 +103,24 @@ export async function deletePhotoAction(
   }
 }
 
+/** Delete every photo of a bike (best-effort on R2; DB is the source of truth). */
+export async function deleteAllPhotosAction(
+  bikeId: string
+): Promise<{ ok: true; photos: string[] } | { ok: false; error: string }> {
+  try {
+    await requireAdmin();
+    const bike = await getBikeById(db, bikeId);
+    if (!bike) return { ok: false, error: "Bicicleta nu există." };
+
+    await Promise.all(bike.photos.map((k) => deleteObject(k).catch(() => {})));
+    await setBikePhotos(db, bikeId, []);
+    revalidatePath(`/admin/bikes/${bikeId}`);
+    return { ok: true, photos: [] };
+  } catch (e) {
+    return { ok: false, error: actionError(e) };
+  }
+}
+
 /** Move a photo to the front so it becomes the cover. */
 export async function setCoverPhotoAction(
   bikeId: string,

@@ -19,14 +19,16 @@ function RecordView({ record }: { record: PaperRecord }) {
         <span>Mecanic: {record.performedBy}</span>
         <span>{new Date(record.performedAt).toLocaleDateString("ro-RO")}</span>
       </div>
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-4 space-y-2.5">
         {record.checklist.map((c) => (
-          <li key={c.item} className="flex items-baseline justify-between gap-4 text-sm">
-            <span className="text-foreground/80">{c.item}</span>
-            <span className="text-right">
-              <span className="font-medium">{SERVICE_CHECK_STATUS_LABEL[c.status] ?? c.status}</span>
-              {c.note ? <span className="text-steel"> · {c.note}</span> : null}
-            </span>
+          <li key={c.item} className="border-b border-border/60 pb-2.5 text-sm last:border-0 last:pb-0">
+            <div className="flex items-baseline justify-between gap-4">
+              <span className="text-foreground/80">{c.item}</span>
+              <span className="shrink-0 font-medium">{SERVICE_CHECK_STATUS_LABEL[c.status] ?? c.status}</span>
+            </div>
+            {c.note ? (
+              <p className="mt-1 whitespace-pre-line break-words leading-relaxed text-steel">{c.note}</p>
+            ) : null}
           </li>
         ))}
       </ul>

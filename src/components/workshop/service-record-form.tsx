@@ -123,8 +123,8 @@ export function ServiceRecordForm({
 
       <div className="space-y-2">
         {SERVICE_CHECK_ITEMS.map((item) => (
-          <div key={item} className="grid items-center gap-2 sm:grid-cols-[1fr_150px_1.4fr]">
-            <span className="text-sm font-medium">{item}</span>
+          <div key={item} className="grid items-start gap-2 sm:grid-cols-[1fr_150px_1.6fr]">
+            <span className="pt-2 text-sm font-medium">{item}</span>
             <select name={`status:${item}`} defaultValue={initMap.get(item)?.status ?? defaultStatus} className={fieldClass}>
               {statuses.map((s) => (
                 <option key={s} value={s}>
@@ -132,11 +132,12 @@ export function ServiceRecordForm({
                 </option>
               ))}
             </select>
-            <input
+            <textarea
               name={`note:${item}`}
+              rows={2}
               placeholder="Notă (opțional)"
               defaultValue={initMap.get(item)?.note ?? ""}
-              className={fieldClass}
+              className={`${fieldClass} resize-y`}
             />
           </div>
         ))}
