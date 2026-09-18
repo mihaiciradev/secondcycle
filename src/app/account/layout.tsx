@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/server/db/client";
 import { getUserById } from "@/server/services/auth";
+import { hasVouchersForRecipient } from "@/server/services/vouchers";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { AccountNav } from "@/components/auth/account-nav";
@@ -16,6 +17,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
   if (!session?.user?.id) redirect("/login");
   const user = await getUserById(db, session.user.id);
   if (!user) redirect("/login");
+
+  // Any account can be a voucher recipient, so show the Vouchere tab whenever
+  // the account actually holds vouchers, regardless of role.
+  const hasVouchers = await hasVouchersForRecipient(db, user.id);
 
   // Only admin and workshop have a separate panel to open. A partner does their
   // job from the account tabs below (no special panel).
@@ -47,7 +52,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
             ) : null}
           </div>
           <div className="mt-8 grid gap-8 md:grid-cols-[180px_1fr]">
-            <AccountNav role={user.role} />
+            <AccountNav role={user.role} hasVouchers={hasVouchers} />
             <div>{children}</div>
           </div>
         </div>

@@ -10,19 +10,20 @@ import { emailLog } from "@/server/db/schema";
 export async function sendEmail(
   db: DB,
   input: { to: string; subject: string; html: string; template: string; headers?: Record<string, string> }
-): Promise<void> {
+): Promise<{ ok: boolean; error: string | null }> {
   const from = process.env.EMAIL_FROM ?? "Second Cycle <no-reply@localhost>";
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
+    const error = "RESEND_API_KEY not set";
     await db.insert(emailLog).values({
       toEmail: input.to,
       template: input.template,
       subject: input.subject,
       status: "failed",
-      error: "RESEND_API_KEY not set",
+      error,
     });
-    return;
+    return { ok: false, error };
   }
 
   try {
@@ -34,21 +35,25 @@ export async function sendEmail(
       html: input.html,
       headers: input.headers,
     });
+    const errText = error ? String(error.message ?? error) : null;
     await db.insert(emailLog).values({
       toEmail: input.to,
       template: input.template,
       subject: input.subject,
       status: error ? "failed" : "sent",
       providerId: data?.id ?? null,
-      error: error ? String(error.message ?? error) : null,
+      error: errText,
     });
+    return { ok: !error, error: errText };
   } catch (e) {
+    const error = e instanceof Error ? e.message : "send failed";
     await db.insert(emailLog).values({
       toEmail: input.to,
       template: input.template,
       subject: input.subject,
       status: "failed",
-      error: e instanceof Error ? e.message : "send failed",
+      error,
     });
+    return { ok: false, error };
   }
 }

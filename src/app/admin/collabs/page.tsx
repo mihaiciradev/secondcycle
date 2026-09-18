@@ -4,6 +4,7 @@ import { listAllVouchers, formatVoucherValue } from "@/server/services/vouchers"
 import { PartnerCreateDialog } from "@/components/admin/partner-create-dialog";
 import { VoucherCreateDialog } from "@/components/admin/voucher-create-dialog";
 import { VoucherAssign } from "@/components/admin/voucher-assign";
+import { VoucherDelete } from "@/components/admin/voucher-delete";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -99,6 +100,7 @@ export default async function AdminCollabsPage() {
                   <th className="py-2 pr-4">Alocat lui</th>
                   <th className="py-2 pr-4">Valabilitate</th>
                   <th className="py-2 pr-4">Stare</th>
+                  <th className="py-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -133,6 +135,9 @@ export default async function AdminCollabsPage() {
                       {voucher.usedAt ? (
                         <div className="mt-1 font-mono text-[0.6rem] text-steel">{fmtDate(voucher.usedAt)}</div>
                       ) : null}
+                    </td>
+                    <td className="py-3">
+                      <VoucherDelete voucherId={voucher.id} title={voucher.title} />
                     </td>
                   </tr>
                 ))}

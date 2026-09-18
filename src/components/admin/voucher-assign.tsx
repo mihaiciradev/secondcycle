@@ -27,6 +27,8 @@ export function VoucherAssign({
     const res = await assignVoucherAction({ voucherId, recipientEmail: email.trim() });
     setLoading(false);
     if (res.ok) {
+      if (res.emailed) setNote("Alocat · e-mail trimis ✓");
+      else setError(`Alocat, dar e-mailul NU a plecat: ${res.emailError ?? "eroare necunoscută"}`);
       router.refresh();
     } else {
       setError(res.error);
@@ -39,8 +41,12 @@ export function VoucherAssign({
     setNote(null);
     const res = await resendVoucherEmailAction(voucherId);
     setLoading(false);
-    if (res.ok) setNote("E-mail retrimis ✓");
-    else setError(res.error);
+    if (res.ok) {
+      if (res.emailed) setNote("E-mail retrimis ✓");
+      else setError(`E-mailul NU a plecat: ${res.emailError ?? "eroare necunoscută"}`);
+    } else {
+      setError(res.error);
+    }
   }
 
   if (recipientEmail) {

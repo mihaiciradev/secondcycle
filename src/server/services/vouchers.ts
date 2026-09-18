@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import type { DB } from "@/server/db/client";
 import { partners, users, vouchers } from "@/server/db/schema";
 import { Conflict, Invalid, NotFound } from "@/server/errors";
@@ -93,9 +93,24 @@ export async function listVouchersForRecipient(db: DB, userId: string) {
     .orderBy(desc(vouchers.createdAt));
 }
 
+/** Whether an account holds any voucher (for showing the account tab). */
+export async function hasVouchersForRecipient(db: DB, userId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(vouchers)
+    .where(eq(vouchers.recipientUserId, userId));
+  return (row?.n ?? 0) > 0;
+}
+
 export async function getVoucherById(db: DB, id: string): Promise<VoucherRow | null> {
   const [row] = await db.select().from(vouchers).where(eq(vouchers.id, id)).limit(1);
   return row ?? null;
+}
+
+/** Permanently delete a voucher (admin only). */
+export async function deleteVoucher(db: DB, id: string): Promise<void> {
+  const [row] = await db.delete(vouchers).where(eq(vouchers.id, id)).returning({ id: vouchers.id });
+  if (!row) throw NotFound("Voucherul nu există");
 }
 
 /** Assign a voucher to a recipient account (by user id). Returns the voucher. */

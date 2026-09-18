@@ -6,11 +6,12 @@ import { usePathname } from "next/navigation";
 const customerItems = [
   { href: "/account", label: "Detalii" },
   { href: "/account/orders", label: "Comenzi" },
-  { href: "/account/vouchers", label: "Vouchere" },
   { href: "/account/returns", label: "Retururile mele" },
   { href: "/account/preferences", label: "Preferințe" },
   { href: "/account/security", label: "Securitate" },
 ];
+
+const vouchersItem = { href: "/account/vouchers", label: "Vouchere" };
 
 const staffItems = [
   { href: "/account", label: "Detalii" },
@@ -24,10 +25,18 @@ const partnerItems = [
   { href: "/account/security", label: "Securitate" },
 ];
 
-export function AccountNav({ role }: { role: "customer" | "admin" | "workshop" | "partner" }) {
+export function AccountNav({
+  role,
+  hasVouchers = false,
+}: {
+  role: "customer" | "admin" | "workshop" | "partner";
+  hasVouchers?: boolean;
+}) {
   const path = usePathname();
-  const items =
-    role === "customer" ? customerItems : role === "partner" ? partnerItems : staffItems;
+  const base = role === "customer" ? customerItems : role === "partner" ? partnerItems : staffItems;
+  // The recipient "Vouchere" tab shows for any account that actually holds
+  // vouchers (a workshop/partner can also be a recipient). Placed after Detalii.
+  const items = hasVouchers ? [base[0], vouchersItem, ...base.slice(1)] : base;
   const isActive = (href: string) =>
     href === "/account" ? path === "/account" : path.startsWith(href);
 
