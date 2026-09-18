@@ -23,7 +23,7 @@ export async function redeemVoucherAction(input: unknown): Promise<Result> {
       partnerId: partner.partnerId,
       userId: partner.id,
     });
-    revalidatePath("/partner");
+    revalidatePath("/account/scan");
     return { ok: true, title: voucher.title, code: voucher.code };
   } catch (e) {
     return { ok: false, error: actionError(e) };

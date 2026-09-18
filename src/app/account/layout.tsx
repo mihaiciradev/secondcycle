@@ -17,14 +17,14 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const user = await getUserById(db, session.user.id);
   if (!user) redirect("/login");
 
+  // Only admin and workshop have a separate panel to open. A partner does their
+  // job from the account tabs below (no special panel).
   const area =
     user.role === "admin"
-      ? { href: "/admin", label: "Panou admin" }
+      ? { href: "/admin", label: "Deschide panoul de ADMIN" }
       : user.role === "workshop"
-        ? { href: "/workshop", label: "Deschide atelierul" }
-        : user.role === "partner"
-          ? { href: "/partner", label: "Deschide partenerul" }
-          : null;
+        ? { href: "/workshop", label: "Deschide panoul de ATELIER" }
+        : null;
 
   return (
     <>

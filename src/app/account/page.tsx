@@ -69,7 +69,15 @@ export default async function AccountDetailsPage() {
       <Card title="Detalii cont">
         <dl>
           <Row label="E-mail">{user.email}</Row>
-          <Row label="Tip cont">{user.role === "admin" ? "Administrator" : "Client"}</Row>
+          <Row label="Tip cont">
+            {user.role === "admin"
+              ? "Administrator"
+              : user.role === "workshop"
+                ? "Atelier"
+                : user.role === "partner"
+                  ? "Partener"
+                  : "Client"}
+          </Row>
           <Row label="E-mail confirmat">
             {user.emailVerifiedAt ? (
               <span className="rounded bg-lime px-2 py-0.5 font-mono text-xs text-asphalt">Confirmat</span>

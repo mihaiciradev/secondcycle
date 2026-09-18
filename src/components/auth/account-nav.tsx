@@ -17,9 +17,17 @@ const staffItems = [
   { href: "/account/security", label: "Securitate" },
 ];
 
+// A partner does its job from here (no separate panel): a tab to scan vouchers.
+const partnerItems = [
+  { href: "/account", label: "Detalii" },
+  { href: "/account/scan", label: "Scanare vouchere" },
+  { href: "/account/security", label: "Securitate" },
+];
+
 export function AccountNav({ role }: { role: "customer" | "admin" | "workshop" | "partner" }) {
   const path = usePathname();
-  const items = role === "customer" ? customerItems : staffItems;
+  const items =
+    role === "customer" ? customerItems : role === "partner" ? partnerItems : staffItems;
   const isActive = (href: string) =>
     href === "/account" ? path === "/account" : path.startsWith(href);
 
