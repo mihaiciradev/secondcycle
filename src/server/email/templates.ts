@@ -30,6 +30,40 @@ function shell(
   </div></body></html>`;
 }
 
+export function voucherAssignedTemplate(input: {
+  title: string;
+  subtitle?: string | null;
+  explanations: string[];
+  valueLabel: string; // "20%" or "150 lei"
+  code: string;
+  partnerName?: string | null;
+  validUntil: string; // already formatted (ro-RO date)
+  link: string; // /account/vouchers
+}) {
+  const explanations =
+    input.explanations.length > 0
+      ? `<ul style="margin:12px 0;padding-left:18px;color:#2b3033">${input.explanations
+          .map((e) => `<li style="margin:4px 0">${esc(e)}</li>`)
+          .join("")}</ul>`
+      : "";
+  const body = `
+    <p>Ai primit un voucher${input.partnerName ? ` valabil la <strong>${esc(input.partnerName)}</strong>` : ""}.</p>
+    <div style="border:1px solid #d9dcd6;border-radius:10px;padding:16px 18px;margin:14px 0;background:#fff">
+      <p style="font-size:17px;font-weight:700;margin:0">${esc(input.title)}</p>
+      ${input.subtitle ? `<p style="margin:4px 0 0;color:#2b3033">${esc(input.subtitle)}</p>` : ""}
+      <p style="margin:10px 0 0"><strong>Reducere:</strong> ${esc(input.valueLabel)}</p>
+      ${explanations}
+      <p style="margin:12px 0 0;font-size:13px;color:#727a75">Cod voucher</p>
+      <p style="font-family:monospace;font-size:20px;font-weight:700;letter-spacing:.06em;margin:2px 0 0">${esc(input.code)}</p>
+      <p style="margin:10px 0 0;font-size:13px;color:#727a75">Valabil până la ${esc(input.validUntil)}</p>
+    </div>
+    <p style="font-size:14px;color:#2b3033">Arată codul (sau QR-ul din contul tău) la partener ca să îl folosești.</p>`;
+  return {
+    subject: `Ai primit un voucher: ${input.title} | Second Cycle`,
+    html: shell("Ai primit un voucher", body, { href: input.link, label: "Vezi voucherul în cont" }),
+  };
+}
+
 export function verifyEmailTemplate(link: string) {
   return {
     subject: "Confirmă adresa de e-mail | Second Cycle",

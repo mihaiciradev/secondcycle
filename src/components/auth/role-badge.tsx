@@ -13,5 +13,12 @@ export function RoleBadge({ role }: { role: string }) {
       </span>
     );
   }
+  if (role === "partner") {
+    return (
+      <span className="rounded bg-lime px-2 py-0.5 font-mono text-[0.65rem] uppercase tracking-wider text-asphalt">
+        Partener
+      </span>
+    );
+  }
   return null;
 }

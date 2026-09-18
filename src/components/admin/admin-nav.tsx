@@ -7,6 +7,7 @@ const items = [
   { href: "/admin", label: "Sumar", exact: true },
   { href: "/admin/bikes", label: "Biciclete" },
   { href: "/admin/workshops", label: "Ateliere" },
+  { href: "/admin/collabs", label: "Collabs" },
   { href: "/admin/orders", label: "Comenzi" },
   { href: "/admin/prebookings", label: "Prebook" },
   { href: "/admin/returns", label: "Retururi" },

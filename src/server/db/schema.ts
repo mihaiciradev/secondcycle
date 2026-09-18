@@ -55,7 +55,10 @@ const updatedAt = () =>
 // ---------------------------------------------------------------------------
 // Enums
 // ---------------------------------------------------------------------------
-export const roleEnum = pgEnum("role", ["customer", "admin", "workshop"]);
+export const roleEnum = pgEnum("role", ["customer", "admin", "workshop", "partner"]);
+// Vouchers: value kind and lifecycle. Kept generic for future in-app use.
+export const voucherValueTypeEnum = pgEnum("voucher_value_type", ["percent", "amount"]);
+export const voucherStatusEnum = pgEnum("voucher_status", ["unused", "used"]);
 export const tokenKindEnum = pgEnum("token_kind", [
   "verify_email",
   "password_reset",
@@ -119,6 +122,10 @@ export const users = pgTable("users", {
     .default(sql`nextval('users_partner_no_seq')`),
   // For role='workshop': the workshop this login belongs to.
   workshopId: uuid("workshop_id").references((): AnyPgColumn => workshops.id, {
+    onDelete: "set null",
+  }),
+  // For role='partner': the partner (collab) this login belongs to.
+  partnerId: uuid("partner_id").references((): AnyPgColumn => partners.id, {
     onDelete: "set null",
   }),
   createdAt: createdAt(),
@@ -186,6 +193,68 @@ export const workshops = pgTable("workshops", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+// ---------------------------------------------------------------------------
+// Partners (collabs). Admin-created accounts whose only job is redeeming
+// (scanning) vouchers. Mirrors the workshop pattern: a named entity + a login
+// user (role='partner', users.partnerId).
+// ---------------------------------------------------------------------------
+export const partners = pgTable("partners", {
+  id: pk(),
+  name: text("name").notNull(),
+  contactName: text("contact_name"),
+  phone: text("phone"),
+  email: citext("email"),
+  active: boolean("active").notNull().default(true),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+// ---------------------------------------------------------------------------
+// Vouchers. Generic on purpose (future in-app / checkout use), but today only
+// used for the partner collab flow: admin creates and assigns to a recipient
+// account; the assigned partner scans/enters the code to mark it used.
+// ---------------------------------------------------------------------------
+export const vouchers = pgTable(
+  "vouchers",
+  {
+    id: pk(),
+    // Short code the partner scans or types to redeem. Unique.
+    code: text("code").notNull().unique(),
+    title: text("title").notNull(),
+    subtitle: text("subtitle"),
+    // Ordered list of explanation lines shown to everyone.
+    explanations: jsonb("explanations").$type<string[]>().notNull().default([]),
+    // Value: percent (1..100) or amount (bani, RON cents). A future checkout can
+    // apply this directly; today it is informational only.
+    valueType: voucherValueTypeEnum("value_type").notNull(),
+    valueAmount: integer("value_amount").notNull(),
+    validFrom: timestamp("valid_from", { withTimezone: true }),
+    validUntil: timestamp("valid_until", { withTimezone: true }).notNull(),
+    status: voucherStatusEnum("status").notNull().default("unused"),
+    // The partner who may redeem this voucher (sees it, scans it).
+    partnerId: uuid("partner_id").references(() => partners.id, { onDelete: "set null" }),
+    // The SecondCycle account that holds it (recipient). Set when assigned.
+    recipientUserId: uuid("recipient_user_id").references((): AnyPgColumn => users.id, {
+      onDelete: "set null",
+    }),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }),
+    // Redemption audit: when, and which partner login did it.
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    usedByUserId: uuid("used_by_user_id").references((): AnyPgColumn => users.id, {
+      onDelete: "set null",
+    }),
+    createdByUserId: uuid("created_by_user_id").references((): AnyPgColumn => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("vouchers_partner_idx").on(t.partnerId),
+    index("vouchers_recipient_idx").on(t.recipientUserId),
+  ]
+);
 
 // ---------------------------------------------------------------------------
 // Prebookings (interest capture while buying is off; does NOT hold the bike)

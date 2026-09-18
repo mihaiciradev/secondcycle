@@ -11,7 +11,7 @@ import { appBaseUrl } from "@/lib/app-env";
 export type SessionUser = {
   id: string;
   email: string;
-  role: "customer" | "admin" | "workshop";
+  role: "customer" | "admin" | "workshop" | "partner";
   sessionVersion: number;
 };
 
@@ -47,6 +47,7 @@ export async function getUserById(db: DB, id: string) {
       marketingOptIn: users.marketingOptIn,
       sessionVersion: users.sessionVersion,
       workshopId: users.workshopId,
+      partnerId: users.partnerId,
     })
     .from(users)
     .where(eq(users.id, id))

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const customerItems = [
   { href: "/account", label: "Detalii" },
   { href: "/account/orders", label: "Comenzi" },
+  { href: "/account/vouchers", label: "Vouchere" },
   { href: "/account/returns", label: "Retururile mele" },
   { href: "/account/preferences", label: "Preferințe" },
   { href: "/account/security", label: "Securitate" },
@@ -16,7 +17,7 @@ const staffItems = [
   { href: "/account/security", label: "Securitate" },
 ];
 
-export function AccountNav({ role }: { role: "customer" | "admin" | "workshop" }) {
+export function AccountNav({ role }: { role: "customer" | "admin" | "workshop" | "partner" }) {
   const path = usePathname();
   const items = role === "customer" ? customerItems : staffItems;
   const isActive = (href: string) =>

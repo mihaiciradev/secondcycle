@@ -22,7 +22,9 @@ export default async function AccountLayout({ children }: { children: React.Reac
       ? { href: "/admin", label: "Panou admin" }
       : user.role === "workshop"
         ? { href: "/workshop", label: "Deschide atelierul" }
-        : null;
+        : user.role === "partner"
+          ? { href: "/partner", label: "Deschide partenerul" }
+          : null;
 
   return (
     <>

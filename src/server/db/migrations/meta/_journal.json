@@ -148,6 +148,13 @@
       "when": 1789800000000,
       "tag": "0020_second_hand_ack",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1789900000000,
+      "tag": "0021_partners_vouchers",
+      "breakpoints": true
     }
   ]
 }

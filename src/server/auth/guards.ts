@@ -4,7 +4,7 @@ import { getUserById } from "@/server/services/auth";
 import { Forbidden, Unauthorized } from "@/server/errors";
 
 /** Require an authenticated user. Throws Unauthorized otherwise. */
-export async function requireUser(): Promise<{ id: string; role: "customer" | "admin" | "workshop" }> {
+export async function requireUser(): Promise<{ id: string; role: "customer" | "admin" | "workshop" | "partner" }> {
   const session = await auth();
   if (!session?.user?.id) throw Unauthorized();
   return { id: session.user.id, role: session.user.role };
@@ -26,4 +26,13 @@ export async function requireWorkshop(): Promise<{ id: string; workshopId: strin
   const user = await getUserById(db, session.user.id);
   if (!user || user.role !== "workshop" || !user.workshopId) throw Forbidden();
   return { id: user.id, workshopId: user.workshopId };
+}
+
+/** Require a partner (collab) account. Returns the user id and its partner id. */
+export async function requirePartner(): Promise<{ id: string; partnerId: string }> {
+  const session = await auth();
+  if (!session?.user?.id) throw Unauthorized();
+  const user = await getUserById(db, session.user.id);
+  if (!user || user.role !== "partner" || !user.partnerId) throw Forbidden();
+  return { id: user.id, partnerId: user.partnerId };
 }
